@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name          = "large-hadron-migrator"
-  s.version       = "0.1.0"
+  s.version       = File.read("VERSION").to_s
   s.platform      = Gem::Platform::RUBY
   s.authors       = ["SoundCloud", "Rany Keddo", "Tobias Bielohlawek"]
   s.email         = %q{rany@soundcloud.com, tobi@soundcloud.com}
