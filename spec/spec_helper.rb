@@ -1,3 +1,7 @@
+#
+#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek
+#
+
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
