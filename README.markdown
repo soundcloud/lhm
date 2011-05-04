@@ -1,3 +1,5 @@
+# Large Hadron Migrator
+
 Rails style database migrations are a useful way to evolve your data schema in
 an agile manner. Most Rails projects start like this, and at first, making
 changes is fast and easy.
