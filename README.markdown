@@ -5,7 +5,7 @@ an agile manner. Most Rails projects start like this, and at first, making
 changes is fast and easy.
 
 That is until your tables grow to millions of records. At this point, the
-locking nature of `ALTER TABLE` may take your site down for an hour our more
+locking nature of `ALTER TABLE` may take your site down for an hour or more
 while critical tables are migrated. In order to avoid this, developers begin
 to design around the problem by introducing join tables or moving the data
 into another layer. Development gets less and less agile as tables grow and
@@ -89,7 +89,7 @@ there can only ever be one version of the record in the journal table.
 
 If the journalling trigger hits an already persisted record, it will be
 replaced with the latest data and action. `ON DUPLICATE KEY` comes in handy
-here. This insures that all journal records will be consistent with the
+here. This ensures that all journal records will be consistent with the
 original table.
 
 ### Perform alter statement on new table
@@ -100,20 +100,20 @@ indexes at the end of the copying process.
 
 ### Copy in chunks up to max primary key value to new table
 
-Currently InnoDB aquires a read lock on the source rows in `INSERT INTO...
+Currently InnoDB acquires a read lock on the source rows in `INSERT INTO...
 SELECT`. LHM reads 35K ranges and pauses for a specified number of milliseconds
 so that contention can be minimized.
 
 ### Switch new and original table names and remove triggers
 
-The orignal and copy table are now atomically switched with `RENAME TABLE
+The original and copy table are now atomically switched with `RENAME TABLE
 original TO archive_original, copy_table TO original`. The triggers are removed
 so that journalling stops and all mutations and reads now go against the
 original table.
 
 ### Replay journal: insert, update, deletes
 
-Because the chunked copy stops at the intial maximum id, we can simply replay
+Because the chunked copy stops at the initial maximum id, we can simply replay
 all inserts in the journal table without worrying about collisions.
 
 Updates and deletes are then replayed.
@@ -131,8 +131,8 @@ pass, so this will be quite short compared to the copy phase. The
 inconsistency during replay is similar in effect to a slave which is slightly
 behind master.
 
-There is also caveat with the current journalling scheme; stale journal
-'update' entries are still replayed. Imagine an update to the a record in the
+There is also a caveat with the current journalling scheme; stale journal
+'update' entries are still replayed. Imagine an update to a record in the
 migrated table while the journal is replaying. The journal may already contain
 an update for this record, which becomes stale now. When it is replayed, the
 second change will be lost. So if a record is updated twice, once before and
@@ -162,9 +162,9 @@ Several hours into the migration, a critical fix had to be deployed to the
 site. We rolled out the fix and restarted the app servers in mid migration.
 This was not a good idea.
 
-TL;DR: Never restart during migrations when removing columns with large
-hadron. You can restart while adding migrations as long as active record reads
-column definitions from the slave.
+TL;DR: Never restart during migrations when removing columns with LHM.
+You can restart while adding migrations as long as active record reads column 
+definitions from the slave.
 
 The information below is only relevant if you want to restart your app servers
 while migrating in a master slave setup.
