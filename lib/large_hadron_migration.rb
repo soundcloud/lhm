@@ -155,7 +155,6 @@ class LargeHadronMigration < ActiveRecord::Migration
     require "tmpdir"
     temp_file = File.join(Dir.tmpdir, "__large_hadron_#{curr_table}_#{Time.now.to_i}.sql")
     cols = insertion_columns.map{|k,v| "#{curr_table}.#{v}" }.join(",")
-    puts cols
     sql = %Q|
       SELECT #{cols} INTO OUTFILE '#{temp_file}'
         FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
@@ -177,7 +176,7 @@ class LargeHadronMigration < ActiveRecord::Migration
       FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
       LINES TERMINATED BY '\\n'
     |
-    puts execute sql
+    execute sql
   end
 
   def self.chunked_insert(last_insert_id, chunk_size, new_table, insertion_columns, curr_table, wait, where = "")
