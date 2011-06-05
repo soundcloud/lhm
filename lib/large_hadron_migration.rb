@@ -126,13 +126,8 @@ class LargeHadronMigration < ActiveRecord::Migration
       insertion_columns = prepare_insertion_columns(new_table, curr_table, default_values)
       raise "insertion_columns empty" if insertion_columns.empty?
 
-      chunked_insert \
-        last_insert_id,
-        chunk_size,
-        new_table,
-        insertion_columns,
-        curr_table,
-        wait
+      outfile = create_outfile(last_insert_id, insertion_columns, curr_table)
+      load_from_outfile(outfile, new_table)
 
       rename_tables curr_table => old_table, new_table => curr_table
       cleanup(curr_table)
@@ -154,6 +149,35 @@ class LargeHadronMigration < ActiveRecord::Migration
         columns[tick(column)] = default_values[column] || tick(column)
       end
     end
+  end
+
+  def self.create_outfile last_insert_id, insertion_columns, curr_table, sql_condition=''
+    require "tmpdir"
+    temp_file = File.join(Dir.tmpdir, "__large_hadron_#{curr_table}_#{Time.now.to_i}.sql")
+    cols = insertion_columns.map{|k,v| "#{curr_table}.#{v}" }.join(",")
+    puts cols
+    sql = %Q|
+      SELECT #{cols} INTO OUTFILE '#{temp_file}'
+        FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+        LINES TERMINATED BY '\\n'
+        FROM #{curr_table}
+        WHERE #{curr_table}.id < #{last_insert_id}
+    |
+    if sql_condition != ''
+      sql << "AND #{sql_condition}"   
+    end
+    res = execute sql
+    temp_file
+  end
+
+  def self.load_from_outfile filename, table
+    sql = %Q|
+      LOAD DATA INFILE '#{filename}' 
+      INTO TABLE #{table}
+      FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+      LINES TERMINATED BY '\\n'
+    |
+    puts execute sql
   end
 
   def self.chunked_insert(last_insert_id, chunk_size, new_table, insertion_columns, curr_table, wait, where = "")
@@ -322,14 +346,8 @@ class LargeHadronMigration < ActiveRecord::Migration
     last_insert_id = last_insert_id(journal_table)
     columns = prepare_insertion_columns(table, journal_table)
 
-    chunked_insert \
-      last_insert_id,
-      chunk_size,
-      table,
-      columns,
-      journal_table,
-      wait,
-      "AND hadron_action = 'insert'"
+    outfile = create_outfile(last_insert_id, columns, journal_table, "hadron_action = 'insert'")
+    load_from_outfile(outfile, table)
   end
 
   def self.replay_delete_changes(table, journal_table)

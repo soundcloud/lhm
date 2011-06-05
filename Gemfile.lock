@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    large-hadron-migrator (0.1.0)
+    large-hadron-migrator (0.1.2)
       activerecord (~> 2.3.8)
       activesupport (~> 2.3.8)
       mysql (= 2.8.1)
