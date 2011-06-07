@@ -253,8 +253,8 @@ class LargeHadronMigration < ActiveRecord::Migration
     end
   end
 
-  def self.clone_table(source, dest, window = 0)
-    execute schema_sql(source, dest, window)
+  def self.clone_table(source, dest, window = 0, add_action_column = false)
+    execute schema_sql(source, dest, window, add_action_column)
   end
 
   def self.common_columns(t1, t2)
@@ -262,11 +262,7 @@ class LargeHadronMigration < ActiveRecord::Migration
   end
 
   def self.clone_table_for_changes(table, journal_table)
-    clone_table(table, journal_table)
-    execute %Q{
-      alter table %s
-      add column hadron_action varchar(15);
-    } % journal_table
+    clone_table(table, journal_table, 0, true)
   end
 
   def self.rename_tables(tables = {})
@@ -359,10 +355,15 @@ class LargeHadronMigration < ActiveRecord::Migration
   #  behavior with the latter where the auto_increment of the source table
   #  got modified when updating the destination.
   #
-  def self.schema_sql(source, dest, window)
+  def self.schema_sql(source, dest, window, add_action_column = false)
     show_create(source).tap do |schema|
       schema.gsub!(/auto_increment=(\d+)/i) do
         "auto_increment=#{  $1.to_i + window }"
+      end
+
+      if add_action_column
+        schema.sub!(/\) ENGINE=InnoDB/,
+          ", hadron_action ENUM('update', 'insert', 'delete') ) ENGINE=InnoDB")
       end
 
       schema.gsub!('CREATE TABLE `%s`' % source, 'CREATE TABLE `%s`' % dest)
