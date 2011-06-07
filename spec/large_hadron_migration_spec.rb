@@ -99,7 +99,7 @@ describe "LargeHadronMigration", "triggers" do
   end
 
   it "should create a table for triggered changes" do
-    truthiness_column "triggerme_changes", "hadron_action", "varchar"
+    truthiness_column "triggerme_changes", "hadron_action", "enum"
   end
 
   it "should trigger on insert" do
