@@ -362,8 +362,8 @@ class LargeHadronMigration < ActiveRecord::Migration
       end
 
       if add_action_column
-        schema.sub!(/\) ENGINE=InnoDB/,
-          ", hadron_action ENUM('update', 'insert', 'delete') ) ENGINE=InnoDB")
+        schema.sub!(/\) ENGINE=/,
+          ", hadron_action ENUM('update', 'insert', 'delete'), INDEX hadron_action (hadron_action) USING BTREE) ENGINE=")
       end
 
       schema.gsub!('CREATE TABLE `%s`' % source, 'CREATE TABLE `%s`' % dest)

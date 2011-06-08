@@ -90,6 +90,21 @@ module SpecHelper
 
   end
 
+  def truthiness_index(table, expected_index_name, indexed_columns, unique)
+    index = sql("SHOW INDEXES FROM #{table}").all_hashes.inject({}) do |a, part|
+      index_name = part['Key_name']
+      a[index_name] ||= { 'unique' => '0' == part['Non_unique'], 'columns' => [] }
+      column_index = part['Seq_in_index'].to_i - 1
+      a[index_name]['columns'][column_index] = part['Column_name']
+      a
+    end[expected_index_name]
+
+    flunk("no index named #{expected_index_name} found on #{table}") unless index
+
+    index['columns'].should == indexed_columns
+    index['unique'].should == unique
+  end
+
 end
 
 # Mock Rails Environment
