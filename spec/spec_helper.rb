@@ -84,7 +84,7 @@ module SpecHelper
       end
 
       res_1_hash.keys.each do |key|
-        flunk("truthiness rows failed: #{key} is not same") unless res_1_hash[key] == res_2_hash[key]
+        flunk("truthiness rows failed: #{key} is not same.\n #{res_1_hash.inspect}\n#{res_2_hash.inspect}") unless res_1_hash[key] == res_2_hash[key]
       end
     end
 
