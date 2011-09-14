@@ -330,9 +330,7 @@ class LargeHadronMigration < ActiveRecord::Migration
 
   def self.replay_delete_changes(table, journal_table)
     execute %Q{
-      delete from #{table} where id in (
-        select id from #{journal_table} where hadron_action = 'delete'
-      )
+      DELETE FROM #{table}, #{journal_table} USING #{table} INNER JOIN #{journal_table} WHERE #{table}.id = #{journal_table}.id AND #{journal_table}.hadron_action = 'delete'
     }
   end
 
