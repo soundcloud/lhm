@@ -110,7 +110,7 @@ class LargeHadronMigration < ActiveRecord::Migration
 
     begin
       # clean tables. old tables are never deleted to guard against rollbacks.
-      execute %Q/drop table if exists %s/ % new_table
+      execute %Q{drop table if exists %s} % new_table
 
       clone_table(curr_table, new_table, id_window)
       clone_table_for_changes(curr_table, journal_table)
