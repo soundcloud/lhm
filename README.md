@@ -199,8 +199,8 @@ while migrating in a master slave setup.
 
 ## Todos
 
-Load data into outfile instead of `INSERT INTO... SELECT`. Avoid contention and
-increase speed.
+~~Load data into outfile instead of `INSERT INTO... SELECT`. Avoid contention and
+increase speed.~~ It showed that this wont result in major speed up.
 
 Handle invalidation of 'update' entries in journal while replaying. Avoid
 stale update replays.
