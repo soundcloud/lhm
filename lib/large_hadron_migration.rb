@@ -101,9 +101,9 @@ class LargeHadronMigration < ActiveRecord::Migration
     raise "chunk_size must be >= 1" unless chunk_size >= 1
 
     started = Time.now.strftime("%Y_%m_%d_%H_%M_%S_%3N")
-    new_table      = "lhmn_#{curr_table}"
-    old_table      = "lhmo_%s_#{curr_table}" % started
-    journal_table  = "lhmc_%s_#{curr_table}" % started
+    new_table      = "lhmn_%s" % curr_table
+    old_table      = "lhmo_%s_%s" % [started, curr_table]
+    journal_table  = "lhmj_%s_%s" % [started, curr_table]
 
     last_insert_id = last_insert_id(curr_table)
     say "last inserted id in #{curr_table}: #{last_insert_id}"
