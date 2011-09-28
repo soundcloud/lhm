@@ -342,6 +342,11 @@ describe "LargeHadronMigration", "replaying changes" do
     end
   end
 
+  it "doesn't replay delete if there are any" do
+    LargeHadronMigration.should_receive(:execute).never
+    LargeHadronMigration.replay_delete_changes("source", "source_changes")
+  end
+
 end
 
 describe "LargeHadronMigration", "units" do

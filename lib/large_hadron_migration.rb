@@ -330,11 +330,15 @@ class LargeHadronMigration < ActiveRecord::Migration
   end
 
   def self.replay_delete_changes(table, journal_table)
-    execute %Q{
-      delete from #{table} where id in (
-        select id from #{journal_table} where hadron_action = 'delete'
-      )
-    }
+    with_master do
+      if connection.select_values("select id from #{journal_table} where hadron_action = 'delete' LIMIT 1").any?
+        execute %Q{
+          delete from #{table} where id in (
+            select id from #{journal_table} where hadron_action = 'delete'
+          )
+        }
+      end
+    end
   end
 
   def self.replay_update_changes(table, journal_table, chunk_size = 10000, wait = 0.2)
