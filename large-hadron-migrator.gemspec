@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  ['activerecord ~>2.3.8', 'activesupport ~>2.3.8', 'mysql =2.8.1'].each do |gem|
+  ['activerecord ~>2.3.8', 'activesupport ~>2.3.8'].each do |gem|
     s.add_dependency *gem.split(' ')
   end
 

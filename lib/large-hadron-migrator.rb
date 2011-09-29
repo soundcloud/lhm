@@ -14,7 +14,7 @@ require 'benchmark'
 #
 #  USAGE:
 #
-#  class AddIndexToEmails < LargeHadronMigration
+#  class AddIndexToEmails < LargeHadronMigrator
 #    def self.up
 #      large_hadron_migrate :emails, :wait => 0.2 do |table_name|
 #        execute %Q{
@@ -80,7 +80,7 @@ require 'benchmark'
 #
 #  Deploying the new version will hurt your head. Don't do it.
 #
-class LargeHadronMigration < ActiveRecord::Migration
+class LargeHadronMigrator < ActiveRecord::Migration
 
   # id_window must be larger than the number of inserts
   # added to the journal table. if this is not the case,
