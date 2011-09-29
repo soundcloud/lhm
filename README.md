@@ -50,10 +50,10 @@ twitter solution [1], it does not require the presence of an indexed
 
 ## Usage
 
-Large Hadron Migration is currently implemented as a Rails ActiveRecord
+Large Hadron Migrator is currently implemented as a Rails ActiveRecord
 Migration.
 
-    class AddIndexToEmails < LargeHadronMigration
+    class AddIndexToEmails < LargeHadronMigrator
       def self.up
         large_hadron_migrate :emails, :wait => 0.2 do |table_name|
           execute %Q{

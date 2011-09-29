@@ -1,3 +1,6 @@
+# 0.1.4
+ * Merged [Pullrequest #9](https://github.com/soundcloud/large-hadron-migrator/pull/9)
+
 # 0.1.3
  * code cleanup
  * Merged [Pullrequest #8](https://github.com/soundcloud/large-hadron-migrator/pull/8)
