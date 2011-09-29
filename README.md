@@ -205,6 +205,8 @@ increase speed.~~ It showed that this wont result in major speed up.
 Handle invalidation of 'update' entries in journal while replaying. Avoid
 stale update replays.
 
+Support for other Databases than MySQL
+
 Some other optimizations:
 
 Deletions create gaps in the primary key id integer column. LHM has no
