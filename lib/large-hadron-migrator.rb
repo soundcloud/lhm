@@ -135,7 +135,7 @@ class LargeHadronMigrator < ActiveRecord::Migration
         curr_table,
         wait
 
-      rename_tables curr_table => old_table, new_table => curr_table
+      rename_tables [[curr_table, old_table], [new_table, curr_table]]
       cleanup(curr_table)
 
       # replay changes from the changes jornal
