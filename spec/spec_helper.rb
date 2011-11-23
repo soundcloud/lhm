@@ -17,6 +17,7 @@ ActiveRecord::Base.establish_connection(
   :password => '',
   :host => 'localhost'
 )
+ActiveRecord::Migration.verbose = ENV["VERBOSE"] ? true : false
 
 module SpecHelper
   delegate :select_one, :select_value, :to => :connection
