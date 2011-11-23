@@ -6,7 +6,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 require "migrate/add_new_column"
 
-describe "LargeHadronMigration", "integration" do
+describe "LargeHadronMigrator", "integration" do
   include SpecHelper
 
   before(:each) { recreate }
@@ -57,7 +57,7 @@ describe "LargeHadronMigration", "integration" do
 end
 
 
-describe "LargeHadronMigration", "rename" do
+describe "LargeHadronMigrator", "rename" do
   include SpecHelper
 
   before(:each) do
@@ -73,7 +73,7 @@ describe "LargeHadronMigration", "rename" do
       t.integer :number
     end
 
-    LargeHadronMigration.rename_tables("renameme" => "renameme_new", "renamemetoo" => "renameme")
+    LargeHadronMigrator.rename_tables("renameme" => "renameme_new", "renamemetoo" => "renameme")
 
     truthiness_column "renameme", "number", "int"
     truthiness_column "renameme_new", "text", "varchar"
@@ -81,7 +81,7 @@ describe "LargeHadronMigration", "rename" do
 
 end
 
-describe "LargeHadronMigration", "triggers" do
+describe "LargeHadronMigrator", "triggers" do
   include SpecHelper
 
   before(:each) do
@@ -93,7 +93,7 @@ describe "LargeHadronMigration", "triggers" do
       t.timestamps
     end
 
-    LargeHadronMigration.clone_table_for_changes \
+    LargeHadronMigrator.clone_table_for_changes \
       "triggerme",
       "triggerme_changes"
   end
@@ -104,7 +104,7 @@ describe "LargeHadronMigration", "triggers" do
   end
 
   it "should trigger on insert" do
-    LargeHadronMigration.add_trigger_on_action \
+    LargeHadronMigrator.add_trigger_on_action \
       "triggerme",
       "triggerme_changes",
       "insert"
@@ -123,7 +123,7 @@ describe "LargeHadronMigration", "triggers" do
 
     # setup
     sql "insert into triggerme values (111, 'hallo', 5, NOW(), NOW())"
-    LargeHadronMigration.add_trigger_on_action \
+    LargeHadronMigrator.add_trigger_on_action \
       "triggerme",
       "triggerme_changes",
       "update"
@@ -142,7 +142,7 @@ describe "LargeHadronMigration", "triggers" do
 
     # setup
     sql "insert into triggerme values (111, 'hallo', 5, NOW(), NOW())"
-    LargeHadronMigration.add_trigger_on_action \
+    LargeHadronMigrator.add_trigger_on_action \
       "triggerme",
       "triggerme_changes",
       "delete"
@@ -158,12 +158,12 @@ describe "LargeHadronMigration", "triggers" do
   end
 
   it "should trigger on create and update" do
-    LargeHadronMigration.add_trigger_on_action \
+    LargeHadronMigrator.add_trigger_on_action \
       "triggerme",
       "triggerme_changes",
       "insert"
 
-    LargeHadronMigration.add_trigger_on_action \
+    LargeHadronMigrator.add_trigger_on_action \
       "triggerme",
       "triggerme_changes",
       "update"
@@ -181,7 +181,7 @@ describe "LargeHadronMigration", "triggers" do
 
   it "should trigger on multiple update" do
     sql "insert into triggerme values (111, 'hallo', 5, NOW(), NOW())"
-    LargeHadronMigration.add_trigger_on_action \
+    LargeHadronMigrator.add_trigger_on_action \
       "triggerme",
       "triggerme_changes",
       "update"
@@ -198,17 +198,17 @@ describe "LargeHadronMigration", "triggers" do
   end
 
   it "should trigger on inser, update and delete" do
-    LargeHadronMigration.add_trigger_on_action \
+    LargeHadronMigrator.add_trigger_on_action \
       "triggerme",
       "triggerme_changes",
       "insert"
 
-    LargeHadronMigration.add_trigger_on_action \
+    LargeHadronMigrator.add_trigger_on_action \
       "triggerme",
       "triggerme_changes",
       "update"
 
-    LargeHadronMigration.add_trigger_on_action \
+    LargeHadronMigrator.add_trigger_on_action \
       "triggerme",
       "triggerme_changes",
       "delete"
@@ -227,13 +227,13 @@ describe "LargeHadronMigration", "triggers" do
 
   it "should cleanup triggers" do
     %w(insert update delete).each do |action|
-      LargeHadronMigration.add_trigger_on_action \
+      LargeHadronMigrator.add_trigger_on_action \
         "triggerme",
         "triggerme_changes",
         action
     end
 
-    LargeHadronMigration.cleanup "triggerme"
+    LargeHadronMigrator.cleanup "triggerme"
 
     # test
     sql("insert into triggerme values (111, 'hallo', 5, NOW(), NOW())")
@@ -249,7 +249,7 @@ describe "LargeHadronMigration", "triggers" do
 
 end
 
-describe "LargeHadronMigration", "replaying changes" do
+describe "LargeHadronMigrator", "replaying changes" do
   include SpecHelper
 
   before(:each) do
@@ -285,7 +285,7 @@ describe "LargeHadronMigration", "replaying changes" do
            values (3, 'goodbye', 5, NOW(), NOW(), 'delete')
     }
 
-    LargeHadronMigration.replay_insert_changes("source", "source_changes")
+    LargeHadronMigrator.replay_insert_changes("source", "source_changes")
 
     sql("select * from source where id = 2").tap do |res|
       res.fetch_hash.tap do |row|
@@ -312,7 +312,7 @@ describe "LargeHadronMigration", "replaying changes" do
            values (1, 'goodbye', 5, NOW(), NOW(), 'update')
     }
 
-    LargeHadronMigration.replay_update_changes("source", "source_changes")
+    LargeHadronMigrator.replay_update_changes("source", "source_changes")
 
     sql("select * from source where id = 1").tap do |res|
       res.fetch_hash.tap do |row|
@@ -333,7 +333,7 @@ describe "LargeHadronMigration", "replaying changes" do
            values (1, 'goodbye', 5, NOW(), NOW(), 'delete')
     }
 
-    LargeHadronMigration.replay_delete_changes("source", "source_changes")
+    LargeHadronMigrator.replay_delete_changes("source", "source_changes")
 
     sql("select count(*) as cnt from source").tap do |res|
       res.fetch_hash.tap do |row|
@@ -343,13 +343,13 @@ describe "LargeHadronMigration", "replaying changes" do
   end
 
   it "doesn't replay delete if there are any" do
-    LargeHadronMigration.should_receive(:execute).never
-    LargeHadronMigration.replay_delete_changes("source", "source_changes")
+    LargeHadronMigrator.should_receive(:execute).never
+    LargeHadronMigrator.replay_delete_changes("source", "source_changes")
   end
 
 end
 
-describe "LargeHadronMigration", "units" do
+describe "LargeHadronMigrator", "units" do
   include SpecHelper
 
   it "should return correct schema" do
@@ -366,7 +366,7 @@ describe "LargeHadronMigration", "units" do
                   (2, 'schmu', 5, NOW(), NOW())
     }
 
-    schema = LargeHadronMigration.schema_sql("source", "source_changes", 1000)
+    schema = LargeHadronMigrator.schema_sql("source", "source_changes", 1000)
 
     schema.should_not include('`source`')
     schema.should include('`source_changes`')

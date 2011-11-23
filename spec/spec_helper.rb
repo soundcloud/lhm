@@ -6,13 +6,13 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'active_record'
-require 'large_hadron_migration'
+require 'large-hadron-migrator'
 require 'spec'
 require 'spec/autorun'
 
 ActiveRecord::Base.establish_connection(
   :adapter => 'mysql',
-  :database => 'large_hadron_migration',
+  :database => 'large_hadron_migrator',
   :username => 'root',
   :password => '',
   :host => 'localhost'
@@ -28,8 +28,8 @@ module SpecHelper
   end
 
   def recreate
-    sql "drop database large_hadron_migration"
-    sql "create database large_hadron_migration character set = 'UTF8'"
+    sql "drop database large_hadron_migrator"
+    sql "create database large_hadron_migrator character set = 'UTF8'"
 
     ActiveRecord::Base.connection.reconnect!
   end
