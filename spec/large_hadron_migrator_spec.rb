@@ -12,7 +12,6 @@ describe "LargeHadronMigrator", "integration" do
   before(:each) { recreate }
 
   it "should add new column" do
-
     table("addscolumn") do |t|
       t.string :title
       t.integer :rating
@@ -40,7 +39,7 @@ describe "LargeHadronMigrator", "integration" do
       t.timestamps
     end
 
-    1200.times do |i|
+    420.times do |i|
       random_string = (0...rand(25)).map{65.+(rand(25)).chr}.join
       sql "INSERT INTO `addscolumn` SET
             `id`         = #{i+1},
@@ -52,7 +51,7 @@ describe "LargeHadronMigrator", "integration" do
 
     ghost = AddNewColumn.up
 
-    truthiness_rows "addscolumn", ghost
+    truthiness_rows "addscolumn", ghost, 0, 420
   end
 end
 
