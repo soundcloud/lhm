@@ -13,8 +13,7 @@ require 'spec/autorun'
 ActiveRecord::Base.establish_connection(
   :adapter => 'mysql',
   :database => 'large_hadron_migrator',
-  :username => 'root',
-  :password => '',
+  :username => '',
   :host => 'localhost'
 )
 ActiveRecord::Migration.verbose = ENV["VERBOSE"] ? true : false
