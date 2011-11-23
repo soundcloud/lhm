@@ -53,8 +53,53 @@ describe "LargeHadronMigrator", "integration" do
 
     truthiness_rows "addscolumn", ghost, 0, 420
   end
-end
 
+  context "trigger creation" do
+    before do
+      class LargeHadronMigrator
+        class << self
+          alias_method :orig_clone_table, :clone_table
+        end
+
+        def self.clone_table(*args)
+          sleep 0.3
+          orig_clone_table(*args)
+        end
+      end
+    end
+
+    after do
+      class LargeHadronMigrator
+        class << self
+          alias_method :clone_table, :orig_clone_table
+        end
+      end
+    end
+
+    it "does not lose records during trigger creation" do
+      table "addscolumn" do |t|
+        t.string :data
+        t.timestamps
+      end
+
+      parallel_insert = Thread.new do
+        20.times do |i|
+          sql %{
+            INSERT INTO addscolumn (data, created_at, updated_at)
+              VALUES ('#{ActiveSupport::SecureRandom.base64}', NOW(), NOW())
+          }
+          sleep 0.1
+        end
+      end
+
+      ghost = AddNewColumn.up
+
+      parallel_insert.join
+
+      select_value("SELECT count(*) FROM addscolumn").should == "20"
+    end
+  end
+end
 
 describe "LargeHadronMigrator", "rename" do
   include SpecHelper

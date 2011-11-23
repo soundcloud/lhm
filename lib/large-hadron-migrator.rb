@@ -105,9 +105,6 @@ class LargeHadronMigrator < ActiveRecord::Migration
     old_table      = "lhmo_%s_%s" % [started, curr_table]
     journal_table  = "lhmj_%s_%s" % [started, curr_table]
 
-    last_insert_id = last_insert_id(curr_table)
-    say "last inserted id in #{curr_table}: #{last_insert_id}"
-
     begin
       # clean tables. old tables are never deleted to guard against rollbacks.
       execute %Q{drop table if exists %s} % new_table
@@ -119,6 +116,9 @@ class LargeHadronMigrator < ActiveRecord::Migration
       add_trigger_on_action(curr_table, journal_table, "insert")
       add_trigger_on_action(curr_table, journal_table, "update")
       add_trigger_on_action(curr_table, journal_table, "delete")
+
+      last_insert_id = last_smaller_insert_id(curr_table, journal_table)
+      say "last inserted id in #{curr_table}: #{last_insert_id}"
 
       # alter new table
       default_values = {}
@@ -226,15 +226,26 @@ class LargeHadronMigrator < ActiveRecord::Migration
     end
   end
 
+  # to satisfy spec "does not lose records during table clone step"
+  def self.last_smaller_insert_id(curr_table, journal_table)
+    with_master do
+      select_value(%{
+        SELECT max(#{curr_table}.id) as max_id from #{curr_table}
+        LEFT OUTER JOIN #{journal_table} ON #{journal_table}.id = #{curr_table}.id
+        WHERE #{journal_table}.id IS NULL
+      } % [ curr_table, journal_table ]).to_i
+    end
+  end
+
   def self.last_insert_id(curr_table)
     with_master do
-      connection.select_value("select max(id) from %s" % curr_table).to_i
+      select_value("SELECT max(id) FROM #{curr_table}").to_i
     end
   end
 
   def self.table_column_names(table_name)
     with_master do
-      connection.select_values %Q{
+      select_values %Q{
         select column_name
           from information_schema.columns
          where table_name = "%s"
