@@ -111,11 +111,9 @@ describe "LargeHadronMigrator", "triggers" do
 
       # test
     sql("insert into triggerme values (111, 'hallo', 5, NOW(), NOW())")
-    sql("select * from triggerme_changes where id = 111").tap do |res|
-      res.fetch_hash.tap do |row|
-        row['hadron_action'].should == 'insert'
-        row['text'].should == 'hallo'
-      end
+    select_one("select * from triggerme_changes where id = 111").tap do |row|
+      row["hadron_action"].should == "insert"
+      row["text"].should == "hallo"
     end
   end
 
@@ -130,11 +128,9 @@ describe "LargeHadronMigrator", "triggers" do
 
     # test
     sql("update triggerme set text = 'goodbye' where id = '111'")
-    sql("select * from triggerme_changes where id = 111").tap do |res|
-      res.fetch_hash.tap do |row|
-        row['hadron_action'].should == 'update'
-        row['text'].should == 'goodbye'
-      end
+    select_one("select * from triggerme_changes where id = 111").tap do |row|
+      row["hadron_action"].should == "update"
+      row["text"].should == "goodbye"
     end
   end
 
@@ -149,11 +145,9 @@ describe "LargeHadronMigrator", "triggers" do
 
     # test
     sql("delete from triggerme where id = '111'")
-    sql("select * from triggerme_changes where id = 111").tap do |res|
-      res.fetch_hash.tap do |row|
-        row['hadron_action'].should == 'delete'
-        row['text'].should == 'hallo'
-      end
+    select_one("select * from triggerme_changes where id = 111").tap do |row|
+      row["hadron_action"].should == "delete"
+      row["text"].should == "hallo"
     end
   end
 
@@ -172,11 +166,7 @@ describe "LargeHadronMigrator", "triggers" do
     sql "insert into triggerme values (111, 'hallo', 5, NOW(), NOW())"
     sql("update triggerme set text = 'goodbye' where id = '111'")
 
-    sql("select count(*) AS cnt from triggerme_changes where id = 111").tap do |res|
-      res.fetch_hash.tap do |row|
-        row['cnt'].should == '1'
-      end
-    end
+    select_value("select count(*) from triggerme_changes where id = 111").should == "1"
   end
 
   it "should trigger on multiple update" do
@@ -190,11 +180,7 @@ describe "LargeHadronMigrator", "triggers" do
     sql("update triggerme set text = 'goodbye' where id = '111'")
     sql("update triggerme set text = 'hallo again' where id = '111'")
 
-    sql("select count(*) AS cnt from triggerme_changes where id = 111").tap do |res|
-      res.fetch_hash.tap do |row|
-        row['cnt'].should == '1'
-      end
-    end
+    select_value("select count(*) from triggerme_changes where id = 111").should == "1"
   end
 
   it "should trigger on inser, update and delete" do
@@ -218,11 +204,7 @@ describe "LargeHadronMigrator", "triggers" do
     sql("update triggerme set text = 'goodbye' where id = '111'")
     sql("delete from triggerme where id = '111'")
 
-    sql("select count(*) AS cnt from triggerme_changes where id = 111").tap do |res|
-      res.fetch_hash.tap do |row|
-        row['cnt'].should == '1'
-      end
-    end
+    select_value("select count(*) from triggerme_changes where id = 111").should == "1"
   end
 
   it "should cleanup triggers" do
@@ -240,11 +222,7 @@ describe "LargeHadronMigrator", "triggers" do
     sql("update triggerme set text = 'goodbye' where id = '111'")
     sql("delete from triggerme where id = '111'")
 
-    sql("select count(*) AS cnt from triggerme_changes where id = 111").tap do |res|
-      res.fetch_hash.tap do |row|
-        row['cnt'].should == '0'
-      end
-    end
+    select_value("select count(*) from triggerme_changes where id = 111").should == "0"
   end
 
 end
@@ -287,17 +265,8 @@ describe "LargeHadronMigrator", "replaying changes" do
 
     LargeHadronMigrator.replay_insert_changes("source", "source_changes")
 
-    sql("select * from source where id = 2").tap do |res|
-      res.fetch_hash.tap do |row|
-        row['text'].should == 'goodbye'
-      end
-    end
-
-    sql("select count(*) as cnt from source where id = 3").tap do |res|
-      res.fetch_hash.tap do |row|
-        row['cnt'].should == '0'
-      end
-    end
+    select_value("select text from source where id = 2").should == "goodbye"
+    select_value("select count(*) from source where id = 3").should == "0"
   end
 
 
@@ -314,11 +283,7 @@ describe "LargeHadronMigrator", "replaying changes" do
 
     LargeHadronMigrator.replay_update_changes("source", "source_changes")
 
-    sql("select * from source where id = 1").tap do |res|
-      res.fetch_hash.tap do |row|
-        row['text'].should == 'goodbye'
-      end
-    end
+    select_value("select text from source where id = 1").should == "goodbye"
   end
 
   it "should replay deletes" do
@@ -335,11 +300,7 @@ describe "LargeHadronMigrator", "replaying changes" do
 
     LargeHadronMigrator.replay_delete_changes("source", "source_changes")
 
-    sql("select count(*) as cnt from source").tap do |res|
-      res.fetch_hash.tap do |row|
-        row['cnt'].should == '1'
-      end
-    end
+    select_value("select count(*) from source").should == "1"
   end
 
   it "doesn't replay delete if there are any" do

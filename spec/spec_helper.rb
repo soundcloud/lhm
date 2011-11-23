@@ -19,12 +19,14 @@ ActiveRecord::Base.establish_connection(
 )
 
 module SpecHelper
+  delegate :select_one, :select_value, :to => :connection
+
   def connection
     ActiveRecord::Base.connection
   end
 
-  def sql(args)
-    connection.execute(args)
+  def sql(*args)
+    connection.execute(*args)
   end
 
   def recreate
