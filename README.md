@@ -163,7 +163,7 @@ site. We rolled out the fix and restarted the app servers in mid migration.
 This was not a good idea.
 
 TL;DR: Never restart during migrations when removing columns with LHM.
-You can restart while adding migrations as long as active record reads column 
+You can restart while adding migrations as long as active record reads column
 definitions from the slave.
 
 The information below is only relevant if you want to restart your app servers
@@ -199,9 +199,6 @@ while migrating in a master slave setup.
 
 ## Todos
 
-~~Load data into outfile instead of `INSERT INTO... SELECT`. Avoid contention and
-increase speed.~~ It showed that this wont result in major speed up.
-
 Handle invalidation of 'update' entries in journal while replaying. Avoid
 stale update replays.
 
@@ -213,10 +210,6 @@ Deletions create gaps in the primary key id integer column. LHM has no
 problems with this, but the chunked copy could be sped up by factoring this
 in. Currently a copy range may be completely empty, but there will still be
 a `INSERT INTO... SELECT`.
-
-Records inserted after the last insert id is retrieved and before the triggers
-are created are currently lost. The table should be briefly locked while id is
-read and triggers are applied.
 
 ## Contributing
 
