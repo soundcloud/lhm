@@ -100,7 +100,12 @@ class LargeHadronMigrator < ActiveRecord::Migration
 
     raise "chunk_size must be >= 1" unless chunk_size >= 1
 
-    started = Time.now.strftime("%Y_%m_%d_%H_%M_%S_%3N")
+    started = if RUBY_VERSION < "1.9"
+      t = Time.now
+      t.strftime("%Y_%m_%d_%H_%M_%S") + '_' + (t.usec / 1000).to_s
+    else
+      Time.now.strftime("%Y_%m_%d_%H_%M_%S_%3N")
+    end
     new_table      = "lhmn_%s" % curr_table
     old_table      = "lhmo_%s_%s" % [started, curr_table]
     journal_table  = "lhmj_%s_%s" % [started, curr_table]
@@ -135,7 +140,7 @@ class LargeHadronMigrator < ActiveRecord::Migration
         curr_table,
         wait
 
-      rename_tables curr_table => old_table, new_table => curr_table
+      rename_tables [[curr_table, old_table], [new_table, curr_table]]
       cleanup(curr_table)
 
       # replay changes from the changes jornal
