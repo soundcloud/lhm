@@ -14,10 +14,11 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency "mysql", "~> 2.8.1"
   s.add_dependency "activerecord", "~> 2.3.8"
   s.add_dependency "activesupport", "~> 2.3.8"
 
+  # this should be a real dependency, but we're using a different gem in our code
+  s.add_development_dependency "mysql", "~> 2.8.1"
   s.add_development_dependency "rspec", "=1.3.1"
   s.add_development_dependency "rake"
 end
