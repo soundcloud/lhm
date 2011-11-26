@@ -4,7 +4,7 @@
 
 class AddNewColumn < LargeHadronMigrator
   def self.up
-    large_hadron_migrate "addscolumn", :chunk_size => 100 do |table_name|
+    large_hadron_migrate "addscolumn", :chunk_size => 100 do |table_name, _|
       execute %Q{
         alter table %s add column spam tinyint(1)
       } % table_name

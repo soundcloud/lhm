@@ -313,7 +313,6 @@ describe "LargeHadronMigrator", "replaying changes" do
     select_value("select count(*) from source where id = 3").should == "0"
   end
 
-
   it "should replay updates" do
     sql %Q{
       insert into source (id, text, number, created_at, updated_at)
@@ -377,5 +376,11 @@ describe "LargeHadronMigrator", "units" do
     schema.should include('`source_changes`')
     schema.should include('1003')
   end
-end
 
+  describe ".format_time" do
+    it "formats a given Time object" do
+      time = Time.parse("2011-10-09 08:07:56")
+      LargeHadronMigrator.format_time(time).should == "2011_10_09_08_07_56_000"
+    end
+  end
+end
