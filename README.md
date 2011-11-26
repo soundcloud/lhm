@@ -1,4 +1,4 @@
-# Large Hadron Migrator ![Build Status](https://secure.travis-ci.org/soundcloud/large-hadron-migrator.png)
+# Large Hadron Migrator [![Build Status](https://secure.travis-ci.org/soundcloud/large-hadron-migrator.png)](http://travis-ci.org/soundcloud/large-hadron-migrator)
 
 Rails style database migrations are a useful way to evolve your data schema in
 an agile manner. Most Rails projects start like this, and at first, making
