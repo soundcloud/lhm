@@ -1,3 +1,7 @@
+# 0.2.1 (November 26, 2011)
+
+* Include changelog in gem
+
 # 0.2.0 (November 26, 2011)
 
 * Add Ruby 1.8 compatibility
