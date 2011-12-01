@@ -36,3 +36,4 @@ settings[:number].times do |index|
     connection.update("DELETE FROM test WHERE id = #{index - (rand * 100).to_i}")
   end
 end
+

@@ -1,45 +1,63 @@
 #!/usr/bin/env ruby
 
-require "optparse"
+require "trollop"
+require "open3"
 
-settings = {
-  :adapter   =>  "mysql",
-  :database  =>  "large_hadron_migrator",
-  :username  =>  "",
-  :host      =>  "localhost"
-}
+class Fuzz
+  attr_accessor :opts
 
-options = OptionParser.new do |o|
-  o.on("-h", "--help",                "Print the usage")                      { |o| puts options.to_s; exit }
-  o.on("-d", "--database <database>", "Database [#{ settings[:database] }]")  { |o| settings[:database] = o }
-  o.on("-u", "--username <username>", "Username [#{ settings[:username] }]")  { |o| settings[:username] = o }
-  o.on("-n", "--hostname <hostname>", "Hostname [#{ settings[:host] }]")      { |o| settings[:host] = o }
-  o.on("-p", "--password <password>", "Password")                             { |o| settings[:password] = o }
+  def initialize
+    self.opts = Trollop::options do
+      opt :database, "The database", :default => "large_hadron_migrator"
+      opt :username, "The username", :default => ""
+      opt :host,     "The hostname", :default => "localhost", :short => "n"
+      opt :password, "The password", :type => :string
+    end
+  end
+
+  def run
+    prefill
+    fuzz
+    migrate
+    unfuzz
+    verify
+  end
+
+  def prefill
+    cmd = "prefill -d%{database} -u%{username} -n%{host}" % self.opts
+    cmd += " -p%{password}" % settings if self.opts[:password]
+
+    execute(cmd)
+  end
+
+  def fuzz
+  end
+
+  def migrate
+  end
+
+  def unfuzz
+  end
+
+  def verify
+  end
+
+  private
+
+    def execute(cmd)
+      out, err, status = Open3.capture3(cmd)
+
+      unless status.success?
+        $stderr.puts "Could not run '#{ cmd }'"
+        $stderr.puts err
+
+        exit 1
+      end
+
+      return out
+    end
 end
 
-options.parse(ARGV)
+script = Fuzz.new
+exit script.run
 
-def prefill
-  cmd = "prefill -d%{database} -u%{username} -n%{host}" % settings
-  cmd += " -p%{password}" % settings if settings[:password]
-
-  system(cmd)
-end
-
-def fuzz
-end
-
-def migrate
-end
-
-def unfuzz
-end
-
-def verify
-end
-
-prefill
-fuzz
-migrate
-unfuzz
-verify

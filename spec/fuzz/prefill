@@ -1,85 +1,93 @@
 #!/usr/bin/env ruby
 
+require "trollop"
+require "open3"
 require "active_record"
-require "optparse"
 require "tempfile"
 
-settings = {
-  :database => {
-    :adapter   =>  "mysql",
-    :database  =>  "large_hadron_migrator",
-    :username  =>  "",
-    :host      =>  "localhost"
-  },
-  :rows => 1_000_000
-}
+class Prefill
+  attr_accessor :opts
 
-options = OptionParser.new do |o|
-  o.on("-h", "--help", "Print the usage") do |o|
-    puts options.to_s
-    exit
+  def initialize
+    self.opts = Trollop::options do
+      opt :database, "The database", :default => "large_hadron_migrator"
+      opt :username, "The username", :default => ""
+      opt :host,     "The hostname", :default => "localhost", :short => "n"
+      opt :password, "The password", :type => :string
+      opt :adapter,  "The adapter",  :default => "mysql"
+      opt :rows,     "Created rows", :default => 1_000_000, :type => :int
+    end
   end
 
-  o.on("-d", "--database <db>", "Database [#{ settings[:database] }]") do |o|
-    settings[:database][:database] = o
+  def config
+    self.opts.select do |key, value|
+      [:database, :username, :host, :password, :adapter].include?(key)
+    end
   end
 
-  o.on("-u", "--username <user>", "Username [#{ settings[:username] }]") do |o|
-    settings[:database][:username] = o
+  def run
+    ActiveRecord::Base.establish_connection(config)
+
+    create_schema
+    fill_table
   end
 
-  o.on("-n", "--hostname <host>", "Hostname [#{ settings[:host] }]") do |o|
-    settings[:database][:host] = o
+  def create_schema
+    db "drop table if exists test"
+    db %{
+      create table test (
+        id int(11) not null auto_increment,
+        fuzztype varchar(10) not null,
+        data text default null,
+        updated_at datetime default null,
+        primary key (id)
+      ) engine=innodb default charset=utf8 collate=utf8_unicode_ci
+    }
   end
 
-  o.on("-p", "--password <password>", "Password") do |o|
-    settings[:database][:password] = o
+  def fill_table
+    input = Tempfile.new("lhm-prefill")
+    random = File.open("/dev/random")
+    types = [:update, :delete, :static]
+
+    opts[:rows].times do |i|
+      time = Time.now.strftime "%Y-%m-%d %H:%M:%S"
+      data = [random.read(1024)].pack("m*").gsub("\n", "")
+
+      input.write [i + 1, types.sample, data, time, "\\N\n"].join("	")
+    end
+
+    input.flush
+    db "load data local infile '%s' into table test" % input.path
+
+  ensure
+    random.close
+    input.close
+
   end
+
+  private
+
+    def db(cmd)
+      ActiveRecord::Base.connection.execute(cmd)
+    end
+
+    def execute(cmd)
+      out, err, status = Open3.capture3(cmd)
+
+      unless status.success?
+        $stderr.puts "Could not run '#{ cmd }'"
+        $stderr.puts err
+
+        exit 1
+      end
+
+      return out
+    end
 end
 
-options.parse(ARGV)
+script = Prefill.new
+script.run
 
-ActiveRecord::Base.establish_connection(settings[:database])
-
-def connection
-  ActiveRecord::Base.connection
-end
-
-def create_schema
-  connection.execute("drop table if exists `test`;")
-  connection.execute(%{
-    create table `test` (
-      `id` int(11) not null auto_increment,
-      `fuzztype` varchar(10) not null,
-      `data` text default null,
-      `created_at` datetime default null,
-      `updated_at` datetime default null,
-      primary key (`id`)
-    ) engine=innodb default charset=utf8 collate=utf8_unicode_ci;
-  })
-end
-
-def prefill(rows)
-  infile = Tempfile.new("lhm-fuzz")
-  types = [:update, :delete, :static]
-  urandom = File.open("/dev/urandom", "r")
-
-  rows.times do |i|
-    time = Time.now.strftime "%Y-%m-%d %H:%M:%S"
-    data = [urandom.read(1024)].pack("m*").gsub("\n", "")
-
-    infile.write "#{ i + 1 }	#{ types.sample }	#{ data }	#{ time }	\\N\n"
-  end
-
-  infile.flush
-  connection.execute "load data local infile '%s' into table test" % infile.path
-
-ensure
-  urandom.close
-  infile.close
-
-end
-
-create_schema
-prefill(settings[:rows])
+exit 0 # script aborts on errors
 
