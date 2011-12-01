@@ -81,7 +81,7 @@ require "benchmark"
 #
 #  Deploying the new version will hurt your head. Don't do it.
 #
-class LargeHadronMigrator < ActiveRecord::Migration
+module LargeHadronMigrator
 
   # id_window must be larger than the number of inserts
   # added to the journal table. if this is not the case,
@@ -252,7 +252,7 @@ class LargeHadronMigrator < ActiveRecord::Migration
          where table_name = "%s"
            and table_schema = "%s"
 
-      } % [table_name, connection.current_database]
+      } % [table_name, current_database]
     end
   end
 
@@ -343,7 +343,7 @@ class LargeHadronMigrator < ActiveRecord::Migration
 
   def self.replay_delete_changes(table, journal_table)
     with_master do
-      if connection.select_values("select id from #{journal_table} where hadron_action = 'delete' LIMIT 1").any?
+      if select_values("select id from #{journal_table} where hadron_action = 'delete' LIMIT 1").any?
         execute %Q{
           delete from #{table} where id in (
             select id from #{journal_table} where hadron_action = 'delete'

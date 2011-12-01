@@ -2,9 +2,8 @@
 #  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek
 #
 
-require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-
-require "migrate/add_new_column"
+require "spec_helper"
+require "tools/add_new_column"
 
 describe "LargeHadronMigrator", "integration" do
   include SpecHelper

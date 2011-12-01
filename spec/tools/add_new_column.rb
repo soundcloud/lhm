@@ -2,7 +2,9 @@
 #  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek
 #
 
-class AddNewColumn < LargeHadronMigrator
+class AddNewColumn < ActiveRecord::Migration
+  extend LargeHadronMigrator
+
   def self.up
     large_hadron_migrate "addscolumn", :chunk_size => 100 do |table_name, _|
       execute %Q{
