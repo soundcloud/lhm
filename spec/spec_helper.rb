@@ -1,5 +1,6 @@
 #
-#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek
+#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+#  Schmidt
 #
 
 $LOAD_PATH.unshift(File.dirname(__FILE__))

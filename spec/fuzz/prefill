@@ -1,0 +1,85 @@
+#!/usr/bin/env ruby
+
+require "active_record"
+require "optparse"
+require "tempfile"
+
+settings = {
+  :database => {
+    :adapter   =>  "mysql",
+    :database  =>  "large_hadron_migrator",
+    :username  =>  "",
+    :host      =>  "localhost"
+  },
+  :rows => 1_000_000
+}
+
+options = OptionParser.new do |o|
+  o.on("-h", "--help", "Print the usage") do |o|
+    puts options.to_s
+    exit
+  end
+
+  o.on("-d", "--database <db>", "Database [#{ settings[:database] }]") do |o|
+    settings[:database][:database] = o
+  end
+
+  o.on("-u", "--username <user>", "Username [#{ settings[:username] }]") do |o|
+    settings[:database][:username] = o
+  end
+
+  o.on("-n", "--hostname <host>", "Hostname [#{ settings[:host] }]") do |o|
+    settings[:database][:host] = o
+  end
+
+  o.on("-p", "--password <password>", "Password") do |o|
+    settings[:database][:password] = o
+  end
+end
+
+options.parse(ARGV)
+
+ActiveRecord::Base.establish_connection(settings[:database])
+
+def connection
+  ActiveRecord::Base.connection
+end
+
+def create_schema
+  connection.execute("drop table if exists `test`;")
+  connection.execute(%{
+    create table `test` (
+      `id` int(11) not null auto_increment,
+      `fuzztype` varchar(10) not null,
+      `data` text default null,
+      `created_at` datetime default null,
+      `updated_at` datetime default null,
+      primary key (`id`)
+    ) engine=innodb default charset=utf8 collate=utf8_unicode_ci;
+  })
+end
+
+def prefill(rows)
+  infile = Tempfile.new("lhm-fuzz")
+  types = [:update, :delete, :static]
+  urandom = File.open("/dev/urandom", "r")
+
+  rows.times do |i|
+    time = Time.now.strftime "%Y-%m-%d %H:%M:%S"
+    data = [urandom.read(1024)].pack("m*").gsub("\n", "")
+
+    infile.write "#{ i + 1 }	#{ types.sample }	#{ data }	#{ time }	\\N\n"
+  end
+
+  infile.flush
+  connection.execute "load data local infile '%s' into table test" % infile.path
+
+ensure
+  urandom.close
+  infile.close
+
+end
+
+create_schema
+prefill(settings[:rows])
+
