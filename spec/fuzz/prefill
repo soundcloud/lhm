@@ -15,7 +15,7 @@ class Prefill
       opt :host,     "The hostname", :default => "localhost", :short => "n"
       opt :password, "The password", :type => :string
       opt :adapter,  "The adapter",  :default => "mysql"
-      opt :rows,     "Created rows", :default => 1_000_000, :type => :int
+      opt :rows,     "Created rows", :default => 1_000_000
     end
   end
 
@@ -28,7 +28,7 @@ class Prefill
   def run
     ActiveRecord::Base.establish_connection(config)
 
-    create_schema
+    # create_schema
     fill_table
   end
 
@@ -37,8 +37,9 @@ class Prefill
     db %{
       create table test (
         id int(11) not null auto_increment,
-        fuzztype varchar(10) not null,
+        type varchar(10) not null,
         data text default null,
+        created_at datetime default null,
         updated_at datetime default null,
         primary key (id)
       ) engine=innodb default charset=utf8 collate=utf8_unicode_ci
@@ -51,39 +52,26 @@ class Prefill
     types = [:update, :delete, :static]
 
     opts[:rows].times do |i|
-      time = Time.now.strftime "%Y-%m-%d %H:%M:%S"
+      time = Time.now.utc.strftime("%Y-%m-%d %H:%M:%S")
       data = [random.read(1024)].pack("m*").gsub("\n", "")
 
-      input.write [i + 1, types.sample, data, time, "\\N\n"].join("	")
+      input.write [i + 1, types.sample, data, time, "\\N\n"].join("\t")
     end
 
     input.flush
-    db "load data local infile '%s' into table test" % input.path
-
+    input.chmod(0644)
+    db "load data infile '%s' into table test" % input.path
   ensure
     random.close
     input.close
-
   end
 
-  private
+private
 
-    def db(cmd)
-      ActiveRecord::Base.connection.execute(cmd)
-    end
+  def db(cmd)
+    ActiveRecord::Base.connection.execute(cmd)
+  end
 
-    def execute(cmd)
-      out, err, status = Open3.capture3(cmd)
-
-      unless status.success?
-        $stderr.puts "Could not run '#{ cmd }'"
-        $stderr.puts err
-
-        exit 1
-      end
-
-      return out
-    end
 end
 
 script = Prefill.new
