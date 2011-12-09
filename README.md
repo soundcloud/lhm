@@ -15,9 +15,9 @@ access becomes just as difficult.
 > Side effects may include black holes and universe implosion.
 
 There are few things that can be done at the server or engine level. It is
-possible to change default values in an `ALTER TABLE` without locking the table.
-The InnoDB Plugin provides facilities for online index creation, which is
-great if you are using this engine, but only solves half the problem.
+possible to change default values in an `ALTER TABLE` without locking the
+table.  The InnoDB Plugin provides facilities for online index creation, which
+is great if you are using this engine, but only solves half the problem.
 
 At SoundCloud we started having migration pains quite a while ago, and after
 looking around for third party solutions [0] [1] [2], we decided to create our
@@ -42,18 +42,24 @@ twitter solution [1], it does not require the presence of an indexed
 
 ## Usage
 
-Large Hadron Migrator is currently implemented as a Rails ActiveRecord
-Migration.
+After including LargeHadronMigration, `hadron_change_table` becomes available
+with the following methods:
 
     class AddIndexToEmails < ActiveRecord::Migration
       include LargeHadronMigrator
 
       def self.up
-        large_hadron_migrate :emails do |table_name|
-          execute %Q{
-            alter table %s
-              add index index_emails_on_hashed_address (hashed_address)
-          } % table_name
+        hadron_change_table :users do |t|
+          t.add_column :logins, "INT(12)"
+          t.add_index :logins, :created_at
+          t.execute "alter table %s add column flag tinyint(1)" % t.name
+        end
+      end
+
+      def self.down
+        hadron_change_table :users do |t|
+          t.remove_index :logins, :created_at
+          t.remove_column :logins
         end
       end
     end
@@ -87,5 +93,5 @@ The license is included as LICENSE in this directory.
 ## Footnotes
 
 [0]: http://www.facebook.com/note.php?note\_id=430801045932 "Facebook"
-[1]: https://github.com/freels/table\_migrator              "Twitter"
-[2]: http://openarkkit.googlecode.com                       "OAK online alter table"
+[1]: https://github.com/freels/table\_migrator "Twitter"
+[2]: http://openarkkit.googlecode.com "OAK online alter table"

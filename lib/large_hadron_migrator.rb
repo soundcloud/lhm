@@ -1,16 +1,19 @@
-require "active_record"
-require "benchmark"
+#
+#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+#  Schmidt
+#
 
-#
-#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek
-#
-#  Migrate large tables without downtime by copying to a temporary table in
-#  chunks. The old table is not dropped. Instead, it is moved to
-#  timestamp_table_name for verification.
-#
-#  WARNING:
-#     - may cause the universe to implode.
-#
+require 'large_hadron_migrator/table'
+require 'large_hadron_migrator/migration'
+require 'large_hadron_migrator/mysql_table_parser'
+
 module LargeHadronMigrator
+  VERSION = "0.9.0"
+
+  def hadron_change_table(name, &block)
+    migration = Migration.new(name, connection)
+    block.call(migration.destination)
+    migration.run
+  end
 end
 

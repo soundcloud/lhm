@@ -60,4 +60,3 @@ end
 
 script = Fuzz.new
 exit script.run
-

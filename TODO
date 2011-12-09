@@ -1,0 +1,6 @@
+clone table; alter ddl
+consider entanglement epoch; should not lose changes due to low epoch
+copying columns; quoting, getting correct columns
+correct cleanup
+listen for and correctly handle mysql errors
+renaming

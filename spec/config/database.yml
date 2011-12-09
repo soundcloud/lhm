@@ -1,4 +1,0 @@
-adapter: mysql
-database: large_hadron_migrator
-username: ''
-host: localhost
