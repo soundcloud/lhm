@@ -26,5 +26,12 @@ module LargeHadronMigrator
         where id between #{ lowest } and #{ highest }
       }
     end
+
+    def rename(name)
+      %Q{
+        rename table `#{ self.name }` `#{ name }`"
+      }
+    end
   end
 end
+

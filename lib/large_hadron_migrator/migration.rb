@@ -14,6 +14,7 @@ module LargeHadronMigrator
     attr_accessor :origin, :destination
 
     def initialize(origin, connection)
+      @alter       = Alter.new(origin)
       @entangler   = Entangler.new(origin, destination)
       @switcher    = LockedSwitcher.new(origin, destination)
       @chunker     = Chunker.new(origin)
@@ -30,7 +31,7 @@ module LargeHadronMigrator
     end
 
     def run
-      sql @destination.changes
+      sql @alter.changes
       sql @entangler.entangle
 
       @chunker.chunk(@entangler) do |lowest, highest|
