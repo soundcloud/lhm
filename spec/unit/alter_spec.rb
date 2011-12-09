@@ -5,7 +5,7 @@
 
 require File.expand_path(File.dirname(__FILE__)) + '/unit_helper'
 
-describe LargeHadronMigrator::Changes do
+describe LargeHadronMigrator::Alter do
   include UnitHelper
 
   describe "altering" do

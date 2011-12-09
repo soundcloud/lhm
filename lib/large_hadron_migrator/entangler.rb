@@ -62,6 +62,3 @@ module LargeHadronMigrator
   end
 end
 
-
-
-
