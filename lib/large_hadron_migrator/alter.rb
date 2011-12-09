@@ -14,6 +14,7 @@ module LargeHadronMigrator
 
     def changes
       %Q{
+
       }
     end
   end

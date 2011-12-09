@@ -11,6 +11,7 @@ module LargeHadronMigrator
     attr_accessor :epoch
 
     def initialize(origin, destination, epoch)
+      @common = CommonColumns.new(origin, destination)
       @origin = origin
       @destination = destination
       @epoch = epoch
@@ -31,27 +32,27 @@ module LargeHadronMigrator
     def create_trigger_del
       %Q{
         create trigger #{ trigger(:del) }
-        after delete on `#{ @origin.name }`
-        for each row delete ignore from `#{ @destination.name }`
-        where `#{ @destination.name }`.`id` = old.`id`;
+        after delete on `#{ @origin.name }` for each row
+        delete ignore from `#{ @destination.name }`
+        where `#{ @destination.name }`.`id` = OLD.`id`;
       }
     end
 
     def create_trigger_ins
       %Q{
         create trigger #{ trigger(:ins) }
-        after insert on `#{ @origin.name }`
-        for each row replace into `#{ @destination.name }` #{ @origin.columns }
-        values #{ @destination.columns };
+        after insert on `#{ @origin.name }` for each row
+        replace into `#{ @destination.name }` #{ @common.joined }
+        values #{ @common.typed("NEW") };
       }
     end
 
     def create_trigger_upd
       %Q{
         create trigger #{ trigger(:upd) }
-        after update on `#{ @origin.name }`
-        for each row replace into `#{ @destination.name }` #{ @origin.columns }
-        values #{ @destination.columns };
+        after update on `#{ @origin.name }` for each row
+        replace into `#{ @destination.name }` #{ @common.joined }
+        values #{ @common.typed("NEW") };
       }
     end
 
@@ -60,3 +61,7 @@ module LargeHadronMigrator
     end
   end
 end
+
+
+
+

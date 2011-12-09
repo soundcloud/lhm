@@ -15,9 +15,17 @@ describe LargeHadronMigrator::Entangler do
   end
 
   describe "activation" do
-    it "should create create trigger to destination table"
-    it "should create a delete trigger to the destination table"
-    it "should create an update trigger to the destination table"
+    it "should create create trigger to destination table" do
+      flunk
+    end
+
+    it "should create a delete trigger to the destination table" do
+      flunk
+    end
+
+    it "should create an update trigger to the destination table" do
+      flunk
+    end
   end
 
   describe "removal" do

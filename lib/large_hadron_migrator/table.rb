@@ -20,17 +20,17 @@ module LargeHadronMigrator
     end
 
     def into(destination, lowest, highest)
+      cols = CommonColumns.new(self, destination)
+
       %Q{
-        insert ignore into `#{ destination.name }` #{ destination.columns }
-        select #{ self.columns } from `#{ self.name }`
+        insert ignore into `#{ destination.name }` (#{ cols.joined  })
+        select #{ cols.joined } from `#{ self.name }`
         where id between #{ lowest } and #{ highest }
       }
     end
 
     def rename(name)
-      %Q{
-        rename table `#{ self.name }` `#{ name }`"
-      }
+      "rename table `#{ self.name }` `#{ name }`"
     end
   end
 end
