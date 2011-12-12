@@ -7,9 +7,22 @@
 
 module LargeHadronMigrator
   class LockedSwitcher
-    def initialize(left, right)
-      @left = left
-      @right = right
+    def initialize(origin, destination, archive)
+      @origin = origin
+      @destination = destination
+      @archive = archive
+    end
+
+    def switch
+      [
+        "set session autocommit=0",
+        "lock table `#{ @origin }` write, `#{ @destination }` write",
+        "alter table `#{ @origin }` rename `#{ @archive }`",
+        "alter table `#{ @destination }` rename `#{ @origin }`",
+        "commit",
+        "unlock tables",
+        "set session autocommit=1"
+      ]
     end
   end
 end

@@ -16,7 +16,7 @@ module LargeHadronMigrator
     def initialize(origin, connection)
       @alter       = Alter.new(origin)
       @entangler   = Entangler.new(origin, destination)
-      @switcher    = LockedSwitcher.new(origin, destination)
+      @switcher    = LockedSwitcher.new(origin.name, destination.name, archive_name)
       @chunker     = Chunker.new(origin)
       @origin      = MysqlTableParser.new(origin_schema).parse
       @destination = Table.new(destination_name, origin)
@@ -40,7 +40,6 @@ module LargeHadronMigrator
 
       sql @switcher.switch
       sql @entangler.untangle
-      sql @origin.rename(archive_name)
     end
 
     def satisfies_preconditions?
