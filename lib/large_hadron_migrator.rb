@@ -6,6 +6,7 @@
 require 'large_hadron_migrator/alter'
 require 'large_hadron_migrator/chunker'
 require 'large_hadron_migrator/entangler'
+require 'large_hadron_migrator/intersection'
 require 'large_hadron_migrator/locked_switcher'
 require 'large_hadron_migrator/migration'
 require 'large_hadron_migrator/mysql_table_parser'

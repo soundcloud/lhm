@@ -7,7 +7,7 @@
 
 module LargeHadronMigrator
   class Intersection
-    def initializer(origin, destination)
+    def initialize(origin, destination)
       @origin = origin
       @destination = destination
     end
@@ -25,17 +25,17 @@ module LargeHadronMigrator
     end
 
     def typed(type)
-      common.map { |name| typed(name, type)  }
+      common.map { |name| qualified(name, type)  }.join(", ")
     end
 
     private
 
-      def tick(name)
-        "`#{ name }`"
+      def qualified(name, type)
+        "`#{ type }.#{ name }`"
       end
 
-      def typed(name, type)
-        "`#{ type }.#{ name }`"
+      def tick(name)
+        "`#{ name }`"
       end
   end
 end
