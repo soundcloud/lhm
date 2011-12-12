@@ -20,7 +20,7 @@ module LargeHadronMigrator
     end
 
     def into(destination, lowest, highest)
-      cols = CommonColumns.new(self, destination)
+      cols = Intersection.new(self, destination)
 
       %Q{
         insert ignore into `#{ destination.name }` (#{ cols.joined  })

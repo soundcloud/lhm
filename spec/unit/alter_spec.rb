@@ -5,8 +5,6 @@
 
 require File.expand_path(File.dirname(__FILE__)) + '/unit_helper'
 
-def xit(*args); end
-
 describe LargeHadronMigrator::Alter do
   include UnitHelper
 

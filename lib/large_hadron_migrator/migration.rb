@@ -34,7 +34,7 @@ module LargeHadronMigrator
       sql @alter.changes
       sql @entangler.entangle
 
-      @chunker.chunk(@entangler) do |lowest, highest|
+      @chunker.up_to(@entangler.epoch) do |lowest, highest|
         sql @origin.into(@destination, lowest, highest)
       end
 
@@ -63,8 +63,10 @@ module LargeHadronMigrator
 
     private
 
-      def sql(ddl)
-        connection.execute(ddl)
+      def sql(statements)
+        [*statements].each do |statement|
+          connection.execute(statement)
+        end
       end
 
       def startstamp

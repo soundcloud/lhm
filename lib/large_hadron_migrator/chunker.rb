@@ -9,25 +9,24 @@ module LargeHadronMigrator
       @table = table
       @stride = stride
       @throttle = throttle
-      @start = Time.now
     end
 
-    def chunk(entangler)
-      chunks.times do |n|
-        yield(bottom(n), top(n, entangler.last)) && sleep(throttle_seconds)
+    def up_to(limit)
+      traversable_chunks_up_to(limit).times do |n|
+        yield(bottom(n + 1), top(n + 1, limit)) && sleep(throttle_seconds)
       end
     end
 
-    def chunks(last)
-      (last / @stride.to_f).ceil
+    def traversable_chunks_up_to(limit)
+      (limit / @stride.to_f).ceil
     end
 
     def bottom(chunk)
       (chunk - 1) * @stride + 1
     end
 
-    def top(chunk, last)
-      [chunk * @stride, last].min
+    def top(chunk, limit)
+      [chunk * @stride, limit].min
     end
 
     private

@@ -11,7 +11,7 @@ module LargeHadronMigrator
     attr_accessor :epoch
 
     def initialize(origin, destination, epoch)
-      @common = CommonColumns.new(origin, destination)
+      @common = Intersection.new(origin, destination)
       @origin = origin
       @destination = destination
       @epoch = epoch
@@ -22,11 +22,11 @@ module LargeHadronMigrator
     end
 
     def untangle
-      %Q{
-        drop trigger if exists #{ trigger(:del) };
-        drop trigger if exists #{ trigger(:ins) };
-        drop trigger if exists #{ trigger(:upd) };
-      }
+      [
+        "drop trigger if exists #{ trigger(:del) }",
+        "drop trigger if exists #{ trigger(:ins) }",
+        "drop trigger if exists #{ trigger(:upd) }"
+      ]
     end
 
     def create_trigger_del
@@ -34,7 +34,7 @@ module LargeHadronMigrator
         create trigger #{ trigger(:del) }
         after delete on `#{ @origin.name }` for each row
         delete ignore from `#{ @destination.name }`
-        where `#{ @destination.name }`.`id` = OLD.`id`;
+        where `#{ @destination.name }`.`id` = OLD.`id`
       }
     end
 
@@ -43,7 +43,7 @@ module LargeHadronMigrator
         create trigger #{ trigger(:ins) }
         after insert on `#{ @origin.name }` for each row
         replace into `#{ @destination.name }` #{ @common.joined }
-        values #{ @common.typed("NEW") };
+        values #{ @common.typed("NEW") }
       }
     end
 
@@ -52,7 +52,7 @@ module LargeHadronMigrator
         create trigger #{ trigger(:upd) }
         after update on `#{ @origin.name }` for each row
         replace into `#{ @destination.name }` #{ @common.joined }
-        values #{ @common.typed("NEW") };
+        values #{ @common.typed("NEW") }
       }
     end
 

@@ -6,7 +6,7 @@
 #
 
 module LargeHadronMigrator
-  class CommonColumns
+  class Intersection
     def initializer(origin, destination)
       @origin = origin
       @destination = destination
