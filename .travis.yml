@@ -4,3 +4,7 @@ rvm:
   - 1.9.3
 before_script:
   - "mysql -e 'create database large_hadron_migrator;'"
+branches:
+  only:
+    - master
+    - stable
