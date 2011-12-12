@@ -5,6 +5,7 @@
 
 require 'minitest/spec'
 require 'minitest/autorun'
+require 'minitest/mock'
 require "pathname"
 
 $project = Pathname.new(File.dirname(__FILE__) + '/..').cleanpath

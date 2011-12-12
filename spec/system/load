@@ -5,7 +5,7 @@ require "open3"
 require "active_record"
 
 class Load
-  attr_accessor :opts, :inserts, :updates, :deletes
+  attr_accessor :opts, :counts
 
   def initialize
     self.opts = Trollop::options do
@@ -37,40 +37,27 @@ class Load
   end
 
   def load
-    self.inserts, self.updates, self.deletes = 0, 0, 0
     types = [:insert, :update, :delete]
-    transaction = nil
+    self.counts = types.inject({}) { |memo, type| memo.merge(type => 0) }
+    terminated = false
+    %w[INT TERM].each { |signal| Signal.trap(signal) { terminated = true } }
 
     loop do
-      unless transaction
-        connection.execute("begin")
-        transaction = true
+      transaction do
+        type = types.sample
+        counts[type] += type == :insert ? insert : perform(type)
       end
 
-      case types.sample
-      when :insert
-        self.inserts += insert
-      when :update
-        self.updates += perform(:update)
-      when :delete
-        self.deletes += perform(:delete)
-      end
-
-      if rand(10) < 2
-        connection.execute("commit")
-        transaction = false
-      end
+      break if terminated
 
       sleep(opts[:wait]) if opts[:wait] > 0
     end
-  rescue Interrupt
-    connection.execute("commit") if transaction
-    puts "Inserts: #{inserts} Updates: #{updates} Deletes: #{deletes}"
+
+    puts self.counts.inspect
   end
 
   def insert
     random = File.open("/dev/random")
-    types = [:update, :delete, :static]
     data = ["'", [random.read(1024)].pack("m*").gsub("\n", ""), "'"].join
 
     if opts[:slowdown] > 0
@@ -80,7 +67,7 @@ class Load
 
     connection.insert(%{
       insert into test (type, data, created_at) values
-      ('#{types.sample}', #{data}, UTC_TIMESTAMP())
+      ('load', #{data}, UTC_TIMESTAMP())
     })
     1
   ensure
@@ -99,7 +86,7 @@ class Load
     case type
     when :update
       connection.update(%{
-        update test set updated_at = UTC_TIMESTAMP() where #{conditions}
+        update test set updated = 1 where #{conditions}
       })
     when :delete
       connection.delete("delete from test where #{conditions}")
@@ -108,10 +95,16 @@ class Load
 
 private
 
+  def transaction
+    connection.execute("begin")
+    yield
+    connection.execute("commit")
+  end
+
   def next_id(type)
     connection.select_value(%{
       select id from test
-      where type = '#{type}' and updated_at is null
+      where type = '#{type}' and updated = 0
       order by id asc limit 1
     })
   end

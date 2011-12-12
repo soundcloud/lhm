@@ -6,7 +6,7 @@ require "active_record"
 require "tempfile"
 
 class Prefill
-  attr_accessor :opts
+  attr_accessor :opts, :counts
 
   def initialize
     self.opts = Trollop::options do
@@ -28,11 +28,13 @@ class Prefill
   def run
     ActiveRecord::Base.establish_connection(config)
 
-    # create_schema
+    create_schema
     fill_table
+    puts self.counts.inspect
   end
 
   def create_schema
+    puts "create schema"
     db "drop table if exists test"
     db %{
       create table test (
@@ -40,26 +42,34 @@ class Prefill
         type varchar(10) not null,
         data text default null,
         created_at datetime default null,
-        updated_at datetime default null,
+        updated tinyint(1) not null default 0,
         primary key (id)
       ) engine=innodb default charset=utf8 collate=utf8_unicode_ci
     }
   end
 
   def fill_table
+    print "generate data"
     input = Tempfile.new("lhm-prefill")
     random = File.open("/dev/random")
     types = [:update, :delete, :static]
+    self.counts = types.inject({}) { |memo, type| memo.merge(type => 0) }
 
     opts[:rows].times do |i|
       time = Time.now.utc.strftime("%Y-%m-%d %H:%M:%S")
       data = [random.read(1024)].pack("m*").gsub("\n", "")
+      type = types.sample
+      self.counts[type] += 1
 
-      input.write [i + 1, types.sample, data, time, "\\N\n"].join("\t")
+      input.write [i + 1, type, data, time, "\\N\n"].join("\t")
+
+      print "." if (i.to_f / opts[:rows]) % 0.1 == 0
     end
+    puts
 
     input.flush
     input.chmod(0644)
+    puts "load data into table"
     db "load data infile '%s' into table test" % input.path
   ensure
     random.close
