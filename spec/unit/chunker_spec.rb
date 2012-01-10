@@ -7,7 +7,6 @@ require File.expand_path(File.dirname(__FILE__)) + '/unit_helper'
 
 require 'lhm/table'
 require 'lhm/migration'
-require 'lhm/entangler'
 require 'lhm/chunker'
 
 describe Lhm::Chunker do
@@ -17,8 +16,7 @@ describe Lhm::Chunker do
     @origin      = Lhm::Table.new("origin")
     @destination = Lhm::Table.new("destination")
     @migration   = Lhm::Migration.new(@origin, @destination)
-    @entangler   = Lhm::Entangler.new(@migration)
-    @chunker     = Lhm::Chunker.new(@migration, @entangler)
+    @chunker     = Lhm::Chunker.new(@migration)
   end
 
   describe "copy into" do
@@ -66,7 +64,7 @@ describe Lhm::Chunker do
 
   describe "iterating" do
     it "should iterate" do
-      @chunker = Lhm::Chunker.new(@migration, nil, nil, {
+      @chunker = Lhm::Chunker.new(@migration, nil, {
         :stride => 150,
         :throttle => 0
       })

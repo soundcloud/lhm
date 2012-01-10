@@ -5,18 +5,17 @@
 
 require 'lhm/migration'
 require 'lhm/command'
-require 'lhm/entangler'
 
 module Lhm
   class Chunker
     include Command
 
-    def initialize(migration, entangler, connection = nil, options = {})
+    def initialize(migration, connection = nil, options = {})
       @stride = options[:stride] || 100_000
       @throttle = options[:throttle] || 100
+      @epoch = options[:epoch] || 1
       @connection = connection
       @migration = migration
-      @entangler = entangler
     end
 
     def up_to(limit)
@@ -50,7 +49,7 @@ module Lhm
     end
 
     def execute
-      up_to(@entangler.epoch) do |lowest, highest|
+      up_to(@epoch) do |lowest, highest|
         sql copy(lowest, highest)
       end
     end
