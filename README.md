@@ -42,11 +42,11 @@ twitter solution [1], it does not require the presence of an indexed
 
 ## Usage
 
-After including LargeHadronMigration, `hadron_change_table` becomes available
+After including Lhm, `hadron_change_table` becomes available
 with the following methods:
 
     class AddIndexToEmails < ActiveRecord::Migration
-      include LargeHadronMigrator
+      include Lhm
 
       def self.up
         hadron_change_table :users do |t|
@@ -95,3 +95,4 @@ The license is included as LICENSE in this directory.
 [0]: http://www.facebook.com/note.php?note\_id=430801045932 "Facebook"
 [1]: https://github.com/freels/table\_migrator "Twitter"
 [2]: http://openarkkit.googlecode.com "OAK online alter table"
+

@@ -1,6 +1,6 @@
 #
-#  copyright (c) 2011, soundcloud ltd., rany keddo, tobias bielohlawek, tobias
-#  schmidt
+#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+#  Schmidt
 #
 
 require File.expand_path(File.dirname(__FILE__)) + "/../bootstrap"
@@ -9,4 +9,9 @@ module UnitHelper
   def fixture(name)
     File.read $fixtures.join(name)
   end
+
+  def strip(sql)
+    sql.strip.gsub(/\n */, "\n")
+  end
 end
+

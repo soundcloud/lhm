@@ -1,6 +1,6 @@
 #
-#  copyright (c) 2011, soundcloud ltd., rany keddo, tobias bielohlawek, tobias
-#  schmidt
+#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+#  Schmidt
 #
 
 require 'minitest/spec'
@@ -14,5 +14,3 @@ $fixtures = $spec.join("fixtures")
 
 $: << $project.join("lib").to_s
 
-require 'active_record'
-require 'large_hadron_migrator'

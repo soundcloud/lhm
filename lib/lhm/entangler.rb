@@ -1,20 +1,25 @@
 #
-#  copyright (c) 2011, soundcloud ltd., rany keddo, tobias bielohlawek, tobias
-#  schmidt
+#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+#  Schmidt
 #
 #  Creates entanglement between two tables. All creates, updates and deletes
 #  to origin will be repeated on the the destination table.
 #
 
-module LargeHadronMigrator
-  class Entangler
-    attr_accessor :epoch
+require 'lhm/command'
 
-    def initialize(origin, destination, epoch = 1)
-      @common = Intersection.new(origin, destination)
-      @origin = origin
-      @destination = destination
-      @epoch = epoch
+module Lhm
+  class Entangler
+    include Command
+
+    attr_reader :epoch
+
+    def initialize(migration, connection = nil, options = {})
+      @epoch = options[:epoch] || 1
+      @common = migration.intersection
+      @origin = migration.origin
+      @destination = migration.destination
+      @connection = connection
     end
 
     def entangle
@@ -37,8 +42,8 @@ module LargeHadronMigrator
       strip %Q{
         create trigger `#{ trigger(:ins) }`
         after insert on `#{ @origin.name }` for each row
-        replace into `#{ @destination.name }` #{ @common.joined }
-        values #{ @common.typed("NEW") }
+        replace into `#{ @destination.name }` (#{ @common.joined })
+        values (#{ @common.typed("NEW") })
       }
     end
 
@@ -46,8 +51,8 @@ module LargeHadronMigrator
       strip %Q{
         create trigger `#{ trigger(:upd) }`
         after update on `#{ @origin.name }` for each row
-        replace into `#{ @destination.name }` #{ @common.joined }
-        values #{ @common.typed("NEW") }
+        replace into `#{ @destination.name }` (#{ @common.joined })
+        values (#{ @common.typed("NEW") })
       }
     end
 
@@ -60,16 +65,41 @@ module LargeHadronMigrator
       }
     end
 
-
     def trigger(type)
       "lhmt_#{ type }_#{ @origin.name }"
     end
 
-    private
+    #
+    # Command implementation
+    #
 
-      def strip(sql)
-        sql.strip.gsub(/\n */, "\n")
+    def validate
+      unless table?(@origin.name)
+        error("#{ @origin.name } does not exist")
       end
+
+      unless table?(@destination.name)
+        error("#{ @destination.name } does not exist")
+      end
+    end
+
+    def before
+      sql(entangle)
+    end
+
+    def after
+      sql(untangle)
+    end
+
+    def revert
+      after
+    end
+
+  private
+
+    def strip(sql)
+      sql.strip.gsub(/\n */, "\n")
+    end
   end
 end
 

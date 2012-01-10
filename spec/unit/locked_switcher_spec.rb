@@ -1,44 +1,54 @@
 #
-#  copyright (c) 2011, soundcloud ltd., rany keddo, tobias bielohlawek, tobias
-#  schmidt
+#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+#  Schmidt
 #
 
 require File.expand_path(File.dirname(__FILE__)) + '/unit_helper'
 
-describe LargeHadronMigrator::LockedSwitcher do
+require 'lhm/table'
+require 'lhm/migration'
+require 'lhm/locked_switcher'
+
+describe Lhm::LockedSwitcher do
   include UnitHelper
 
   before(:each) do
-    @origin = "test"
-    @destination = "lhmd-test"
-    @archive = "lhma-test"
-    @switcher = LargeHadronMigrator::LockedSwitcher.new(@origin, @destination, @archive)
+    @start       = Time.now
+    @origin      = Lhm::Table.new("origin")
+    @destination = Lhm::Table.new("destination")
+    @migration   = Lhm::Migration.new(@origin, @destination, @start)
+    @switcher    = Lhm::LockedSwitcher.new(@migration)
+  end
+
+  describe "uncommitted" do
+    it "should disable autocommit first" do
+      @switcher.
+        statements[0..1].
+        must_equal([
+          "set @lhm_auto_commit = @@session.autocommit",
+          "set session autocommit = 0"
+        ])
+    end
+
+    it "should reapply original autocommit settings at the end" do
+      @switcher.
+        statements[-1].
+        must_equal("set session autocommit = @lhm_auto_commit")
+    end
   end
 
   describe "switch" do
-    it "should disable autocommit first" do
-      @switcher.switch.first.must_equal "set session autocommit=0"
-    end
-
-    it "should lock origin and destination table" do
-      @switcher.switch.must_include "lock table `test` write, `lhmd-test` write"
-    end
-
-    it "should rename origin to archive" do
-      @switcher.switch.must_include "alter table `test` rename `lhma-test`"
-    end
-
-    it "should rename destination to origin" do
-      @switcher.switch.must_include "alter table `lhmd-test` rename `test`"
-    end
-
-    it "should commit the changes and release the locks" do
-      @switcher.switch.must_include "commit"
-      @switcher.switch.must_include "unlock tables"
-    end
-
-    it "should enable autocommit again" do
-      @switcher.switch.last.must_equal "set session autocommit=1"
+    it "should lock origin and destination table, switch, commit and unlock" do
+      @switcher.
+        switch.
+        must_equal([
+          "lock table `origin` write, `destination` write",
+          "alter table `origin` rename `#{ @migration.archive_name }`",
+          "alter table `destination` rename `origin`",
+          "commit",
+          "unlock tables"
+        ])
     end
   end
 end
+

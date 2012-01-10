@@ -1,17 +1,24 @@
 #
-#  copyright (c) 2011, soundcloud ltd., rany keddo, tobias bielohlawek, tobias
-#  schmidt
+#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+#  Schmidt
 #
 
 require File.expand_path(File.dirname(__FILE__)) + "/../bootstrap"
 
+require 'active_record'
+require 'lhm/table'
+
 module IntegrationHelper
-  delegate :select_one, :select_value, :execute :to => :connection
+  delegate :select_one, :select_value, :execute, :to => :connection
+
+  #
+  # Connectivity
+  #
 
   def connect!
     ActiveRecord::Base.establish_connection(
       :adapter => 'mysql',
-      :database => 'large_hadron_migrator',
+      :database => 'lhm',
       :username => '',
       :host => 'localhost'
     )
@@ -23,22 +30,40 @@ module IntegrationHelper
     ActiveRecord::Base.connection
   end
 
+  #
+  # Test Data
+  #
+
   def fixture(name)
-    File.read($fixtures.join(name))
+    File.read($fixtures.join("#{ name }.ddl"))
   end
 
-  def schema_columns(table, name, type)
-    db = connection.current_database
+  def table_create(fixture_name)
+    execute "drop table if exists `#{ fixture_name }`"
+    execute fixture(fixture_name)
+    table_read(fixture_name)
+  end
 
-    select_values %Q{
-      select column_name
-        from information_schema.columns
-       where table_name = "#{table}"
-         and table_schema = "#{db}"
-         and column_name = "#{name}"
-         and data_type = "#{type}"
-    }
+  def table_read(fixture_name)
+    Lhm::Table.parse(fixture_name, connection)
+  end
+
+  def table_exists?(table)
+    connection.table_exists?(table.name)
+  end
+
+  #
+  # Database Helpers
+  #
+
+  def count(table, column, value)
+    query = "select count(*) from #{ table } where #{ column } = '#{ value }'"
+    select_value(query).to_i
+  end
+
+  def key?(table, cols)
+    query = "show indexes in #{ table.name } where key_name = '#{ table.idx_name(cols) }'"
+    !!select_value(query)
   end
 end
 
-connect!

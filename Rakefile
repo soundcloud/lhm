@@ -1,7 +1,16 @@
-require 'bundler'
-Bundler::GemHelper.install_tasks
+require 'rake/testtask'
 
-require 'spec/rake/spectask'
-Spec::Rake::SpecTask.new
+Rake::TestTask.new("unit") do |t|
+  t.libs.push "lib"
+  t.test_files = FileList['spec/unit/*_spec.rb']
+  t.verbose = true
+end
 
-task :default => [ :spec ]
+Rake::TestTask.new("integration") do |t|
+  t.libs.push "lib"
+  t.test_files = FileList['spec/integration/*_spec.rb']
+  t.verbose = true
+end
+
+task :default => [:unit, :integration]
+

@@ -6,7 +6,7 @@ class FuzzPercona < Fuzz
   def migrate
     alter = "add column attachment varchar(10) not null default 'attachment'"
     `pt-online-schema-change u=,h=127.0.0.1,t=test \
-       --alter "#{alter}" --database large_hadron_migrator --drop-old-table`
+       --alter "#{alter}" --database lhm --drop-old-table`
   end
 end
 

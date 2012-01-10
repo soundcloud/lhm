@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name          = "large_hadron_migrator"
+  s.name          = "lhm"
   s.version       = File.read("VERSION").to_s
   s.platform      = Gem::Platform::RUBY
   s.authors       = ["SoundCloud", "Rany Keddo", "Tobias Bielohlawek"]

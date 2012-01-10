@@ -6,7 +6,7 @@ load 'spec/fuzz/fuzz-percona'
 
 database = {
   :adapter  => 'mysql',
-  :database => 'large_hadron_migrator',
+  :database => 'lhm',
   :username => '',
   :host     => 'localhost'
 }

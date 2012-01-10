@@ -13,7 +13,7 @@ class Fuzz
 
   def initialize(options = nil)
     self.opts = options || Trollop::options do
-      opt :database,  "The database", :default => "large_hadron_migrator"
+      opt :database,  "The database", :default => "lhm"
       opt :username,  "The username", :default => ""
       opt :host,      "The hostname", :default => "localhost", :short => "n"
       opt :password,  "The password", :type => :string
@@ -83,7 +83,7 @@ class Fuzz
     end
   end
 
-  private
+private
 
   def execute(cmd)
     out, err, status = Open3.capture3(cmd)

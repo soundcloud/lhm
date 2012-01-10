@@ -1,6 +1,11 @@
-clone table
-consider entanglement epoch; should not lose changes due to low epoch
+todo
 
-correct cleanup
-listen for and correctly handle mysql errors
+. locked_switcher
+. schema_creator
+. chunker
+
+checklist
+
+. consider entanglement epoch
+  - should not lose changes due to low epoch
 
