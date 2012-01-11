@@ -14,8 +14,7 @@ module Lhm
 
     attr_reader :epoch
 
-    def initialize(migration, connection = nil, options = {})
-      @epoch = options[:epoch] || 1
+    def initialize(migration, connection = nil)
       @common = migration.intersection
       @origin = migration.origin
       @destination = migration.destination
@@ -85,6 +84,7 @@ module Lhm
 
     def before
       sql(entangle)
+      @epoch = connection.select_value("select max(id) from #{ @origin.name }").to_i
     end
 
     def after

@@ -7,6 +7,15 @@
 #
 #    http://bugs.mysql.com/bug.php?id=39675
 #
+#  LockedSwitcher adopts the Facebook strategy, with the following caveat:
+#
+#    "Since alter table causes an implicit commit in innodb, innodb locks get
+#    released after the first alter table. So any transaction that sneaks in
+#    after the first alter table and before the second alter table gets
+#    a 'table not found' error. The second alter table is expected to be very
+#    fast though because copytable is not visible to other transactions and so
+#    there is no need to wait."
+#
 
 require 'lhm/command'
 require 'lhm/migration'
