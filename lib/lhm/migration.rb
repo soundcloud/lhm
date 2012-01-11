@@ -10,7 +10,7 @@ module Lhm
   class Migration
     attr_reader :origin, :destination
 
-    def initialize(origin, destination = nil, time = Time.now)
+    def initialize(origin, destination, time = Time.now)
       @origin = origin
       @destination = destination
       @start = time

@@ -10,10 +10,10 @@ module Lhm
   class Chunker
     include Command
 
-    def initialize(migration, connection = nil, options = {})
+    def initialize(migration, limit = 1, connection = nil, options = {})
       @stride = options[:stride] || 100_000
       @throttle = options[:throttle] || 100
-      @epoch = options[:epoch] || 1
+      @limit = limit
       @connection = connection
       @migration = migration
     end
@@ -49,7 +49,7 @@ module Lhm
     end
 
     def execute
-      up_to(@epoch) do |lowest, highest|
+      up_to(@limit) do |lowest, highest|
         sql copy(lowest, highest)
       end
     end

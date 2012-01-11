@@ -5,17 +5,18 @@
 
 module Lhm
   class Table
-    attr_reader :name, :columns, :indices
-    attr_accessor :primary_key, :table_options, :ddl
+    attr_reader :name, :columns, :indices, :pk, :ddl
 
-    def initialize(table_name)
-      @name = table_name
+    def initialize(name, pk = "id", ddl = nil)
+      @name = name
       @columns = {}
       @indices = {}
+      @pk = pk
+      @ddl = ddl
     end
 
     def satisfies_primary_key?
-      primary_key == "id"
+      @pk == "id"
     end
 
     def destination_name
@@ -29,6 +30,7 @@ module Lhm
     def self.parse(table_name, connection)
       sql = "show create table `#{ table_name }`"
       ddl = connection.select_one(sql)["Create Table"]
+
       Parser.new(ddl).parse
     end
 
@@ -47,27 +49,28 @@ module Lhm
 
       def parse
         _, name = *lines.first.match("`([^ ]*)`")
+        pk_line = create_definitions.grep(primary).first
 
-        Table.new(name).tap do |table|
-          table.table_options = lines.last.gsub(/^\) */, "")
-          table.ddl = @ddl
+        if pk_line
+          _, pk = *pk_line.match(primary)
+          table = Table.new(name, pk, @ddl)
 
           create_definitions.each do |definition|
             case definition
-            when primary_key
-              table.primary_key = $1
-            when index
-              table.indices[$1] = { :metadata => $2 }
-            when column
-              table.columns[$1] = { :type => $2, :metadata => $3 }
+              when index
+                table.indices[$1] = { :metadata => $2 }
+              when column
+                table.columns[$1] = { :type => $2, :metadata => $3 }
             end
           end
+
+          table
         end
       end
 
     private
 
-      def primary_key
+      def primary
         /^PRIMARY KEY (?:USING (?:HASH|[BR]TREE) )?\(`([^ ]*)`\),?$/
       end
 

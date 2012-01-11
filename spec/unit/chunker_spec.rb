@@ -64,7 +64,7 @@ describe Lhm::Chunker do
 
   describe "iterating" do
     it "should iterate" do
-      @chunker = Lhm::Chunker.new(@migration, nil, {
+      @chunker = Lhm::Chunker.new(@migration, nil, nil, {
         :stride => 150,
         :throttle => 0
       })

@@ -28,7 +28,7 @@ module Lhm
       migration = @migrator.run
 
       Entangler.new(migration, @connection).run do |tangler|
-        Chunker.new(migration, @connection, { :epoch => tangler.epoch}).run
+        Chunker.new(migration, tangler.epoch, @connection).run
         LockedSwitcher.new(migration, @connection).run
       end
     end

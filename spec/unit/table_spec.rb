@@ -33,22 +33,18 @@ describe Lhm::Table do
   end
 
   describe "constraints" do
-    before(:each) do
-      @table = Lhm::Table::Parser.new(fixture("users.ddl")).parse
-    end
-
     it "should be satisfied with a single column primary key called id" do
-      @table.primary_key = "id"
+      @table = Lhm::Table.new("table", "id")
       @table.satisfies_primary_key?.must_equal true
     end
 
     it "should not be satisfied with a primary key unless called id" do
-      @table.primary_key = "uuid"
+      @table = Lhm::Table.new("table", "uuid")
       @table.satisfies_primary_key?.must_equal false
     end
 
     it "should not be satisfied with multicolumn primary key" do
-      @table.primary_key = ["id", "secondary"]
+      @table = Lhm::Table.new("table", ["id", "secondary"])
       @table.satisfies_primary_key?.must_equal false
     end
   end
@@ -63,12 +59,8 @@ describe Lhm::Table do
         @table.name.must_equal("users")
       end
 
-      it "should parse table options in show create table" do
-        @table.table_options.must_equal("ENGINE=InnoDB DEFAULT CHARSET=utf8")
-      end
-
       it "should parse primary key" do
-        @table.primary_key.must_equal("id")
+        @table.pk.must_equal("id")
       end
 
       it "should parse column type in show create table" do

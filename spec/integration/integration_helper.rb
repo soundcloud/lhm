@@ -61,6 +61,11 @@ module IntegrationHelper
     select_value(query).to_i
   end
 
+  def count_all(table)
+    query = "select count(*) from #{ table }"
+    select_value(query).to_i
+  end
+
   def key?(table, cols)
     query = "show indexes in #{ table.name } where key_name = '#{ table.idx_name(cols) }'"
     !!select_value(query)
