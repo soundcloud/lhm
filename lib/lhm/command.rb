@@ -22,12 +22,13 @@ module Lhm
     end
 
     def run(&block)
+      validate
+
       if(block_given?)
         before
         block.call(self)
         after
       else
-        validate
         execute
       end
     end
