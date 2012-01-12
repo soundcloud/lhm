@@ -16,7 +16,7 @@ describe Lhm::Chunker do
     @origin      = Lhm::Table.new("origin")
     @destination = Lhm::Table.new("destination")
     @migration   = Lhm::Migration.new(@origin, @destination)
-    @chunker     = Lhm::Chunker.new(@migration)
+    @chunker     = Lhm::Chunker.new(@migration, 1, nil, { :stride => 100_000 })
   end
 
   describe "copy into" do
