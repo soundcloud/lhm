@@ -29,6 +29,16 @@ describe Lhm do
       })
     end
 
+    it "should copy all rows" do
+      23.times { |n| execute("insert into users set reference = '#{ n }'") }
+
+      hadron_change_table("users") do |t|
+        t.add_column(:logins, "INT(12) DEFAULT '0'")
+      end
+
+      count_all("users").must_equal(23)
+    end
+
     it "should remove a column" do
       hadron_change_table("users") do |t|
         t.remove_column(:comment)
@@ -59,8 +69,8 @@ describe Lhm do
       end
 
       table_read("users").columns["flag"].must_equal({
-        :type=>"tinyint(1)",
-        :metadata=>"DEFAULT NULL"
+        :type => "tinyint(1)",
+        :metadata => "DEFAULT NULL"
       })
     end
   end

@@ -11,7 +11,7 @@ module Lhm
     include Command
 
     def initialize(migration, limit = 1, connection = nil, options = {})
-      @stride = options[:stride] || 100_000
+      @stride = options[:stride] || 40_000
       @throttle = options[:throttle] || 100
       @limit = limit
       @connection = connection
@@ -50,6 +50,8 @@ module Lhm
 
     def execute
       up_to(@limit) do |lowest, highest|
+        print "."
+
         sql copy(lowest, highest)
       end
     end
