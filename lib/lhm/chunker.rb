@@ -10,6 +10,11 @@ module Lhm
   class Chunker
     include Command
 
+    #
+    # Copy from origin to destination in chunks of size `stride`. Sleeps for
+    # `throttle` milliseconds between each stride.     
+    #
+
     def initialize(migration, limit = 1, connection = nil, options = {})
       @stride = options[:stride] || 40_000
       @throttle = options[:throttle] || 100
@@ -17,6 +22,10 @@ module Lhm
       @connection = connection
       @migration = migration
     end
+
+    #
+    # Copies from id 1 up to id `limit`.
+    #
 
     def up_to(limit)
       traversable_chunks_up_to(limit).times do |n|

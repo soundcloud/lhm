@@ -73,6 +73,46 @@ describe Lhm do
         :metadata => "DEFAULT NULL"
       })
     end
+
+    describe "parallel" do
+      it "should perserve inserts during migration" do
+        50.times { |n| execute("insert into users set reference = '#{ n }'") }
+
+        insert = Thread.new do
+          10.times do |n|
+            execute("insert into users set reference = '#{ 100 + n }'")
+            sleep(0.17)
+          end
+        end
+
+        hadron_change_table("users", :stride => 10, :throttle => 97) do |t|
+          t.add_column(:parallel, "INT(10) DEFAULT '0'")
+        end
+
+        insert.join
+
+        count_all("users").must_equal(60)
+      end
+    end
+
+    it "should perserve deletes during migration" do
+      50.times { |n| execute("insert into users set reference = '#{ n }'") }
+
+      insert = Thread.new do
+        10.times do |n|
+          execute("delete from users where id = '#{ n + 1 }'")
+          sleep(0.17)
+        end
+      end
+
+      hadron_change_table("users", :stride => 10, :throttle => 97) do |t|
+        t.add_column(:parallel, "INT(10) DEFAULT '0'")
+      end
+
+      insert.join
+
+      count_all("users").must_equal(40)
+    end
   end
 end
 

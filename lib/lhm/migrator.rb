@@ -26,20 +26,52 @@ module Lhm
       statements << statement
     end
 
+    #
+    # Add a column to a table:
+    #
+    #   hadron_change_table("users") do |t|
+    #     t.add_column(:logins, "INT(12) DEFAULT '0'")
+    #   end
+    #
+
     def add_column(name, definition = "")
       ddl = "alter table `%s` add column `%s` %s" % [@name, name, definition]
       statements << ddl.strip
     end
+
+    #
+    # Remove a column from a table:
+    #
+    #   hadron_change_table("users") do |t|
+    #     t.remove_column(:comment)
+    #   end
+    #
 
     def remove_column(name)
       ddl = "alter table `%s` drop `%s`" % [@name, name]
       statements << ddl.strip
     end
 
+    #
+    # Add an index to a table:
+    #
+    #  hadron_change_table("users") do |t|
+    #    t.add_index([:comment, :created_at])
+    #  end
+    #
+
     def add_index(cols)
       ddl = "create index `%s` on %s" % [@origin.idx_name(cols), idx_spec(cols)]
       statements << ddl.strip
     end
+
+    #
+    # Remove an index from a table
+    #
+    #   hadron_change_table("users") do |t|
+    #     t.remove_index(:username, :created_at)
+    #   end
+    #
 
     def remove_index(*cols)
       ddl = "drop index `%s` on `%s`" % [@origin.idx_name(cols), @name]

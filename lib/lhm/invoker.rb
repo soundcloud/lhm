@@ -24,11 +24,11 @@ module Lhm
       @migrator = Migrator.new(origin, connection)
     end
 
-    def run
+    def run(chunk_options = {})
       migration = @migrator.run
 
       Entangler.new(migration, @connection).run do |tangler|
-        Chunker.new(migration, tangler.epoch, @connection).run
+        Chunker.new(migration, tangler.epoch, @connection, chunk_options).run
         LockedSwitcher.new(migration, @connection).run
       end
     end

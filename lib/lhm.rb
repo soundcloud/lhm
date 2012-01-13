@@ -10,11 +10,11 @@ require 'lhm/migration'
 module Lhm
   VERSION = "1.0.0.rc.1"
 
-  def hadron_change_table(table_name, &block)
+  def hadron_change_table(table_name, chunk_options = {}, &block)
     origin = Table.parse(table_name, connection)
     invoker = Invoker.new(origin, connection)
     block.call(invoker.migrator)
-    invoker.run
+    invoker.run(chunk_options)
   end
 end
 
