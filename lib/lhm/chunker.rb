@@ -12,7 +12,7 @@ module Lhm
 
     #
     # Copy from origin to destination in chunks of size `stride`. Sleeps for
-    # `throttle` milliseconds between each stride.     
+    # `throttle` milliseconds between each stride.
     #
 
     def initialize(migration, limit = 1, connection = nil, options = {})
@@ -24,7 +24,7 @@ module Lhm
     end
 
     #
-    # Copies from id 1 up to id `limit`.
+    # Copies chunks of size `stride`, starting from id 1 up to id `limit`.
     #
 
     def up_to(limit)
