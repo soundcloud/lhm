@@ -29,7 +29,7 @@ module Lhm
 
     def self.parse(table_name, connection)
       sql = "show create table `#{ table_name }`"
-      ddl = connection.select_one(sql)["Create Table"]
+      ddl = connection.execute(sql).fetch_row.last
 
       Parser.new(ddl).parse
     end
