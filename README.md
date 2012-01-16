@@ -45,21 +45,21 @@ twitter solution [1], it does not require the presence of an indexed
 After including Lhm, `hadron_change_table` becomes available
 with the following methods:
 
-    class AddIndexToEmails < ActiveRecord::Migration
+    class MigrateArbitrary < ActiveRecord::Migration
       include Lhm
 
       def self.up
-        hadron_change_table :users do |t|
-          t.add_column :logins, "INT(12)"
-          t.add_index :logins, :created_at
-          t.execute "alter table %s add column flag tinyint(1)" % t.name
+        hadron_change_table(:users) do |t|
+          t.add_column(:arbitrary, "INT(12)")
+          t.add_index([:arbitrary, :created_at])
+          t.ddl("alter table %s add column flag tinyint(1)" % t.name)
         end
       end
 
       def self.down
-        hadron_change_table :users do |t|
-          t.remove_index :logins, :created_at
-          t.remove_column :logins
+        hadron_change_table(:users) do |t|
+          t.remove_index([:arbitrary, :created_at])
+          t.remove_column(:arbitrary)
         end
       end
     end
