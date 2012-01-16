@@ -3,8 +3,6 @@
 lib = File.expand_path('../lib', __FILE__)
 $:.unshift(lib) unless $:.include?(lib)
 
-puts $:.inspect
-
 require 'lhm'
 
 Gem::Specification.new do |s|
@@ -25,5 +23,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "mysql", "~> 2.8.1"
   s.add_development_dependency "rspec", "=1.3.1"
   s.add_development_dependency "rake"
+
+  s.add_dependency "active_record"
 end
 
