@@ -16,7 +16,7 @@ describe Lhm::Table do
     end
 
     it "should name destination" do
-      @table.destination_name.must_equal "lhmd_users"
+      @table.destination_name.must_equal "lhmn_users"
     end
 
     it "should name index with a single column" do

@@ -21,7 +21,7 @@ describe Lhm::Migrator do
       @creator.add_index(["a", "b"])
 
       @creator.statements.must_equal([
-        "create index `index_alt_on_a_and_b` on lhmd_alt(a, b)"
+        "create index `index_alt_on_a_and_b` on lhmn_alt(a, b)"
       ])
     end
 
@@ -29,7 +29,7 @@ describe Lhm::Migrator do
       @creator.remove_index(["b", "a"])
 
       @creator.statements.must_equal([
-        "drop index `index_alt_on_b_and_a` on `lhmd_alt`"
+        "drop index `index_alt_on_b_and_a` on `lhmn_alt`"
       ])
     end
   end
@@ -39,7 +39,7 @@ describe Lhm::Migrator do
       @creator.add_column("logins", "INT(12)")
 
       @creator.statements.must_equal([
-        "alter table `lhmd_alt` add column `logins` INT(12)"
+        "alter table `lhmn_alt` add column `logins` INT(12)"
       ])
     end
 
@@ -47,7 +47,7 @@ describe Lhm::Migrator do
       @creator.remove_column("logins")
 
       @creator.statements.must_equal([
-        "alter table `lhmd_alt` drop `logins`"
+        "alter table `lhmn_alt` drop `logins`"
       ])
     end
   end
@@ -57,7 +57,7 @@ describe Lhm::Migrator do
      ddl = @creator.ddl("alter table `%s` add column `f` tinyint(1)" % @creator.name)
 
      @creator.statements.must_equal([
-       "alter table `lhmd_alt` add column `f` tinyint(1)"
+       "alter table `lhmn_alt` add column `f` tinyint(1)"
      ])
     end
   end
@@ -70,11 +70,11 @@ describe Lhm::Migrator do
 
       @creator.
         statements[0].
-        must_equal("alter table `lhmd_alt` add column `first` VARCHAR(64)")
+        must_equal("alter table `lhmn_alt` add column `first` VARCHAR(64)")
 
       @creator.
         statements[1].
-        must_equal("alter table `lhmd_alt` add column `last` VARCHAR(64)")
+        must_equal("alter table `lhmn_alt` add column `last` VARCHAR(64)")
     end
   end
 end
