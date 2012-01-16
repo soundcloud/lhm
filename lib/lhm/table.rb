@@ -20,7 +20,7 @@ module Lhm
     end
 
     def destination_name
-      "lhmd_#{ @name }"
+      "lhmn_#{ @name }"
     end
 
     def idx_name(cols)
