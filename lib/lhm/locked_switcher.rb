@@ -49,9 +49,10 @@ module Lhm
       [
         "set @lhm_auto_commit = @@session.autocommit",
         "set session autocommit = 0",
-        *yield,
+        yield,
         "set session autocommit = @lhm_auto_commit"
-      ]
+
+      ].flatten
     end
 
     #

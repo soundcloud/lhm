@@ -21,9 +21,9 @@ Gem::Specification.new do |s|
 
   # this should be a real dependency, but we're using a different gem in our code
   s.add_development_dependency "mysql", "~> 2.8.1"
-  s.add_development_dependency "rspec", "=1.3.1"
+  s.add_development_dependency "minitest", "= 2.10.0"
   s.add_development_dependency "rake"
 
-  s.add_dependency "active_record"
+  s.add_dependency "activerecord"
 end
 

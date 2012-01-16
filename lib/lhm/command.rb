@@ -56,7 +56,7 @@ module Lhm
     end
 
     def sql(statements)
-      [*statements].each do |statement|
+      [statements].flatten.each do |statement|
         begin
           @connection.execute(statement)
         rescue Mysql::Error => e

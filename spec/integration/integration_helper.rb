@@ -9,7 +9,6 @@ require 'active_record'
 require 'lhm/table'
 
 module IntegrationHelper
-  delegate :select_one, :select_value, :execute, :to => :connection
 
   #
   # Connectivity
@@ -28,6 +27,18 @@ module IntegrationHelper
 
   def connection
     ActiveRecord::Base.connection
+  end
+
+  def select_one(*args)
+    connection.select_one(*args)
+  end
+
+  def select_value(*args)
+    connection.select_value(*args)
+  end
+
+  def execute(*args)
+    connection.execute(*args)
   end
 
   #

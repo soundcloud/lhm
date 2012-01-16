@@ -13,7 +13,7 @@ module Lhm
     end
 
     def common
-      @origin.columns.keys & @destination.columns.keys
+      (@origin.columns.keys & @destination.columns.keys).sort
     end
 
     def escaped
