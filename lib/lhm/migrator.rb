@@ -118,7 +118,7 @@ module Lhm
     end
 
     def idx_spec(cols)
-      "#{ @name }(#{ [*cols].map(&:to_s).join(', ') })"
+      "`#{ @name }` (#{ Array(cols).map(&:to_s).join(', ') })"
     end
   end
 end

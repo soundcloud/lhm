@@ -21,7 +21,7 @@ describe Lhm::Migrator do
       @creator.add_index(["a", "b"])
 
       @creator.statements.must_equal([
-        "create index `index_alt_on_a_and_b` on lhmn_alt(a, b)"
+        "create index `index_alt_on_a_and_b` on `lhmn_alt` (a, b)"
       ])
     end
 
