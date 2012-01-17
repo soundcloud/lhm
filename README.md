@@ -42,11 +42,11 @@ twitter solution [1], it does not require the presence of an indexed
 
 ## Usage
 
-After including Lhm, `hadron_change_table` becomes available
+After extending Lhm, `hadron_change_table` becomes available
 with the following methods:
 
     class MigrateArbitrary < ActiveRecord::Migration
-      include Lhm
+      extend Lhm
 
       def self.up
         hadron_change_table(:users) do |t|
