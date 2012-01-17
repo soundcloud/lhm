@@ -24,7 +24,8 @@ module Lhm
     end
 
     def idx_name(cols)
-      "index_#{ @name }_on_" + [*cols].join("_and_")
+      column_part = Array(cols).map { |c| c.to_s.sub(/\(.*/, "") }.join("_and_")
+      "index_#{ @name }_on_#{ column_part }"
     end
 
     def self.parse(table_name, connection)

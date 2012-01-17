@@ -25,6 +25,14 @@ describe Lhm::Migrator do
       ])
     end
 
+    it "should add an index with prefixed columns" do
+      @creator.add_index(["a(10)", "b"])
+
+      @creator.statements.must_equal([
+        "create index `index_alt_on_a_and_b` on `lhmn_alt` (a(10), b)"
+      ])
+    end
+
     it "should remove an index" do
       @creator.remove_index(["b", "a"])
 
