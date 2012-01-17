@@ -55,6 +55,14 @@ describe Lhm do
       key?(table_read("users"), ["comment", "created_at"]).must_equal(true)
     end
 
+    it "should add a unqiue index" do
+      hadron_change_table("users") do |t|
+        t.add_unique_index(:comment)
+      end
+
+      key?(table_read(:users), :comment, :unique).must_equal(true)
+    end
+
     it "should remove an index" do
       hadron_change_table("users") do |t|
         t.remove_index([:username, :created_at])

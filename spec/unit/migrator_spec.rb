@@ -33,6 +33,14 @@ describe Lhm::Migrator do
       ])
     end
 
+    it "should add an unique index" do
+      @creator.add_unique_index(["a(10)", :b])
+
+      @creator.statements.must_equal([
+        "create unique index `index_alt_on_a_and_b` on `lhmn_alt` (a(10), b)"
+      ])
+    end
+
     it "should remove an index" do
       @creator.remove_index(["b", "a"])
 

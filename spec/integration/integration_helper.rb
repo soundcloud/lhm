@@ -77,9 +77,9 @@ module IntegrationHelper
     select_value(query).to_i
   end
 
-  def key?(table, cols)
-    query = "show indexes in #{ table.name } where key_name = '#{ table.idx_name(cols) }'"
+  def key?(table, cols, type = :non_unique)
+    non_unique = type == :non_unique ? 1 : 0
+    query = "show indexes in #{ table.name } where key_name = '#{ table.idx_name(cols) }' and non_unique = #{ non_unique }"
     !!select_value(query)
   end
 end
-

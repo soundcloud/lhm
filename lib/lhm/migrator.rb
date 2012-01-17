@@ -61,7 +61,20 @@ module Lhm
     #
 
     def add_index(cols)
-      ddl = "create index `%s` on %s" % [@origin.idx_name(cols), idx_spec(cols)]
+      ddl = "create index `%s` on %s" % idx_parts(cols)
+      statements << ddl.strip
+    end
+
+    #
+    # Add a unique index to a table:
+    #
+    #  hadron_change_table("users") do |t|
+    #    t.add_unique_index([:comment, :created_at])
+    #  end
+    #
+
+    def add_unique_index(cols)
+      ddl = "create unique index `%s` on %s" % idx_parts(cols)
       statements << ddl.strip
     end
 
@@ -119,6 +132,10 @@ module Lhm
 
     def idx_spec(cols)
       "`#{ @name }` (#{ Array(cols).map(&:to_s).join(', ') })"
+    end
+
+    def idx_parts(cols)
+      [@origin.idx_name(cols), idx_spec(cols)]
     end
   end
 end
