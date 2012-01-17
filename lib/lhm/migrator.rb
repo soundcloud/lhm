@@ -73,7 +73,7 @@ module Lhm
     #   end
     #
 
-    def remove_index(*cols)
+    def remove_index(cols)
       ddl = "drop index `%s` on `%s`" % [@origin.idx_name(cols), @name]
       statements << ddl.strip
     end

@@ -57,7 +57,7 @@ describe Lhm do
 
     it "should remove an index" do
       hadron_change_table("users") do |t|
-        t.remove_index(:username, :created_at)
+        t.remove_index([:username, :created_at])
       end
 
       key?(table_read("users"), ["username", "created_at"]).must_equal(false)
