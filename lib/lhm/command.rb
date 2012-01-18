@@ -17,9 +17,7 @@ module Lhm
 
     def validate; end
 
-    def revert
-      raise NotImplementedError.new(self.class.name)
-    end
+    def revert; end
 
     def run(&block)
       validate
@@ -56,14 +54,10 @@ module Lhm
     end
 
     def sql(statements)
-      [statements].flatten.each do |statement|
-        begin
-          @connection.execute(statement)
-        rescue Mysql::Error => e
-          revert
-          error "#{ statement } failed: #{ e.inspect }"
-        end
-      end
+      Array(statements).each { |stmt| @connection.execute(stmt) }
+    rescue ActiveRecord::StatementInvalid, Mysql::Error => e
+      revert
+      error e.message
     end
   end
 end
