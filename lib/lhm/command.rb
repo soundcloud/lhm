@@ -6,18 +6,13 @@
 #
 
 module Lhm
+  class Error < StandardError
+  end
+
   module Command
     def self.included(base)
       base.send :attr_reader, :connection
     end
-
-    #
-    # Command Interface
-    #
-
-    def validate; end
-
-    def revert; end
 
     def run(&block)
       validate
@@ -29,20 +24,27 @@ module Lhm
       else
         execute
       end
+    rescue
+      revert
+      raise
     end
 
   private
+
+    def validate
+    end
+
+    def revert
+    end
 
     def execute
       raise NotImplementedError.new(self.class.name)
     end
 
     def before
-      raise NotImplementedError.new(self.class.name)
     end
 
     def after
-      raise NotImplementedError.new(self.class.name)
     end
 
     def table?(table_name)
@@ -50,13 +52,12 @@ module Lhm
     end
 
     def error(msg)
-      raise Exception.new("#{ self.class }: #{ msg }")
+      raise Error.new(msg)
     end
 
     def sql(statements)
       [statements].flatten.each { |statement| @connection.execute(statement) }
     rescue ActiveRecord::StatementInvalid, Mysql::Error => e
-      revert
       error e.message
     end
 
@@ -65,7 +66,6 @@ module Lhm
         memo += @connection.update(statement)
       end
     rescue ActiveRecord::StatementInvalid, Mysql::Error => e
-      revert
       error e.message
     end
   end
