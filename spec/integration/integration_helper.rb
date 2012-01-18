@@ -9,23 +9,29 @@ require 'active_record'
 require 'lhm/table'
 
 module IntegrationHelper
+  attr_accessor :connection
 
   #
   # Connectivity
   #
 
-  def connect!
-    ActiveRecord::Base.establish_connection(
-      :adapter => 'mysql',
-      :database => 'lhm',
-      :username => '',
-      :host => 'localhost'
-    )
-
-    ActiveRecord::Migration.verbose = !!ENV["VERBOSE"]
+  def connect_master!
+    @connection = connect!(3306)
   end
 
-  def connection
+  def connect_slave!
+    @connection = connect!(3307)
+  end
+
+  def connect!(port)
+    ActiveRecord::Base.establish_connection(
+      :adapter => 'mysql',
+      :host => '127.0.0.1',
+      :database => 'lhm',
+      :username => '',
+      :port => port
+    )
+
     ActiveRecord::Base.connection
   end
 
@@ -39,6 +45,18 @@ module IntegrationHelper
 
   def execute(*args)
     connection.execute(*args)
+  end
+
+  def slave(&block)
+    if slave_mode?
+      connect_slave!
+    end
+
+    yield block
+
+    if slave_mode?
+      connect_master!
+    end
   end
 
   #
@@ -81,5 +99,13 @@ module IntegrationHelper
     non_unique = type == :non_unique ? 1 : 0
     query = "show indexes in #{ table.name } where key_name = '#{ table.idx_name(cols) }' and non_unique = #{ non_unique }"
     !!select_value(query)
+  end
+
+  #
+  # Environment
+  #
+
+  def slave_mode?
+    !!ENV["SLAVE"]
   end
 end

@@ -15,5 +15,6 @@ Rake::TestTask.new("integration") do |t|
   t.verbose = true
 end
 
-task :default => [:unit, :integration]
+task :specs => [:unit, :integration]
+task :default => :specs
 

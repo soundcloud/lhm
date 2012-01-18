@@ -12,7 +12,7 @@ require 'lhm/migration'
 describe Lhm::Chunker do
   include IntegrationHelper
 
-  before(:each) { connect! }
+  before(:each) { connect_master! }
 
   describe "copying" do
     before(:each) do
@@ -24,7 +24,10 @@ describe Lhm::Chunker do
     it "should copy 23 rows from origin to destination" do
       23.times { |n| execute("insert into origin set common = '#{ n }'") }
       Lhm::Chunker.new(@migration, limit = 23, connection).run
-      count_all(@destination.name).must_equal(23)
+
+      slave do
+        count_all(@destination.name).must_equal(23)
+      end
     end
   end
 end

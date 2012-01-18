@@ -1,0 +1,85 @@
+#!/bin/sh
+
+#
+# Set up master slave cluster for lhm specs
+#
+
+set -e
+set -u
+
+basedir=/opt/lhm-cluster
+master_port=3306
+slave_port=3307
+
+master() { mysql --protocol=TCP -P $master_port -uroot; }
+slave() { mysql --protocol=TCP -P $slave_port -uroot; }
+
+#
+# Main
+#
+
+mkdir -p "$basedir/master/data" "$basedir/slave/data"
+
+cat <<-CNF > $basedir/master/my.cnf
+[mysqld]
+pid-file = $basedir/master/mysqld.pid
+socket = $basedir/master/mysqld.sock
+port = $master_port
+log_output = FILE
+log-error = $basedir/master/error.log
+datadir = $basedir/master/data
+log-bin = master-bin
+log-bin-index = master-bin.index
+server-id = 1
+CNF
+
+cat <<-CNF > $basedir/slave/my.cnf
+[mysqld]
+pid-file = $basedir/slave/mysqld.pid
+socket = $basedir/slave/mysqld.sock
+port = $slave_port
+log_output = FILE
+log-error = $basedir/slave/error.log
+datadir = $basedir/slave/data
+relay-log = slave-relay-bin
+relay-log-index = slave-relay-bin.index
+server-id = 2
+
+# replication (optional filters)
+
+replicate-do-table = lhm.users
+replicate-do-table = lhm.lhmn_users
+
+replicate-do-table = lhm.origin
+replicate-do-table = lhm.lhmn_origin
+
+replicate-do-table = lhm.destination
+replicate-do-table = lhm.lhmn_destination
+CNF
+
+# build system tables
+
+mysql_install_db --datadir="$basedir/master/data"
+mysql_install_db --datadir="$basedir/slave/data"
+
+# start instances
+
+mysqld --defaults-file="$basedir/master/my.cnf" &
+mysqld --defaults-file="$basedir/slave/my.cnf" &
+
+# set up master
+
+echo "create user 'slave'@'localhost' identified by 'slave'" | master
+echo "grant replication slave on *.* to 'slave'@'localhost'" | master
+
+# set up slave
+
+echo "change master to master_user = 'slave', master_password = 'slave', master_port = 3306, master_host = 'localhost'" | slave
+echo "start slave" | slave
+echo "show slave status \G" | slave
+
+# setup for test
+
+echo "grant all privileges on *.* to ''@'localhost'" | slave
+echo "grant all privileges on *.* to ''@'localhost'" | slave
+echo "create database lhm" | master

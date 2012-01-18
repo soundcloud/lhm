@@ -9,7 +9,7 @@ require File.expand_path(File.dirname(__FILE__)) + '/integration_helper'
 describe Lhm do
   include IntegrationHelper
 
-  before(:each) { connect! }
+  before(:each) { connect_master! }
 
   describe "changes" do
     before(:each) do
@@ -21,10 +21,12 @@ describe Lhm do
         t.add_column(:logins, "INT(12) DEFAULT '0'")
       end
 
-      table_read(:users).columns["logins"].must_equal({
-        :type => "int(12)",
-        :metadata => "DEFAULT '0'"
-      })
+      slave do
+        table_read(:users).columns["logins"].must_equal({
+          :type => "int(12)",
+          :metadata => "DEFAULT '0'"
+        })
+      end
     end
 
     it "should copy all rows" do
@@ -34,7 +36,9 @@ describe Lhm do
         t.add_column(:logins, "INT(12) DEFAULT '0'")
       end
 
-      count_all("users").must_equal(23)
+      slave do
+        count_all(:users).must_equal(23)
+      end
     end
 
     it "should remove a column" do
@@ -42,7 +46,9 @@ describe Lhm do
         t.remove_column(:comment)
       end
 
-      table_read(:users).columns["comment"].must_equal nil
+      slave do
+        table_read(:users).columns["comment"].must_equal nil
+      end
     end
 
     it "should add an index" do
@@ -50,7 +56,9 @@ describe Lhm do
         t.add_index([:comment, :created_at])
       end
 
-      key?(table_read(:users), [:comment, :created_at]).must_equal(true)
+      slave do
+        key?(table_read(:users), [:comment, :created_at]).must_equal(true)
+      end
     end
 
     it "should add a unqiue index" do
@@ -58,7 +66,9 @@ describe Lhm do
         t.add_unique_index(:comment)
       end
 
-      key?(table_read(:users), :comment, :unique).must_equal(true)
+      slave do
+        key?(table_read(:users), :comment, :unique).must_equal(true)
+      end
     end
 
     it "should remove an index" do
@@ -66,7 +76,9 @@ describe Lhm do
         t.remove_index([:username, :created_at])
       end
 
-      key?(table_read(:users), [:username, :created_at]).must_equal(false)
+      slave do
+        key?(table_read(:users), ["username", "created_at"]).must_equal(false)
+      end
     end
 
     it "should apply a ddl statement" do
@@ -74,10 +86,12 @@ describe Lhm do
         t.ddl("alter table %s add column flag tinyint(1)" % t.name)
       end
 
-      table_read(:users).columns["flag"].must_equal({
-        :type => "tinyint(1)",
-        :metadata => "DEFAULT NULL"
-      })
+      slave do
+        table_read(:users).columns["flag"].must_equal({
+          :type => "tinyint(1)",
+          :metadata => "DEFAULT NULL"
+        })
+      end
     end
 
     describe "parallel" do
@@ -97,7 +111,9 @@ describe Lhm do
 
         insert.join
 
-        count_all(:users).must_equal(60)
+        slave do
+          count_all(:users).must_equal(60)
+        end
       end
 
       it "should perserve deletes during migration" do
@@ -116,7 +132,9 @@ describe Lhm do
 
         delete.join
 
-        count_all(:users).must_equal(40)
+        slave do
+          count_all(:users).must_equal(40)
+        end
       end
     end
   end

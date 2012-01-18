@@ -12,7 +12,7 @@ require 'lhm/entangler'
 describe Lhm::Entangler do
   include IntegrationHelper
 
-  before(:each) { connect! }
+  before(:each) { connect_master! }
 
   describe "entanglement" do
     before(:each) do
@@ -27,7 +27,9 @@ describe Lhm::Entangler do
         execute("insert into origin (common) values ('inserted')")
       end
 
-      count(:destination, "common", "inserted").must_equal(1)
+      slave do
+        count(:destination, "common", "inserted").must_equal(1)
+      end
     end
 
     it "should replay deletes from origin into destination" do
@@ -37,7 +39,9 @@ describe Lhm::Entangler do
         execute("delete from origin where common = 'inserted'")
       end
 
-      count(:destination, "common", "inserted").must_equal(0)
+      slave do
+        count(:destination, "common", "inserted").must_equal(0)
+      end
     end
 
     it "should replay updates from origin into destination" do
@@ -46,14 +50,19 @@ describe Lhm::Entangler do
         execute("update origin set common = 'updated'")
       end
 
-      count(:destination, "common", "updated").must_equal(1)
+      slave do
+        count(:destination, "common", "updated").must_equal(1)
+      end
     end
 
     it "should remove entanglement" do
       @entangler.run {}
 
       execute("insert into origin (common) values ('inserted')")
-      count(:destination, "common", "inserted").must_equal(0)
+
+      slave do
+        count(:destination, "common", "inserted").must_equal(0)
+      end
     end
   end
 end

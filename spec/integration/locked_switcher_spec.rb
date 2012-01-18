@@ -12,7 +12,7 @@ require 'lhm/locked_switcher'
 describe Lhm::LockedSwitcher do
   include IntegrationHelper
 
-  before(:each) { connect! }
+  before(:each) { connect_master! }
 
   describe "switching" do
     before(:each) do
@@ -25,16 +25,20 @@ describe Lhm::LockedSwitcher do
       switcher = Lhm::LockedSwitcher.new(@migration, connection)
       switcher.run
 
-      table_exists?(@origin).must_equal true
-      table_read(@migration.archive_name).columns.keys.must_include "origin"
+      slave do
+        table_exists?(@origin).must_equal true
+        table_read(@migration.archive_name).columns.keys.must_include "origin"
+      end
     end
 
     it "rename destination to origin" do
       switcher = Lhm::LockedSwitcher.new(@migration, connection)
       switcher.run
 
-      table_exists?(@destination).must_equal false
-      table_read(@origin.name).columns.keys.must_include "destination"
+      slave do
+        table_exists?(@destination).must_equal false
+        table_read(@origin.name).columns.keys.must_include "destination"
+      end
     end
   end
 end
