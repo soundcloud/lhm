@@ -2,8 +2,8 @@
 #  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
 #  Schmidt
 #
-#  Switches origin with destination table with a write lock. Use this as a safe
-#  alternative to rename, which can cause slave inconsistencies:
+#  Switches origin with destination table with a write lock. Use this as
+#  a safe alternative to rename, which can cause slave inconsistencies:
 #
 #    http://bugs.mysql.com/bug.php?id=39675
 #

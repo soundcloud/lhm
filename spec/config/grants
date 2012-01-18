@@ -1,0 +1,23 @@
+#!/bin/sh
+
+source .config
+
+master() { mysql --protocol=TCP -P $master_port -uroot; }
+slave()  { mysql --protocol=TCP -P $slave_port -uroot; }
+
+# set up master
+
+echo "create user 'slave'@'localhost' identified by 'slave'" | master
+echo "grant replication slave on *.* to 'slave'@'localhost'" | master
+
+# set up slave
+
+echo "change master to master_user = 'slave', master_password = 'slave', master_port = 3306, master_host = 'localhost'" | slave
+echo "start slave" | slave
+echo "show slave status \G" | slave
+
+# setup for test
+
+echo "grant all privileges on *.* to ''@'localhost'" | master
+echo "grant all privileges on *.* to ''@'localhost'" | slave
+echo "create database lhm" | master

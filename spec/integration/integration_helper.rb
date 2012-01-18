@@ -50,6 +50,11 @@ module IntegrationHelper
   def slave(&block)
     if slave_mode?
       connect_slave!
+
+      # need to wait for the slave to catch up. a better method would be to
+      # check the master binlog position and wait for the slave to catch up
+      # to that position.
+      sleep 1
     end
 
     yield block
