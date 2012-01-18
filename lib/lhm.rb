@@ -8,7 +8,7 @@ require 'lhm/invoker'
 require 'lhm/migration'
 
 module Lhm
-  VERSION = "1.0.0.rc.1"
+  VERSION = "1.0.0.rc2"
 
   def hadron_change_table(table_name, chunk_options = {}, &block)
     origin = Table.parse(table_name, connection)

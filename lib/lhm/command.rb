@@ -54,14 +54,14 @@ module Lhm
     end
 
     def sql(statements)
-      Array(statements).each { |stmt| @connection.execute(stmt) }
+      [statements].flatten.each { |statement| @connection.execute(statement) }
     rescue ActiveRecord::StatementInvalid, Mysql::Error => e
       revert
       error e.message
     end
 
     def update(statements)
-      Array(statements).inject(0) do |memo, statement|
+      [statements].flatten.inject(0) do |memo, statement|
         memo += @connection.update(statement)
       end
     rescue ActiveRecord::StatementInvalid, Mysql::Error => e

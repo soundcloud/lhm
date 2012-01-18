@@ -1,8 +1,18 @@
-# 1.0.0-RC1
+# 1.0.0.rc2 (January 18, 2012)
+
+* Speedup migrations for tables with large ids
+* Fix conversion of milliseconds to seconds
+* Fix handling of sql errors
+* Add helper to create unique index
+* Allow index creation on prefix of column
+* Quote column names on index creation
+* Remove ambiguous method signature
+* Documentation fix
+* 1.8.7 compatibility
+
+# 1.0.0.rc1 (January 15, 2012)
 
 * rewrite.
-
-# 0.9.1
 
 # 0.2.1 (November 26, 2011)
 

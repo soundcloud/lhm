@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    lhm (1.0.0.rc.1)
+    lhm (1.0.0.rc2)
       activerecord
 
 GEM
