@@ -77,7 +77,7 @@ describe Lhm do
       end
 
       slave do
-        key?(table_read(:users), ["username", "created_at"]).must_equal(false)
+        key?(table_read(:users), [:username, :created_at]).must_equal(false)
       end
     end
 
