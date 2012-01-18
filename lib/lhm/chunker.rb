@@ -66,7 +66,7 @@ module Lhm
     end
 
     def throttle_seconds
-      @throttle / 100.0
+      @throttle / 1000.0
     end
   end
 end
