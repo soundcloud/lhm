@@ -48,7 +48,7 @@ module IntegrationHelper
   end
 
   def slave(&block)
-    if slave_mode?
+    if master_slave_mode?
       connect_slave!
 
       # need to wait for the slave to catch up. a better method would be to
@@ -59,7 +59,7 @@ module IntegrationHelper
 
     yield block
 
-    if slave_mode?
+    if master_slave_mode?
       connect_master!
     end
   end
@@ -110,7 +110,7 @@ module IntegrationHelper
   # Environment
   #
 
-  def slave_mode?
-    !!ENV["SLAVE"]
+  def master_slave_mode?
+    !!ENV["MASTER_SLAVE"]
   end
 end

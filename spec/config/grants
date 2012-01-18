@@ -20,4 +20,7 @@ echo "show slave status \G" | slave
 
 echo "grant all privileges on *.* to ''@'localhost'" | master
 echo "grant all privileges on *.* to ''@'localhost'" | slave
+
 echo "create database lhm" | master
+echo "create database lhm" | slave
+
