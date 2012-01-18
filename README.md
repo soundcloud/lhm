@@ -42,34 +42,43 @@ twitter solution [1], it does not require the presence of an indexed
 
 ## Usage
 
-    class MigrateArbitrary < ActiveRecord::Migration
+You can invoke Lhm directly from a plain ruby file after connecting active
+record to your mysql instance:
+
+    require 'lhm'
+
+    ActiveRecord::Base.establish_connection(
+      :adapter => 'mysql',
+      :host => '127.0.0.1',
+      :database => 'lhm'
+    )
+
+    Lhm.change_table(:users) do |m|
+      m.add_column(:arbitrary, "INT(12)")
+      m.add_index([:arbitrary, :created_at])
+      m.ddl("alter table %s add column flag tinyint(1)" % m.name)
+    end
+
+To use Lhm from an ActiveRecord::Migration in a Rails project, add it to your
+Gemfile, then invoke as follows:
+
+    class MigrateUsers < ActiveRecord::Migration
+
       def self.up
-        Lhm.change_table(:users) do |t|
-          t.add_column(:arbitrary, "INT(12)")
-          t.add_index([:arbitrary, :created_at])
-          t.ddl("alter table %s add column flag tinyint(1)" % t.name)
+        Lhm.change_table(:users) do |m|
+          m.add_column(:arbitrary, "INT(12)")
+          m.add_index([:arbitrary, :created_at])
+          m.ddl("alter table %s add column flag tinyint(1)" % m.name)
         end
       end
 
       def self.down
-        Lhm.change_table(:users) do |t|
-          t.remove_index([:arbitrary, :created_at])
-          t.remove_column(:arbitrary)
+        Lhm.change_table(:users) do |m|
+          m.remove_index([:arbitrary, :created_at])
+          m.remove_column(:arbitrary)
         end
       end
     end
-
-## Migration phases
-
-_TODO_
-
-### When adding a column
-
-_TODO_
-
-### When removing a column
-
-_TODO_
 
 ## Contributing
 
