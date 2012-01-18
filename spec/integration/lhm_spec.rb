@@ -3,13 +3,81 @@
 #  Schmidt
 #
 
+require 'lhm'
 require File.expand_path(File.dirname(__FILE__)) + '/integration_helper'
 
-require 'lhm'
+class AddColumnTestMigration < ActiveRecord::Migration
+  extend Lhm
+
+  def self.up
+    hadron_change_table(:users) do |t|
+      t.add_column(:logins, "INT(12) DEFAULT '0'")
+    end
+  end
+end
+
+class RemoveColumnTestMigration < ActiveRecord::Migration
+  extend Lhm
+
+  def self.up
+    hadron_change_table(:users) do |t|
+      t.remove_column(:comment)
+    end
+  end
+end
+
+class AddIndexTestMigration < ActiveRecord::Migration
+  extend Lhm
+
+  def self.up
+    hadron_change_table(:users) do |t|
+      t.add_index([:comment, :created_at])
+    end
+  end
+end
+
+class AddUniqueIndexTestMigration < ActiveRecord::Migration
+  extend Lhm
+
+  def self.up
+    hadron_change_table(:users) do |t|
+      t.add_unique_index(:comment)
+    end
+  end
+end
+
+class RemoveIndexTestMigration < ActiveRecord::Migration
+  extend Lhm
+
+  def self.up
+    hadron_change_table(:users) do |t|
+      t.remove_index([:username, :created_at])
+    end
+  end
+end
+
+class DdlTestMigration < ActiveRecord::Migration
+  extend Lhm
+
+  def self.up
+    hadron_change_table(:users) do |t|
+      t.ddl("alter table %s add column flag tinyint(1)" % t.name)
+    end
+  end
+end
+
+class ParallelTestMigration < ActiveRecord::Migration
+  extend Lhm
+
+  def self.up
+    hadron_change_table(:users, :stride => 10, :throttle => 97) do |t|
+      t.add_column(:parallel, "INT(10) DEFAULT '0'")
+    end
+  end
+end
 
 describe Lhm do
   include IntegrationHelper
-  include Lhm
 
   before(:each) { connect! }
 
@@ -19,11 +87,9 @@ describe Lhm do
     end
 
     it "should add a column" do
-      hadron_change_table("users") do |t|
-        t.add_column(:logins, "INT(12) DEFAULT '0'")
-      end
+      AddColumnTestMigration.up
 
-      table_read("users").columns["logins"].must_equal({
+      table_read(:users).columns["logins"].must_equal({
         :type => "int(12)",
         :metadata => "DEFAULT '0'"
       })
@@ -32,51 +98,39 @@ describe Lhm do
     it "should copy all rows" do
       23.times { |n| execute("insert into users set reference = '#{ n }'") }
 
-      hadron_change_table("users") do |t|
-        t.add_column(:logins, "INT(12) DEFAULT '0'")
-      end
+      AddColumnTestMigration.up
 
       count_all("users").must_equal(23)
     end
 
     it "should remove a column" do
-      hadron_change_table("users") do |t|
-        t.remove_column(:comment)
-      end
+      RemoveColumnTestMigration.up
 
-      table_read("users").columns["comment"].must_equal nil
+      table_read(:users).columns["comment"].must_equal nil
     end
 
     it "should add an index" do
-      hadron_change_table("users") do |t|
-        t.add_index([:comment, :created_at])
-      end
+      AddIndexTestMigration.up
 
-      key?(table_read("users"), ["comment", "created_at"]).must_equal(true)
+      key?(table_read(:users), [:comment, :created_at]).must_equal(true)
     end
 
     it "should add a unqiue index" do
-      hadron_change_table("users") do |t|
-        t.add_unique_index(:comment)
-      end
+      AddUniqueIndexTestMigration.up
 
       key?(table_read(:users), :comment, :unique).must_equal(true)
     end
 
     it "should remove an index" do
-      hadron_change_table("users") do |t|
-        t.remove_index([:username, :created_at])
-      end
+      RemoveIndexTestMigration.up
 
-      key?(table_read("users"), ["username", "created_at"]).must_equal(false)
+      key?(table_read(:users), [:username, :created_at]).must_equal(false)
     end
 
     it "should apply a ddl statement" do
-      hadron_change_table("users") do |t|
-        t.ddl("alter table %s add column flag tinyint(1)" % t.name)
-      end
+      DdlTestMigration.up
 
-      table_read("users").columns["flag"].must_equal({
+      table_read(:users).columns["flag"].must_equal({
         :type => "tinyint(1)",
         :metadata => "DEFAULT NULL"
       })
@@ -93,33 +147,29 @@ describe Lhm do
           end
         end
 
-        hadron_change_table("users", :stride => 10, :throttle => 97) do |t|
-          t.add_column(:parallel, "INT(10) DEFAULT '0'")
-        end
+        ParallelTestMigration.up
 
         insert.join
 
-        count_all("users").must_equal(60)
+        count_all(:users).must_equal(60)
       end
-    end
 
-    it "should perserve deletes during migration" do
-      50.times { |n| execute("insert into users set reference = '#{ n }'") }
+      it "should perserve deletes during migration" do
+        50.times { |n| execute("insert into users set reference = '#{ n }'") }
 
-      insert = Thread.new do
-        10.times do |n|
-          execute("delete from users where id = '#{ n + 1 }'")
-          sleep(0.17)
+        delete = Thread.new do
+          10.times do |n|
+            execute("delete from users where id = '#{ n + 1 }'")
+            sleep(0.17)
+          end
         end
+
+        ParallelTestMigration.up
+
+        delete.join
+
+        count_all(:users).must_equal(40)
       end
-
-      hadron_change_table("users", :stride => 10, :throttle => 97) do |t|
-        t.add_column(:parallel, "INT(10) DEFAULT '0'")
-      end
-
-      insert.join
-
-      count_all("users").must_equal(40)
     end
   end
 end

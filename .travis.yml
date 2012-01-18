@@ -1,9 +1,12 @@
+before_script:
+  - "mysql -e 'create database lhm;'"
 rvm:
   - 1.8.7
   - 1.9.2
   - 1.9.3
-before_script:
-  - "mysql -e 'create database lhm;'"
+gemfile:
+  - gemfiles/ar-2.3.gemfile
+  - gemfiles/ar-3.1.gemfile
 branches:
   only:
     - master
