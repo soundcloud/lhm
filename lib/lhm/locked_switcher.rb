@@ -19,10 +19,14 @@
 
 require 'lhm/command'
 require 'lhm/migration'
+require 'lhm/sql_helper'
 
 module Lhm
   class LockedSwitcher
     include Command
+    include SqlHelper
+
+    attr_reader :connection
 
     def initialize(migration, connection = nil)
       @migration = migration

@@ -7,6 +7,7 @@ require File.expand_path(File.dirname(__FILE__)) + "/../bootstrap"
 
 require 'active_record'
 require 'lhm/table'
+require 'lhm/sql_helper'
 
 module IntegrationHelper
   attr_accessor :connection
@@ -100,9 +101,10 @@ module IntegrationHelper
     select_value(query).to_i
   end
 
-  def key?(table, cols, type = :non_unique)
+  def key?(table_name, cols, type = :non_unique)
     non_unique = type == :non_unique ? 1 : 0
-    query = "show indexes in #{ table.name } where key_name = '#{ table.idx_name(cols) }' and non_unique = #{ non_unique }"
+    key_name = Lhm::SqlHelper.idx_name(table_name, cols)
+    query = "show indexes in #{ table_name } where key_name = '#{ key_name }' and non_unique = #{ non_unique }"
     !!select_value(query)
   end
 

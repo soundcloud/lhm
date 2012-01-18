@@ -18,30 +18,6 @@ describe Lhm::Table do
     it "should name destination" do
       @table.destination_name.must_equal "lhmn_users"
     end
-
-    it "should name index with a single column" do
-      @table.
-        idx_name(["name"]).
-        must_equal("index_users_on_name")
-    end
-
-    it "should name index with multiple columns" do
-      @table.
-        idx_name(["name", "firstname"]).
-        must_equal("index_users_on_name_and_firstname")
-    end
-
-    it "should name index with prefixed column" do
-      @table.
-        idx_name(["name(10)", "firstname"]).
-        must_equal("index_users_on_name_and_firstname")
-    end
-
-    it "should name index with column names given as symbol" do
-      @table.
-        idx_name([:name, :firstname]).
-        must_equal("index_users_on_name_and_firstname")
-    end
   end
 
   describe "constraints" do

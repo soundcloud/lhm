@@ -23,11 +23,6 @@ module Lhm
       "lhmn_#{ @name }"
     end
 
-    def idx_name(cols)
-      column_part = Array(cols).map { |c| c.to_s.sub(/\(.*/, "") }.join("_and_")
-      "index_#{ @name }_on_#{ column_part }"
-    end
-
     def self.parse(table_name, connection)
       sql = "show create table `#{ table_name }`"
       ddl = connection.execute(sql).fetch_row.last

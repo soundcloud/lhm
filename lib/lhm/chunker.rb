@@ -4,10 +4,14 @@
 #
 
 require 'lhm/command'
+require 'lhm/sql_helper'
 
 module Lhm
   class Chunker
     include Command
+    include SqlHelper
+
+    attr_reader :connection
 
     #
     # Copy from origin to destination in chunks of size `stride`. Sleeps for

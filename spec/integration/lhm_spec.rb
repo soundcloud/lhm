@@ -3,8 +3,9 @@
 #  Schmidt
 #
 
-require 'lhm'
 require File.expand_path(File.dirname(__FILE__)) + '/integration_helper'
+
+require 'lhm'
 
 describe Lhm do
   include IntegrationHelper
@@ -57,7 +58,17 @@ describe Lhm do
       end
 
       slave do
-        key?(table_read(:users), [:comment, :created_at]).must_equal(true)
+        key?(:users, [:comment, :created_at]).must_equal(true)
+      end
+    end
+
+    it "should add an index on a column with a reserved name" do
+      Lhm.change_table(:users) do |t|
+        t.add_index(:group)
+      end
+
+      slave do
+        key?(:users, :group).must_equal(true)
       end
     end
 
@@ -67,7 +78,7 @@ describe Lhm do
       end
 
       slave do
-        key?(table_read(:users), :comment, :unique).must_equal(true)
+        key?(:users, :comment, :unique).must_equal(true)
       end
     end
 
@@ -77,7 +88,7 @@ describe Lhm do
       end
 
       slave do
-        key?(table_read(:users), [:username, :created_at]).must_equal(false)
+        key?(:users, [:username, :created_at]).must_equal(false)
       end
     end
 
@@ -139,4 +150,3 @@ describe Lhm do
     end
   end
 end
-

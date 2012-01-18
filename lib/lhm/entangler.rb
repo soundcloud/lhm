@@ -7,12 +7,14 @@
 #
 
 require 'lhm/command'
+require 'lhm/sql_helper'
 
 module Lhm
   class Entangler
     include Command
+    include SqlHelper
 
-    attr_reader :epoch
+    attr_reader :epoch, :connection
 
     def initialize(migration, connection = nil)
       @common = migration.intersection

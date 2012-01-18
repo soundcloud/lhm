@@ -8,13 +8,15 @@
 
 require 'lhm/command'
 require 'lhm/migration'
+require 'lhm/sql_helper'
 require 'lhm/table'
 
 module Lhm
   class Migrator
     include Command
+    include SqlHelper
 
-    attr_reader :name, :statements
+    attr_reader :name, :statements, :connection
 
     def initialize(table, connection = nil)
       @connection = connection
@@ -37,7 +39,7 @@ module Lhm
 
     def add_column(name, definition = "")
       ddl = "alter table `%s` add column `%s` %s" % [@name, name, definition]
-      statements << ddl.strip
+      statements << ddl
     end
 
     #
@@ -50,7 +52,7 @@ module Lhm
 
     def remove_column(name)
       ddl = "alter table `%s` drop `%s`" % [@name, name]
-      statements << ddl.strip
+      statements << ddl
     end
 
     #
@@ -62,8 +64,7 @@ module Lhm
     #
 
     def add_index(cols)
-      ddl = "create index `%s` on %s" % idx_parts(cols)
-      statements << ddl.strip
+      statements << index_ddl(cols)
     end
 
     #
@@ -75,8 +76,7 @@ module Lhm
     #
 
     def add_unique_index(cols)
-      ddl = "create unique index `%s` on %s" % idx_parts(cols)
-      statements << ddl.strip
+      statements << index_ddl(cols, :unique)
     end
 
     #
@@ -88,8 +88,8 @@ module Lhm
     #
 
     def remove_index(cols)
-      ddl = "drop index `%s` on `%s`" % [@origin.idx_name(cols), @name]
-      statements << ddl.strip
+      ddl = "drop index `%s` on `%s`" % [idx_name(@origin.name, cols), @name]
+      statements << ddl
     end
 
   private
@@ -127,13 +127,10 @@ module Lhm
       Table.parse(@origin.destination_name, connection)
     end
 
-    def idx_spec(cols)
-      "`#{ @name }` (#{ Array(cols).map(&:to_s).join(', ') })"
-    end
-
-    def idx_parts(cols)
-      [@origin.idx_name(cols), idx_spec(cols)]
+    def index_ddl(cols, unique = nil)
+      type = unique ? "unique index" : "index"
+      parts = [type, idx_name(@origin.name, cols), @name, idx_spec(cols)]
+      "create %s `%s` on `%s` (%s)" % parts
     end
   end
 end
-

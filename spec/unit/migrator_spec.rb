@@ -21,7 +21,7 @@ describe Lhm::Migrator do
       @creator.add_index(["a", "b"])
 
       @creator.statements.must_equal([
-        "create index `index_alt_on_a_and_b` on `lhmn_alt` (a, b)"
+        "create index `index_alt_on_a_and_b` on `lhmn_alt` (`a`, `b`)"
       ])
     end
 
@@ -29,15 +29,15 @@ describe Lhm::Migrator do
       @creator.add_index(["a(10)", "b"])
 
       @creator.statements.must_equal([
-        "create index `index_alt_on_a_and_b` on `lhmn_alt` (a(10), b)"
+        "create index `index_alt_on_a_and_b` on `lhmn_alt` (`a`(10), `b`)"
       ])
     end
 
     it "should add an unique index" do
-      @creator.add_unique_index(["a(10)", :b])
+      @creator.add_unique_index(["a(5)", :b])
 
       @creator.statements.must_equal([
-        "create unique index `index_alt_on_a_and_b` on `lhmn_alt` (a(10), b)"
+        "create unique index `index_alt_on_a_and_b` on `lhmn_alt` (`a`(5), `b`)"
       ])
     end
 

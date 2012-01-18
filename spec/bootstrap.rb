@@ -13,4 +13,3 @@ $spec = $project.join("spec")
 $fixtures = $spec.join("fixtures")
 
 $: << $project.join("lib").to_s
-
