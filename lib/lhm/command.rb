@@ -59,6 +59,15 @@ module Lhm
       revert
       error e.message
     end
+
+    def update(statements)
+      Array(statements).inject(0) do |memo, statement|
+        memo += @connection.update(statement)
+      end
+    rescue ActiveRecord::StatementInvalid, Mysql::Error => e
+      revert
+      error e.message
+    end
   end
 end
 

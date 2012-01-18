@@ -29,7 +29,7 @@ module Lhm
 
     def up_to(limit)
       traversable_chunks_up_to(limit).times do |n|
-        yield(bottom(n + 1), top(n + 1, limit)) && sleep(throttle_seconds)
+        yield(bottom(n + 1), top(n + 1, limit))
       end
     end
 
@@ -59,9 +59,13 @@ module Lhm
 
     def execute
       up_to(@limit) do |lowest, highest|
-        print "."
+        affected_rows = update(copy(lowest, highest))
 
-        sql copy(lowest, highest)
+        if affected_rows > 0
+          sleep(throttle_seconds)
+        end
+
+        print "."
       end
     end
 
