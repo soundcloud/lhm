@@ -3,7 +3,6 @@
 #  Schmidt
 #
 
-require 'lhm/migration'
 require 'lhm/command'
 
 module Lhm

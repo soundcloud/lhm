@@ -3,7 +3,7 @@
 lib = File.expand_path('../lib', __FILE__)
 $:.unshift(lib) unless $:.include?(lib)
 
-require 'lhm'
+require 'lhm/version'
 
 Gem::Specification.new do |s|
   s.name          = "lhm"

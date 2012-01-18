@@ -8,6 +8,7 @@
 
 require 'lhm/command'
 require 'lhm/migration'
+require 'lhm/table'
 
 module Lhm
   class Migrator
@@ -29,7 +30,7 @@ module Lhm
     #
     # Add a column to a table:
     #
-    #   hadron_change_table("users") do |t|
+    #   Lhm.change_table("users") do |t|
     #     t.add_column(:logins, "INT(12) DEFAULT '0'")
     #   end
     #
@@ -42,7 +43,7 @@ module Lhm
     #
     # Remove a column from a table:
     #
-    #   hadron_change_table("users") do |t|
+    #   Lhm.change_table("users") do |t|
     #     t.remove_column(:comment)
     #   end
     #
@@ -55,7 +56,7 @@ module Lhm
     #
     # Add an index to a table:
     #
-    #  hadron_change_table("users") do |t|
+    #  Lhm.change_table("users") do |t|
     #    t.add_index([:comment, :created_at])
     #  end
     #
@@ -68,7 +69,7 @@ module Lhm
     #
     # Add a unique index to a table:
     #
-    #  hadron_change_table("users") do |t|
+    #  Lhm.change_table("users") do |t|
     #    t.add_unique_index([:comment, :created_at])
     #  end
     #
@@ -81,7 +82,7 @@ module Lhm
     #
     # Remove an index from a table
     #
-    #   hadron_change_table("users") do |t|
+    #   Lhm.change_table("users") do |t|
     #     t.remove_index(:username, :created_at)
     #   end
     #
@@ -91,9 +92,7 @@ module Lhm
       statements << ddl.strip
     end
 
-    #
-    # Command implementation
-    #
+  private
 
     def validate
       unless table?(@origin.name)
@@ -110,8 +109,6 @@ module Lhm
         error("#{ dest } should not exist; not cleaned up from previous run?")
       end
     end
-
-  private
 
     def execute
       destination_create

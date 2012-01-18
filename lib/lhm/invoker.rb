@@ -12,7 +12,6 @@
 require 'lhm/chunker'
 require 'lhm/entangler'
 require 'lhm/locked_switcher'
-require 'lhm/migration'
 require 'lhm/migrator'
 
 module Lhm

@@ -6,76 +6,6 @@
 require 'lhm'
 require File.expand_path(File.dirname(__FILE__)) + '/integration_helper'
 
-class AddColumnTestMigration < ActiveRecord::Migration
-  extend Lhm
-
-  def self.up
-    hadron_change_table(:users) do |t|
-      t.add_column(:logins, "INT(12) DEFAULT '0'")
-    end
-  end
-end
-
-class RemoveColumnTestMigration < ActiveRecord::Migration
-  extend Lhm
-
-  def self.up
-    hadron_change_table(:users) do |t|
-      t.remove_column(:comment)
-    end
-  end
-end
-
-class AddIndexTestMigration < ActiveRecord::Migration
-  extend Lhm
-
-  def self.up
-    hadron_change_table(:users) do |t|
-      t.add_index([:comment, :created_at])
-    end
-  end
-end
-
-class AddUniqueIndexTestMigration < ActiveRecord::Migration
-  extend Lhm
-
-  def self.up
-    hadron_change_table(:users) do |t|
-      t.add_unique_index(:comment)
-    end
-  end
-end
-
-class RemoveIndexTestMigration < ActiveRecord::Migration
-  extend Lhm
-
-  def self.up
-    hadron_change_table(:users) do |t|
-      t.remove_index([:username, :created_at])
-    end
-  end
-end
-
-class DdlTestMigration < ActiveRecord::Migration
-  extend Lhm
-
-  def self.up
-    hadron_change_table(:users) do |t|
-      t.ddl("alter table %s add column flag tinyint(1)" % t.name)
-    end
-  end
-end
-
-class ParallelTestMigration < ActiveRecord::Migration
-  extend Lhm
-
-  def self.up
-    hadron_change_table(:users, :stride => 10, :throttle => 97) do |t|
-      t.add_column(:parallel, "INT(10) DEFAULT '0'")
-    end
-  end
-end
-
 describe Lhm do
   include IntegrationHelper
 
@@ -87,7 +17,9 @@ describe Lhm do
     end
 
     it "should add a column" do
-      AddColumnTestMigration.up
+      Lhm.change_table(:users) do |t|
+        t.add_column(:logins, "INT(12) DEFAULT '0'")
+      end
 
       table_read(:users).columns["logins"].must_equal({
         :type => "int(12)",
@@ -98,37 +30,49 @@ describe Lhm do
     it "should copy all rows" do
       23.times { |n| execute("insert into users set reference = '#{ n }'") }
 
-      AddColumnTestMigration.up
+      Lhm.change_table(:users) do |t|
+        t.add_column(:logins, "INT(12) DEFAULT '0'")
+      end
 
       count_all("users").must_equal(23)
     end
 
     it "should remove a column" do
-      RemoveColumnTestMigration.up
+      Lhm.change_table(:users) do |t|
+        t.remove_column(:comment)
+      end
 
       table_read(:users).columns["comment"].must_equal nil
     end
 
     it "should add an index" do
-      AddIndexTestMigration.up
+      Lhm.change_table(:users) do |t|
+        t.add_index([:comment, :created_at])
+      end
 
       key?(table_read(:users), [:comment, :created_at]).must_equal(true)
     end
 
     it "should add a unqiue index" do
-      AddUniqueIndexTestMigration.up
+      Lhm.change_table(:users) do |t|
+        t.add_unique_index(:comment)
+      end
 
       key?(table_read(:users), :comment, :unique).must_equal(true)
     end
 
     it "should remove an index" do
-      RemoveIndexTestMigration.up
+      Lhm.change_table(:users) do |t|
+        t.remove_index([:username, :created_at])
+      end
 
       key?(table_read(:users), [:username, :created_at]).must_equal(false)
     end
 
     it "should apply a ddl statement" do
-      DdlTestMigration.up
+      Lhm.change_table(:users) do |t|
+        t.ddl("alter table %s add column flag tinyint(1)" % t.name)
+      end
 
       table_read(:users).columns["flag"].must_equal({
         :type => "tinyint(1)",
@@ -147,7 +91,9 @@ describe Lhm do
           end
         end
 
-        ParallelTestMigration.up
+        Lhm.change_table(:users, :stride => 10, :throttle => 97) do |t|
+          t.add_column(:parallel, "INT(10) DEFAULT '0'")
+        end
 
         insert.join
 
@@ -164,7 +110,9 @@ describe Lhm do
           end
         end
 
-        ParallelTestMigration.up
+        Lhm.change_table(:users, :stride => 10, :throttle => 97) do |t|
+          t.add_column(:parallel, "INT(10) DEFAULT '0'")
+        end
 
         delete.join
 

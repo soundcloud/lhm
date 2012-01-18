@@ -3,18 +3,19 @@
 #  Schmidt
 #
 
+require 'active_record'
 require 'lhm/table'
 require 'lhm/invoker'
-require 'lhm/migration'
+require 'lhm/version'
 
 module Lhm
-  VERSION = "1.0.0.rc2"
+  extend self
 
-  def hadron_change_table(table_name, chunk_options = {}, &block)
+  def change_table(table_name, chunk_options = {}, &block)
+    connection = ActiveRecord::Base.connection
     origin = Table.parse(table_name, connection)
     invoker = Invoker.new(origin, connection)
     block.call(invoker.migrator)
     invoker.run(chunk_options)
   end
 end
-

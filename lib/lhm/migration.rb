@@ -3,7 +3,6 @@
 #  Schmidt
 #
 
-require 'lhm/table'
 require 'lhm/intersection'
 
 module Lhm

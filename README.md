@@ -42,14 +42,9 @@ twitter solution [1], it does not require the presence of an indexed
 
 ## Usage
 
-After extending Lhm, `hadron_change_table` becomes available
-with the following methods:
-
     class MigrateArbitrary < ActiveRecord::Migration
-      extend Lhm
-
       def self.up
-        hadron_change_table(:users) do |t|
+        Lhm.change_table(:users) do |t|
           t.add_column(:arbitrary, "INT(12)")
           t.add_index([:arbitrary, :created_at])
           t.ddl("alter table %s add column flag tinyint(1)" % t.name)
@@ -57,7 +52,7 @@ with the following methods:
       end
 
       def self.down
-        hadron_change_table(:users) do |t|
+        Lhm.change_table(:users) do |t|
           t.remove_index([:arbitrary, :created_at])
           t.remove_column(:arbitrary)
         end
