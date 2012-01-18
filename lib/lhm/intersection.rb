@@ -1,11 +1,8 @@
-#
-#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
-#  Schmidt
-#
-#  Determine and format columns common to origin and destination.
-#
+# Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+# Schmidt
 
 module Lhm
+  #  Determine and format columns common to origin and destination.
   class Intersection
     def initialize(origin, destination)
       @origin = origin
@@ -39,4 +36,3 @@ module Lhm
     end
   end
 end
-

@@ -1,10 +1,5 @@
-#
-#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
-#  Schmidt
-#
-#  Copies existing schema and applies changes using alter on the empty table.
-#  `run` returns a Migration which can be used for the remaining process.
-#
+# Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+# Schmidt
 
 require 'lhm/command'
 require 'lhm/migration'
@@ -12,6 +7,8 @@ require 'lhm/sql_helper'
 require 'lhm/table'
 
 module Lhm
+  # Copies existing schema and applies changes using alter on the empty table.
+  # `run` returns a Migration which can be used for the remaining process.
   class Migrator
     include Command
     include SqlHelper
@@ -25,71 +22,100 @@ module Lhm
       @statements = []
     end
 
+    # Alter a table with a custom statement
+    #
+    # @example
+    #
+    #   Lhm.change_table(:users) do |m|
+    #     m.ddl("ALTER TABLE #{m.name} ADD COLUMN age INT(11)")
+    #   end
+    #
+    # @param [String] statement SQL alter statement
+    # @note
+    #
+    #   Don't write the table name directly into the statement. Use the #name
+    #   getter instead, because the alter statement will be executed against a
+    #   temporary table.
+    #
     def ddl(statement)
       statements << statement
     end
 
+    # Add a column to a table
     #
-    # Add a column to a table:
+    # @example
     #
-    #   Lhm.change_table("users") do |t|
-    #     t.add_column(:logins, "INT(12) DEFAULT '0'")
+    #   Lhm.change_table(:users) do |m|
+    #     m.add_column(:comment, "VARCHAR(12) DEFAULT '0'")
     #   end
     #
-
-    def add_column(name, definition = "")
-      ddl = "alter table `%s` add column `%s` %s" % [@name, name, definition]
-      statements << ddl
+    # @param [String] name Name of the column to add
+    # @param [String] definition Valid SQL column definition
+    def add_column(name, definition)
+      ddl("alter table `%s` add column `%s` %s" % [@name, name, definition])
     end
 
+    # Remove a column from a table
     #
-    # Remove a column from a table:
+    # @example
     #
-    #   Lhm.change_table("users") do |t|
-    #     t.remove_column(:comment)
+    #   Lhm.change_table(:users) do |m|
+    #     m.remove_column(:comment)
     #   end
     #
-
+    # @param [String] name Name of the column to delete
     def remove_column(name)
-      ddl = "alter table `%s` drop `%s`" % [@name, name]
-      statements << ddl
+      ddl("alter table `%s` drop `%s`" % [@name, name])
     end
 
+    # Add an index to a table
     #
-    # Add an index to a table:
+    # @example
     #
-    #  Lhm.change_table("users") do |t|
-    #    t.add_index([:comment, :created_at])
-    #  end
+    #   Lhm.change_table(:users) do |m|
+    #     m.add_index(:comment)
+    #     m.add_index([:username, :created_at])
+    #     m.add_index("comment(10)")
+    #   end
     #
-
-    def add_index(cols)
-      statements << index_ddl(cols)
+    # @param [String, Symbol, Array<String, Symbol>] columns
+    #   A column name given as String or Symbol. An Array of Strings or Symbols
+    #   for compound indexes. It's possible to pass a length limit.
+    def add_index(columns)
+      ddl(index_ddl(columns))
     end
 
+    # Add a unique index to a table
     #
-    # Add a unique index to a table:
+    # @example
     #
-    #  Lhm.change_table("users") do |t|
-    #    t.add_unique_index([:comment, :created_at])
-    #  end
+    #   Lhm.change_table(:users) do |m|
+    #     m.add_unique_index(:comment)
+    #     m.add_unique_index([:username, :created_at])
+    #     m.add_unique_index("comment(10)")
+    #   end
     #
-
-    def add_unique_index(cols)
-      statements << index_ddl(cols, :unique)
+    # @param [String, Symbol, Array<String, Symbol>] columns
+    #   A column name given as String or Symbol. An Array of Strings or Symbols
+    #   for compound indexes. It's possible to pass a length limit.
+    def add_unique_index(columns)
+      ddl(index_ddl(columns, :unique))
     end
 
-    #
     # Remove an index from a table
     #
-    #   Lhm.change_table("users") do |t|
-    #     t.remove_index(:username, :created_at)
+    # @example
+    #
+    #   Lhm.change_table(:users) do |m|
+    #     m.remove_index(:comment)
+    #     m.remove_index([:username, :created_at])
     #   end
     #
-
-    def remove_index(cols)
-      ddl = "drop index `%s` on `%s`" % [idx_name(@origin.name, cols), @name]
-      statements << ddl
+    # @param [String, Symbol, Array<String, Symbol>] columns
+    #   A column name given as String or Symbol. An Array of Strings or Symbols
+    #   for compound indexes.
+    def remove_index(columns)
+      ddl("drop index `%s` on `%s`" % [idx_name(@origin.name, columns), @name])
     end
 
   private

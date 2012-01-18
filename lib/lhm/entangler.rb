@@ -1,10 +1,5 @@
-#
-#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
-#  Schmidt
-#
-#  Creates entanglement between two tables. All creates, updates and deletes
-#  to origin will be repeated on the the destination table.
-#
+# Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+# Schmidt
 
 require 'lhm/command'
 require 'lhm/sql_helper'
@@ -16,6 +11,8 @@ module Lhm
 
     attr_reader :epoch, :connection
 
+    # Creates entanglement between two tables. All creates, updates and deletes
+    # to origin will be repeated on the destination table.
     def initialize(migration, connection = nil)
       @common = migration.intersection
       @origin = migration.origin
@@ -25,9 +22,9 @@ module Lhm
 
     def entangle
       [
-        create_trigger_del,
-        create_trigger_ins,
-        create_trigger_upd
+        create_delete_trigger,
+        create_insert_trigger,
+        create_update_trigger
       ]
     end
 
@@ -39,7 +36,7 @@ module Lhm
       ]
     end
 
-    def create_trigger_ins
+    def create_insert_trigger
       strip %Q{
         create trigger `#{ trigger(:ins) }`
         after insert on `#{ @origin.name }` for each row
@@ -48,7 +45,7 @@ module Lhm
       }
     end
 
-    def create_trigger_upd
+    def create_update_trigger
       strip %Q{
         create trigger `#{ trigger(:upd) }`
         after update on `#{ @origin.name }` for each row
@@ -57,7 +54,7 @@ module Lhm
       }
     end
 
-    def create_trigger_del
+    def create_delete_trigger
       strip %Q{
         create trigger `#{ trigger(:del) }`
         after delete on `#{ @origin.name }` for each row
@@ -69,10 +66,6 @@ module Lhm
     def trigger(type)
       "lhmt_#{ type }_#{ @origin.name }"
     end
-
-    #
-    # Command implementation
-    #
 
     def validate
       unless table?(@origin.name)
@@ -104,4 +97,3 @@ module Lhm
     end
   end
 end
-

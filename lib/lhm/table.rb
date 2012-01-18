@@ -1,7 +1,5 @@
-#
-#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
-#  Schmidt
-#
+# Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+# Schmidt
 
 module Lhm
   class Table
@@ -80,4 +78,3 @@ module Lhm
     end
   end
 end
-

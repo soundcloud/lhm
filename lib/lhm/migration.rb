@@ -1,7 +1,5 @@
-#
-#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
-#  Schmidt
-#
+# Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+# Schmidt
 
 require 'lhm/intersection'
 
@@ -23,11 +21,8 @@ module Lhm
       Intersection.new(@origin, @destination)
     end
 
-  private
-
     def startstamp
       @start.strftime "%Y_%m_%d_%H_%M_%S_#{ "%03d" % (@start.usec / 1000) }"
     end
   end
 end
-

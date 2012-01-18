@@ -1,17 +1,9 @@
-#
-#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
-#  Schmidt
-#
+# Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+# Schmidt
 
 module Lhm
   module SqlHelper
     extend self
-
-    def column_definition(cols)
-      Array(cols).map do |column|
-        column.to_s.match(/`?([^\(]+)`?(\([^\)]+\))?/).captures
-      end
-    end
 
     def idx_name(table_name, cols)
       column_names = column_definition(cols).map(&:first)
@@ -40,6 +32,14 @@ module Lhm
       end
     rescue ActiveRecord::StatementInvalid, Mysql::Error => e
       error e.message
+    end
+
+  private
+
+    def column_definition(cols)
+      Array(cols).map do |column|
+        column.to_s.match(/`?([^\(]+)`?(\([^\)]+\))?/).captures
+      end
     end
   end
 end

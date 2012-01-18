@@ -1,7 +1,5 @@
-#
-#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
-#  Schmidt
-#
+# Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+# Schmidt
 
 require 'lhm/command'
 require 'lhm/sql_helper'
@@ -13,11 +11,8 @@ module Lhm
 
     attr_reader :connection
 
-    #
     # Copy from origin to destination in chunks of size `stride`. Sleeps for
     # `throttle` milliseconds between each stride.
-    #
-
     def initialize(migration, limit = 1, connection = nil, options = {})
       @stride = options[:stride] || 40_000
       @throttle = options[:throttle] || 100
@@ -26,10 +21,9 @@ module Lhm
       @migration = migration
     end
 
-    #
     # Copies chunks of size `stride`, starting from id 1 up to id `limit`.
     #
-
+    # @param [Fixnum] limit Upper limit for chunking
     def up_to(limit)
       traversable_chunks_up_to(limit).times do |n|
         yield(bottom(n + 1), top(n + 1, limit))
@@ -49,15 +43,15 @@ module Lhm
     end
 
     def copy(lowest, highest)
-      "insert ignore into `#{ @migration.destination.name }` (#{ cols.joined  }) " +
-      "select #{ cols.joined } from `#{ @migration.origin.name }` " +
+      "insert ignore into `#{ @migration.destination.name }` (#{ columns }) " +
+      "select #{ columns } from `#{ @migration.origin.name }` " +
       "where `id` between #{ lowest } and #{ highest }"
     end
 
   private
 
-    def cols
-      @cols ||= @migration.intersection
+    def columns
+      @columns ||= @migration.intersection.joined
     end
 
     def execute
@@ -77,4 +71,3 @@ module Lhm
     end
   end
 end
-

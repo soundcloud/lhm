@@ -59,4 +59,3 @@ CNF
 
 mysql_install_db --datadir="$basedir/master/data"
 mysql_install_db --datadir="$basedir/slave/data"
-

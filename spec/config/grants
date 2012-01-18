@@ -23,4 +23,3 @@ echo "grant all privileges on *.* to ''@'localhost'" | slave
 
 echo "create database lhm" | master
 echo "create database lhm" | slave
-

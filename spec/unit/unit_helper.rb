@@ -1,7 +1,5 @@
-#
-#  Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
-#  Schmidt
-#
+# Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
+# Schmidt
 
 require File.expand_path(File.dirname(__FILE__)) + "/../bootstrap"
 
@@ -14,4 +12,3 @@ module UnitHelper
     sql.strip.gsub(/\n */, "\n")
   end
 end
-

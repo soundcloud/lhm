@@ -16,7 +16,7 @@ access becomes just as difficult.
 
 There are few things that can be done at the server or engine level. It is
 possible to change default values in an `ALTER TABLE` without locking the
-table.  The InnoDB Plugin provides facilities for online index creation, which
+table. The InnoDB Plugin provides facilities for online index creation, which
 is great if you are using this engine, but only solves half the problem.
 
 At SoundCloud we started having migration pains quite a while ago, and after
