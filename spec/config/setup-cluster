@@ -44,15 +44,15 @@ server-id = 2
 
 replicate-do-table = lhm.users
 replicate-do-table = lhm.lhmn_users
-replicate-wild-do = lhm.lhma_%_users
+replicate-wild-do-table = lhm.lhma_%_users
 
 replicate-do-table = lhm.origin
 replicate-do-table = lhm.lhmn_origin
-replicate-wild-do = lhm.lhma_%_origin
+replicate-wild-do-table = lhm.lhma_%_origin
 
 replicate-do-table = lhm.destination
 replicate-do-table = lhm.lhmn_destination
-replicate-wild-do = lhm.lhma_%_destination
+replicate-wild-do-table = lhm.lhma_%_destination
 CNF
 
 # build system tables
