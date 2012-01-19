@@ -1,3 +1,13 @@
+# 1.0.0.rc3 (January 19, 2012)
+
+* Speedup migrations for tables with large minimum id
+* Add a bit yard documentation
+* Fix issues with index creation on reserved column names
+* Improve error handling
+* Add tests for replication
+* Rename public API method from `hadron_change_table` to `change_table`
+* Add tests for ActiveRecord 2.3 and 3.1 compatibility
+
 # 1.0.0.rc2 (January 18, 2012)
 
 * Speedup migrations for tables with large ids
