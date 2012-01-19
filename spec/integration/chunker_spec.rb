@@ -20,8 +20,9 @@ describe Lhm::Chunker do
     end
 
     it "should copy 23 rows from origin to destination" do
-      23.times { |n| execute("insert into origin set common = '#{ n }'") }
-      Lhm::Chunker.new(@migration, limit = 23, connection).run
+      23.times { |n| execute("insert into origin set id = '#{ n * n + 23 }'") }
+
+      Lhm::Chunker.new(@migration, connection, { :stride => 100 }).run
 
       slave do
         count_all(@destination.name).must_equal(23)

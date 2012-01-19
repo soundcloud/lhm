@@ -23,8 +23,8 @@ module Lhm
     def run(chunk_options = {})
       migration = @migrator.run
 
-      Entangler.new(migration, @connection).run do |tangler|
-        Chunker.new(migration, tangler.epoch, @connection, chunk_options).run
+      Entangler.new(migration, @connection).run do
+        Chunker.new(migration, @connection, chunk_options).run
         LockedSwitcher.new(migration, @connection).run
       end
     end

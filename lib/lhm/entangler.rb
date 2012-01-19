@@ -9,7 +9,7 @@ module Lhm
     include Command
     include SqlHelper
 
-    attr_reader :epoch, :connection
+    attr_reader :connection
 
     # Creates entanglement between two tables. All creates, updates and deletes
     # to origin will be repeated on the destination table.
@@ -79,7 +79,6 @@ module Lhm
 
     def before
       sql(entangle)
-      @epoch = connection.select_value("select max(id) from #{ @origin.name }").to_i
     end
 
     def after
