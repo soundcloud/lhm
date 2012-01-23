@@ -2,8 +2,8 @@
 
 source .config
 
-master() { mysql --protocol=TCP -P $master_port -uroot; }
-slave()  { mysql --protocol=TCP -P $slave_port -uroot; }
+master() { "$mysqldir"/bin/mysql --protocol=TCP -P $master_port -uroot; }
+slave()  { "$mysqldir"/bin/mysql --protocol=TCP -P $slave_port -uroot; }
 
 # set up master
 
@@ -22,4 +22,4 @@ echo "grant all privileges on *.* to ''@'localhost'" | master
 echo "grant all privileges on *.* to ''@'localhost'" | slave
 
 echo "create database lhm" | master
-echo "create database lhm" | slave
+echo "create database if not exists lhm" | slave

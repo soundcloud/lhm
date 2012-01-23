@@ -12,7 +12,7 @@ lhmkill() {
 
 echo stopping other running mysql instance
 launchctl remove com.mysql.mysqld || { echo launchctl did not remove mysqld; }
-mysqladmin shutdown || { echo mysqladmin did not shut down anything; }
+"$mysqldir"/bin/mysqladmin shutdown || { echo mysqladmin did not shut down anything; }
 
 echo killing lhm-cluster
 lhmkill
@@ -24,8 +24,8 @@ echo setting up cluster
 spec/config/setup-cluster
 
 echo staring instances
-mysqld --defaults-file="$basedir/master/my.cnf" 2>&1 >$basedir/master/lhm.log &
-mysqld --defaults-file="$basedir/slave/my.cnf" 2>&1 >$basedir/slave/lhm.log &
+"$mysqldir"/bin/mysqld --defaults-file="$basedir/master/my.cnf" 2>&1 >$basedir/master/lhm.log &
+"$mysqldir"/bin/mysqld --defaults-file="$basedir/slave/my.cnf" 2>&1 >$basedir/slave/lhm.log &
 sleep 5
 
 echo running grants
