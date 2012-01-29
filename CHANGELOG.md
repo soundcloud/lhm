@@ -1,3 +1,8 @@
+
+# 1.0.0.rc4 (January 29, 2012)
+
+* added '-- lhm' to the end of statements for more visibility
+
 # 1.0.0.rc3 (January 19, 2012)
 
 * Speedup migrations for tables with large minimum id

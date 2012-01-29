@@ -21,20 +21,26 @@ module Lhm
     end
 
     def sql(statements)
-      [statements].flatten.each { |statement| connection.execute(statement) }
+      [statements].flatten.each do |statement|
+        connection.execute(tagged(statement))
+      end
     rescue ActiveRecord::StatementInvalid, Mysql::Error => e
       error e.message
     end
 
     def update(statements)
       [statements].flatten.inject(0) do |memo, statement|
-        memo += connection.update(statement)
+        memo += connection.update(tagged(statement))
       end
     rescue ActiveRecord::StatementInvalid, Mysql::Error => e
       error e.message
     end
 
   private
+
+    def tagged(statement)
+      statement + " -- lhm"
+    end
 
     def column_definition(cols)
       Array(cols).map do |column|
