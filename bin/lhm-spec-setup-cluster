@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+require 'open3'
+
+bindir = File.dirname(File.expand_path(__FILE__))
+script = File.join(bindir, File.basename($0) + ".sh 2>&1")
+
+Open3.popen3(script) do |input, output|
+  output.each { |line| print(line) }
+end

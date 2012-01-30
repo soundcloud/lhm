@@ -3,7 +3,7 @@
 set -e
 set -u
 
-source .config
+source ~/.lhm
 
 lhmkill() {
   ps -ef | gsed -n "/[m]ysqld.*lhm-cluster/p" | awk '{ print $2 }' | xargs kill
@@ -21,7 +21,7 @@ echo removing $basedir
 rm -rf "$basedir"
 
 echo setting up cluster
-spec/config/setup-cluster
+lhm-spec-setup-cluster
 
 echo staring instances
 "$mysqldir"/bin/mysqld --defaults-file="$basedir/master/my.cnf" 2>&1 >$basedir/master/lhm.log &
@@ -29,7 +29,7 @@ echo staring instances
 sleep 5
 
 echo running grants
-spec/config/grants
+lhm-spec-grants
 
 trap lhmkill SIGTERM SIGINT
 

@@ -7,11 +7,13 @@
 set -e
 set -u
 
-source .config
+source ~/.lhm
 
 #
 # Main
 #
+
+install_bin="$(echo ./*/mysql_install_db)"
 
 mkdir -p "$basedir/master/data" "$basedir/slave/data"
 
@@ -59,7 +61,7 @@ CNF
 
 (
   cd "$mysqldir"
-  ./scripts/mysql_install_db --datadir="$basedir/master/data"
-  ./scripts/mysql_install_db --datadir="$basedir/slave/data"
+  $install_bin --datadir="$basedir/master/data"
+  $install_bin --datadir="$basedir/slave/data"
 
 )

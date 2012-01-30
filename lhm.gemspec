@@ -16,8 +16,13 @@ Gem::Specification.new do |s|
   s.homepage      = %q{http://github.com/soundcloud/large-hadron-migrator}
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
+  s.executables   = [
+    "lhm-spec-clobber",
+    "lhm-spec-grants",
+    "lhm-spec-setup-cluster",
+    "lhm-kill-queue"
+  ]
 
   # this should be a real dependency, but we're using a different gem in our code
   s.add_development_dependency "mysql", "~> 2.8.1"

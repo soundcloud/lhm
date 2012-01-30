@@ -1,0 +1,138 @@
+#!/usr/bin/env ruby
+
+require 'active_record'
+require 'optparse'
+
+module Lhm
+  class KillQueue
+
+    def initialize
+      @port = 3306
+
+      OptionParser.new do |opts|
+        opts.on("-h", "--hostname HOSTNAME") { |v| @hostname = v }
+        opts.on("-u", "--username USERNAME") { |v| @username = v }
+        opts.on("-p", "--password PASSWORD") { |v| @password = v }
+        opts.on("-d", "--database DATABASE") { |v| @database = v }
+        opts.on("-m", "--mode MODE") { |v| @mode = v.to_sym }
+      end.parse!
+
+      unless(@hostname && @username && @password && @database)
+        abort usage
+      end
+
+      unless([:kill, :master, :slave].include?(@mode))
+        abort "specify -m kill OR -m master OR -m slave"
+      end
+
+      connect
+    end
+
+    def usage
+      <<-desc.gsub(/^      /, '')
+        kills queries on the given server after detecting 'lock table% -- lhm'.
+        usage:
+          lhm-kill-queue -h hostname -u username -p password -d database \\
+          (--kill | --master | --slave)
+
+      desc
+    end
+
+    def run
+      case @mode
+      when :kill then kill
+      when :master then master
+      when :slave then slave
+      end
+    end
+
+  private
+
+    def kill
+      lock_process_id = trip
+      puts "killing lock process #{ lock_process_id }."
+      kill_process(lock_process_id)
+    end
+
+    def master
+      puts "starting to kill non lhm processes in 1 second"
+      sleep(1)
+
+      list_non_lhm.each do |process|
+        puts "killing other process #{ process }."
+        kill_process(process)
+      end
+    end
+
+    def slave
+      puts "starting to kill non lhm select processes in 1 second"
+      sleep(1)
+
+      list_non_lhm.each do |process|
+        if(select?(process))
+          puts "killing read process #{ process }."
+          kill_process(process)
+        end
+      end
+    end
+
+    def connect
+      ActiveRecord::Base.establish_connection({
+        :adapter => 'mysql',
+        :host => @hostname,
+        :port => @port,
+        :username => @username,
+        :password => @password,
+        :database => @database
+      })
+    end
+
+    def connection
+      ActiveRecord::Base.connection
+    end
+
+    def list_non_lhm
+      select_process("info not like '-- lhm' and time > 0")
+    end
+
+    def trip
+      until res = select_process("info like 'lock table% -- lhm'")
+        sleep 0.2
+        print '.'
+      end
+
+      res
+    end
+
+    def kill_process(process_id)
+      connection.execute("kill #{ process_id }")
+    end
+
+    def select?(statement)
+      case statement
+      when /delete/i then false
+      when /update/i then false
+      when /insert/i then false
+      else
+        statement.grep(/select/i)
+      end
+    end
+
+    def select_process(predicate)
+      value %Q(
+        select id from information_schema.processlist
+         where db = '#{ @database }'
+           and user = '#{ @username }'
+           and #{ predicate }
+      )
+    end
+
+    def value(statement)
+      connection.select_value(statement)
+    end
+  end
+end
+
+killer = Lhm::KillQueue.new
+killer.run
+
