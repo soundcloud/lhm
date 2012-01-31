@@ -1,3 +1,7 @@
+# 1.0.0.rc6 (January 30, 2012)
+
+* added --confirm to kill script
+
 # 1.0.0.rc5 (January 30, 2012)
 
 * moved scripts into bin, renamed, added to gem binaries

@@ -15,6 +15,7 @@ module Lhm
         opts.on("-p", "--password PASSWORD") { |v| @password = v }
         opts.on("-d", "--database DATABASE") { |v| @database = v }
         opts.on("-m", "--mode MODE") { |v| @mode = v.to_sym }
+        opts.on("-y", "--confirm") { |v| @confirm = true }
       end.parse!
 
       unless(@hostname && @username && @password && @database)
@@ -33,7 +34,7 @@ module Lhm
         kills queries on the given server after detecting 'lock table% -- lhm'.
         usage:
           lhm-kill-queue -h hostname -u username -p password -d database \\
-          (--kill | --master | --slave)
+          (-m kill | -m master | -m slave) [--confirm]
 
       desc
     end
@@ -48,7 +49,6 @@ module Lhm
 
     def kill
       lock = trip
-      puts "killing lock process #{ lock }."
       kill_process(lock)
     end
 
@@ -58,7 +58,6 @@ module Lhm
       sleep(1)
 
       [list_non_lhm].flatten.each do |process|
-        puts "killing #{ select_statement(process) }"
         kill_process(process)
         sleep(0.05)
       end
@@ -71,7 +70,6 @@ module Lhm
 
       [list_non_lhm].flatten.each do |process|
         if(select?(process))
-          puts "killing #{ select_statement(process) }"
           kill_process(process)
           sleep(0.05)
         end
@@ -109,7 +107,19 @@ module Lhm
     end
 
     def kill_process(process_id)
+      puts "killing #{ select_statement(process_id) }"
+
+      if(@confirm)
+        print "confirm ('y' to confirm): "
+
+        if(gets.strip != 'y')
+          puts "skipped."
+          return
+        end
+      end
+
       connection.execute("kill #{ process_id }")
+      puts "killed #{ process_id }"
     end
 
     def select?(process)
@@ -150,4 +160,4 @@ end
 
 killer = Lhm::KillQueue.new
 killer.run
-.
+
