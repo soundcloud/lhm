@@ -46,25 +46,26 @@ module Lhm
       end
     end
 
-  private
-
     def kill
-      lock_process_id = trip
-      puts "killing lock process #{ lock_process_id }."
-      kill_process(lock_process_id)
+      lock = trip
+      puts "killing lock process #{ lock }."
+      kill_process(lock)
     end
 
     def master
+      lock = trip
       puts "starting to kill non lhm processes in 1 second"
       sleep(1)
 
       list_non_lhm.each do |process|
-        puts "killing other process #{ process }."
+        puts "killing read process #{ process }."
         kill_process(process)
+        sleep(0.05)
       end
     end
 
     def slave
+      lock = trip
       puts "starting to kill non lhm select processes in 1 second"
       sleep(1)
 
@@ -72,9 +73,12 @@ module Lhm
         if(select?(process))
           puts "killing read process #{ process }."
           kill_process(process)
+          sleep(0.05)
         end
       end
     end
+
+  private
 
     def connect
       ActiveRecord::Base.establish_connection({
@@ -92,7 +96,7 @@ module Lhm
     end
 
     def list_non_lhm
-      select_process("info not like '-- lhm' and time > 0")
+      select_process("info not like '-- lhm' and time > 0 and state != 'sleep'")
     end
 
     def trip

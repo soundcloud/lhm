@@ -1,3 +1,6 @@
+# 1.0.0.rc5 (January 30, 2012)
+
+* moved scripts into bin, renamed, added to gem binaries
 
 # 1.0.0.rc4 (January 29, 2012)
 
