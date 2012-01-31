@@ -55,7 +55,7 @@ module Lhm
     def master
       lock = trip
       puts "starting to kill non lhm processes in 1 second"
-      sleep(1)
+      sleep(1.05)
 
       [list_non_lhm].flatten.each do |process|
         kill_process(process)
@@ -124,7 +124,6 @@ module Lhm
 
     def select?(process)
       if statement = select_statement(process)
-
         case statement
         when /delete/i then false
         when /update/i then false
