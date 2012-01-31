@@ -68,9 +68,6 @@ module Lhm
       puts "starting to kill non lhm SELECT processes in 1 second"
       sleep(1)
 
-      puts "other stuff: #{ list_non_lhm.inspect }"
-      puts "list is: #{ [list_non_lhm].flatten.inspect }"
-
       [list_non_lhm].flatten.each do |process|
         if(select?(process))
           kill_process(process)
