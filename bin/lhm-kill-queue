@@ -68,6 +68,9 @@ module Lhm
       puts "starting to kill non lhm SELECT processes in 1 second"
       sleep(1)
 
+      puts "other stuff: #{ list_non_lhm.inspect }"
+      puts "list is: #{ [list_non_lhm].flatten.inspect }"
+
       [list_non_lhm].flatten.each do |process|
         if(select?(process))
           kill_process(process)
@@ -94,11 +97,11 @@ module Lhm
     end
 
     def list_non_lhm
-      select_process("info not like '% -- lhm' and time > 0 and command = 'Query'")
+      select_processes("info not like '% -- lhm' and time > 0 and command = 'Query'")
     end
 
     def trip
-      until res = select_process("info like 'lock table% -- lhm'")
+      until res = select_processes("info like 'lock table% -- lhm'")
         sleep 0.2
         print '.'
       end
@@ -142,8 +145,8 @@ module Lhm
       end
     end
 
-    def select_process(predicate)
-      value %Q(
+    def select_processes(predicate)
+      values %Q(
         select id from information_schema.processlist
          where db = '#{ @database }'
            and user = '#{ @username }'
@@ -153,6 +156,10 @@ module Lhm
 
     def value(statement)
       connection.select_value(statement)
+    end
+
+    def values(statement)
+      connection.select_values(statement)
     end
   end
 end
