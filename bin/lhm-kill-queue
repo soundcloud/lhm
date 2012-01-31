@@ -57,8 +57,8 @@ module Lhm
       puts "starting to kill non lhm processes in 1 second"
       sleep(1)
 
-      list_non_lhm.each do |process|
-        puts "killing read process #{ process }."
+      [list_non_lhm].flatten.each do |process|
+        puts "killing #{ select_statement(process) }"
         kill_process(process)
         sleep(0.05)
       end
@@ -66,12 +66,12 @@ module Lhm
 
     def slave
       lock = trip
-      puts "starting to kill non lhm select processes in 1 second"
+      puts "starting to kill non lhm SELECT processes in 1 second"
       sleep(1)
 
-      list_non_lhm.each do |process|
+      [list_non_lhm].flatten.each do |process|
         if(select?(process))
-          puts "killing read process #{ process }."
+          puts "killing #{ select_statement(process) }"
           kill_process(process)
           sleep(0.05)
         end
@@ -96,7 +96,7 @@ module Lhm
     end
 
     def list_non_lhm
-      select_process("info not like '-- lhm' and time > 0 and state != 'sleep'")
+      select_process("info not like '% -- lhm' and time > 0 and command = 'Query'")
     end
 
     def trip
@@ -112,13 +112,24 @@ module Lhm
       connection.execute("kill #{ process_id }")
     end
 
-    def select?(statement)
-      case statement
-      when /delete/i then false
-      when /update/i then false
-      when /insert/i then false
-      else
-        statement.grep(/select/i)
+    def select?(process)
+      if statement = select_statement(process)
+
+        case statement
+        when /delete/i then false
+        when /update/i then false
+        when /insert/i then false
+        else
+          !!statement.match(/select/i)
+        end
+      end
+    end
+
+    def select_statement(process)
+      if process
+        value %Q(
+          select info from information_schema.processlist where id = #{ process }
+        )
       end
     end
 
@@ -139,4 +150,4 @@ end
 
 killer = Lhm::KillQueue.new
 killer.run
-
+.
