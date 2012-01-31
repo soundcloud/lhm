@@ -1,6 +1,6 @@
 # 1.0.0.rc6 (January 30, 2012)
 
-* added --confirm to kill script
+* added --confirm to kill script; fixes to kill script
 
 # 1.0.0.rc5 (January 30, 2012)
 
