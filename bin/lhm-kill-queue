@@ -8,6 +8,8 @@ module Lhm
 
     def initialize
       @port = 3306
+      @grace = 10
+      @tiny = 0.1
 
       OptionParser.new do |opts|
         opts.on("-h", "--hostname HOSTNAME") { |v| @hostname = v }
@@ -54,24 +56,24 @@ module Lhm
 
     def master
       lock = trip
-      puts "starting to kill non lhm processes in 1 second"
-      sleep(1.05)
+      puts "starting to kill non lhm processes in #{ @grace } seconds"
+      sleep(@grace + @tiny)
 
       [list_non_lhm].flatten.each do |process|
         kill_process(process)
-        sleep(0.05)
+        sleep(@tiny)
       end
     end
 
     def slave
       lock = trip
-      puts "starting to kill non lhm SELECT processes in 1 second"
-      sleep(1)
+      puts "starting to kill non lhm SELECT processes in #{ @grace } seconds"
+      sleep(@grace + @tiny)
 
       [list_non_lhm].flatten.each do |process|
         if(select?(process))
           kill_process(process)
-          sleep(0.05)
+          sleep(@tiny)
         end
       end
     end
@@ -94,12 +96,14 @@ module Lhm
     end
 
     def list_non_lhm
-      select_processes("info not like '% -- lhm' and time > 0 and command = 'Query'")
+      select_processes %Q(
+        info not like '% -- lhm' and time > #{ @grace } and command = 'Query'
+      )
     end
 
     def trip
-      until res = select_processes("info like 'lock table% -- lhm'")
-        sleep 0.2
+      until res = select_processes("info like 'lock table% -- lhm'").first
+        sleep @tiny
         print '.'
       end
 
