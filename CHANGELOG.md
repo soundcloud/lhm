@@ -1,3 +1,9 @@
+# 1.0.0.rc7 (January 31, 2012)
+
+* added SqlHelper.annotation into the middle of trigger statements. this
+  is for the benefit of the killer script which should not kill trigger
+  statements.
+
 # 1.0.0.rc6 (January 30, 2012)
 
 * added --confirm to kill script; fixes to kill script

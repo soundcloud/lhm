@@ -40,7 +40,7 @@ module Lhm
       strip %Q{
         create trigger `#{ trigger(:ins) }`
         after insert on `#{ @origin.name }` for each row
-        replace into `#{ @destination.name }` (#{ @common.joined })
+        replace into `#{ @destination.name }` (#{ @common.joined }) #{ SqlHelper.annotation }
         values (#{ @common.typed("NEW") })
       }
     end
@@ -49,7 +49,7 @@ module Lhm
       strip %Q{
         create trigger `#{ trigger(:upd) }`
         after update on `#{ @origin.name }` for each row
-        replace into `#{ @destination.name }` (#{ @common.joined })
+        replace into `#{ @destination.name }` (#{ @common.joined }) #{ SqlHelper.annotation }
         values (#{ @common.typed("NEW") })
       }
     end
@@ -58,7 +58,7 @@ module Lhm
       strip %Q{
         create trigger `#{ trigger(:del) }`
         after delete on `#{ @origin.name }` for each row
-        delete ignore from `#{ @destination.name }`
+        delete ignore from `#{ @destination.name }` #{ SqlHelper.annotation }
         where `#{ @destination.name }`.`id` = OLD.`id`
       }
     end

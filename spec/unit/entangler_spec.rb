@@ -30,7 +30,7 @@ describe Lhm::Entangler do
       ddl = %Q{
         create trigger `lhmt_ins_origin`
         after insert on `origin` for each row
-        replace into `destination` (`info`, `tags`)
+        replace into `destination` (`info`, `tags`) /* large hadron migration */
         values (NEW.`info`, NEW.`tags`)
       }
 
@@ -41,7 +41,7 @@ describe Lhm::Entangler do
       ddl = %Q{
         create trigger `lhmt_upd_origin`
         after update on `origin` for each row
-        replace into `destination` (`info`, `tags`)
+        replace into `destination` (`info`, `tags`) /* large hadron migration */
         values (NEW.`info`, NEW.`tags`)
       }
 
@@ -52,7 +52,7 @@ describe Lhm::Entangler do
       ddl = %Q{
         create trigger `lhmt_del_origin`
         after delete on `origin` for each row
-        delete ignore from `destination`
+        delete ignore from `destination` /* large hadron migration */
         where `destination`.`id` = OLD.`id`
       }
 

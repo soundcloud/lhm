@@ -5,6 +5,10 @@ module Lhm
   module SqlHelper
     extend self
 
+    def annotation
+      "/* large hadron migration */"
+    end
+
     def idx_name(table_name, cols)
       column_names = column_definition(cols).map(&:first)
       "index_#{ table_name }_on_#{ column_names.join("_and_") }"
@@ -12,7 +16,7 @@ module Lhm
 
     def idx_spec(cols)
       column_definition(cols).map do |name, length|
-        "`#{name}`#{length}"
+        "`#{ name }`#{ length }"
       end.join(', ')
     end
 
@@ -39,7 +43,7 @@ module Lhm
   private
 
     def tagged(statement)
-      statement + " -- lhm"
+      "#{ statement } #{ SqlHelper.annotation }"
     end
 
     def column_definition(cols)

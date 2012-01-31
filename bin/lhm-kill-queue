@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'active_record'
+require 'lhm/sql_helper'
 require 'optparse'
 
 module Lhm
@@ -10,6 +11,7 @@ module Lhm
       @port = 3306
       @grace = 10
       @tiny = 0.1
+      @marker = "%#{ SqlHelper.annotation }%"
 
       OptionParser.new do |opts|
         opts.on("-h", "--hostname HOSTNAME") { |v| @hostname = v }
@@ -33,7 +35,7 @@ module Lhm
 
     def usage
       <<-desc.gsub(/^      /, '')
-        kills queries on the given server after detecting 'lock table% -- lhm'.
+        kills queries on the given server after detecting 'lock table#{ @marker }'.
         usage:
           lhm-kill-queue -h hostname -u username -p password -d database \\
           (-m kill | -m master | -m slave) [--confirm]
@@ -97,12 +99,12 @@ module Lhm
 
     def list_non_lhm
       select_processes %Q(
-        info not like '% -- lhm' and time > #{ @grace } and command = 'Query'
+        info not like '#{ @marker }' and time > #{ @grace } and command = 'Query'
       )
     end
 
     def trip
-      until res = select_processes("info like 'lock table% -- lhm'").first
+      until res = select_processes("info like 'lock table#{ @marker }'").first
         sleep @tiny
         print '.'
       end

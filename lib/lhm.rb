@@ -17,7 +17,6 @@ require 'lhm/version'
 #   end
 #
 module Lhm
-  extend self
 
   # Alters a table with the changes described in the block
   #
@@ -28,9 +27,9 @@ module Lhm
   # @option chunk_options [Fixnum] :throttle
   #   Time to wait between chunks in milliseconds (defaults to: 100)
   # @yield [Migrator] Yielded Migrator object records the changes
-  # @return [Boolean] Returns true if the migration finishs
+  # @return [Boolean] Returns true if the migration finishes
   # @raise [Error] Raises Lhm::Error in case of a error and aborts the migration
-  def change_table(table_name, chunk_options = {}, &block)
+  def self.change_table(table_name, chunk_options = {}, &block)
     connection = ActiveRecord::Base.connection
     origin = Table.parse(table_name, connection)
     invoker = Invoker.new(origin, connection)
@@ -40,3 +39,4 @@ module Lhm
     true
   end
 end
+
