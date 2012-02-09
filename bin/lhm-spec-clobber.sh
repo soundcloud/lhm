@@ -21,7 +21,7 @@ echo removing $basedir
 rm -rf "$basedir"
 
 echo setting up cluster
-lhm-spec-setup-cluster
+bin/lhm-spec-setup-cluster.sh
 
 echo staring instances
 "$mysqldir"/bin/mysqld --defaults-file="$basedir/master/my.cnf" 2>&1 >$basedir/master/lhm.log &
@@ -29,7 +29,7 @@ echo staring instances
 sleep 5
 
 echo running grants
-lhm-spec-grants
+bin/lhm-spec-grants.sh
 
 trap lhmkill SIGTERM SIGINT
 

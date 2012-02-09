@@ -16,7 +16,7 @@ directory master and slave databases will get installed into.
 # setup
 
 You can set the integration specs up to run against a master slave setup by
-running the included `lhm-spec-clobber` script. this deletes the configured
+running the included `bin/lhm-spec-clobber.sh` script. this deletes the configured
 lhm master slave setup and reinstalls and configures a master slave setup.
 
 Follow the manual instructions if you want more control over this process.
@@ -25,7 +25,7 @@ Follow the manual instructions if you want more control over this process.
 
 ## set up instances
 
-    lhm-spec-setup-cluster
+    bin/lhm-spec-setup-cluster.sh
 
 ## start instances
 
@@ -35,7 +35,7 @@ Follow the manual instructions if you want more control over this process.
 
 ## run the grants
 
-    lhm-spec-grants
+    bin/lhm-spec-grants.sh
 
 ## run specs
 

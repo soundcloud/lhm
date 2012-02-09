@@ -17,12 +17,7 @@ Gem::Specification.new do |s|
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.require_paths = ["lib"]
-  s.executables   = [
-    "lhm-spec-clobber",
-    "lhm-spec-grants",
-    "lhm-spec-setup-cluster",
-    "lhm-kill-queue"
-  ]
+  s.executables   = ["lhm-kill-queue"]
 
   # this should be a real dependency, but we're using a different gem in our code
   s.add_development_dependency "mysql", "~> 2.8.1"
