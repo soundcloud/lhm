@@ -1,3 +1,7 @@
+# 1.0.0.rc8 (Febuary 09, 2012)
+
+* removed spec binaries from gem bins
+
 # 1.0.0.rc7 (January 31, 2012)
 
 * added SqlHelper.annotation into the middle of trigger statements. this
