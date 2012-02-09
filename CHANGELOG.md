@@ -1,3 +1,8 @@
+# 1.0.0 (Febuary 09, 2012)
+
+* added change_column
+* final 1.0 release
+
 # 1.0.0.rc8 (Febuary 09, 2012)
 
 * removed spec binaries from gem bins

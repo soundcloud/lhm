@@ -103,6 +103,19 @@ describe Lhm do
       end
     end
 
+    it "should change a column" do
+      Lhm.change_table(:users) do |t|
+        t.change_column(:comment, "varchar(20) DEFAULT 'none' NOT NULL")
+      end
+
+      slave do
+        table_read(:users).columns["comment"].must_equal({
+          :type => "varchar(20)",
+          :metadata => "NOT NULL DEFAULT 'none'"
+        })
+      end
+    end
+
     describe "parallel" do
       it "should perserve inserts during migration" do
         50.times { |n| execute("insert into users set reference = '#{ n }'") }

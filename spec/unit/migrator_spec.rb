@@ -64,6 +64,15 @@ describe Lhm::Migrator do
         "alter table `lhmn_alt` drop `logins`"
       ])
     end
+
+    it "should change a column" do
+      @creator.change_column("logins", "INT(255)")
+
+      @creator.statements.must_equal([
+        "alter table `lhmn_alt` drop `logins`",
+        "alter table `lhmn_alt` add column `logins` INT(255)"
+      ])
+    end
   end
 
   describe "direct changes" do

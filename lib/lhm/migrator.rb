@@ -55,6 +55,21 @@ module Lhm
       ddl("alter table `%s` add column `%s` %s" % [@name, name, definition])
     end
 
+    # Change an existing column to a new definition
+    #
+    # @example
+    #
+    #   Lhm.change_table(:users) do |m|
+    #     m.change_column(:comment, "VARCHAR(12) DEFAULT '0' NOT NULL")
+    #   end
+    #
+    # @param [String] name Name of the column to change
+    # @param [String] definition Valid SQL column definition
+    def change_column(name, definition)
+      remove_column(name)
+      add_column(name, definition)
+    end
+
     # Remove a column from a table
     #
     # @example
