@@ -1,3 +1,7 @@
+# 1.0.1 (Febuary 09, 2012)
+
+* released to rubygems
+
 # 1.0.0 (Febuary 09, 2012)
 
 * added change_column
