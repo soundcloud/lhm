@@ -57,6 +57,10 @@ describe Lhm::Table do
         @table.columns["username"][:metadata].must_equal("DEFAULT NULL")
       end
 
+      it "should parse columns with only a name and type" do
+        @table.columns.keys.include?(:description).must_equal true
+      end
+
       it "should parse indices in show create table" do
         @table.
           indices["index_users_on_username_and_created_at"][:metadata].

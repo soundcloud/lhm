@@ -5,6 +5,7 @@ CREATE TABLE `users` (
   `group` varchar(255) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `comment` varchar(20) DEFAULT NULL,
+  `description` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_users_on_reference` (`reference`),
   KEY `index_users_on_username_and_created_at` (`username`,`created_at`)
