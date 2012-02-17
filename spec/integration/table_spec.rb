@@ -13,7 +13,7 @@ describe Lhm::Table do
     describe "create table parsing" do
       before(:each) do
         connect_master!
-        @table = Lhm::Table::Parser.new(:users, connection).parse
+        @table = table_create(:users)
       end
 
       it "should parse table name in show create table" do
