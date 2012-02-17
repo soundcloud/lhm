@@ -1,3 +1,9 @@
+# 1.0.2 (Febuary 17, 2012)
+
+* closes https://github.com/soundcloud/large-hadron-migrator/issues/11
+  this critical bug could cause data loss. table parser was replaced with
+  an implementation that reads directly from information_schema.
+
 # 1.0.1 (Febuary 09, 2012)
 
 * released to rubygems

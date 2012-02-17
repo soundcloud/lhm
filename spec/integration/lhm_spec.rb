@@ -23,7 +23,8 @@ describe Lhm do
       slave do
         table_read(:users).columns["logins"].must_equal({
           :type => "int(12)",
-          :metadata => "DEFAULT '0'"
+          :is_nullable => "YES",
+          :column_default => '0'
         })
       end
     end
@@ -98,7 +99,8 @@ describe Lhm do
       slave do
         table_read(:users).columns["flag"].must_equal({
           :type => "tinyint(1)",
-          :metadata => "DEFAULT NULL"
+          :is_nullable => "YES",
+          :column_default => nil
         })
       end
     end
@@ -111,7 +113,8 @@ describe Lhm do
       slave do
         table_read(:users).columns["comment"].must_equal({
           :type => "varchar(20)",
-          :metadata => "NOT NULL DEFAULT 'none'"
+          :is_nullable => "NO",
+          :column_default => "none"
         })
       end
     end

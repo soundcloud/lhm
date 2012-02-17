@@ -1,6 +1,8 @@
 # Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
 # Schmidt
 
+require 'lhm/sql_helper'
+
 module Lhm
   class Table
     attr_reader :name, :columns, :indices, :pk, :ddl
@@ -22,58 +24,71 @@ module Lhm
     end
 
     def self.parse(table_name, connection)
-      sql = "show create table `#{ table_name }`"
-      ddl = connection.execute(sql).fetch_row.last
-
-      Parser.new(ddl).parse
+      Parser.new(table_name, connection).parse
     end
 
     class Parser
-      def initialize(ddl)
-        @ddl = ddl
+      include SqlHelper
+
+      def initialize(table_name, connection)
+        @table_name = table_name.to_s
+        @schema_name = connection.current_database
+        @connection = connection
       end
 
-      def lines
-        @ddl.lines.to_a.map(&:strip).reject(&:empty?)
-      end
-
-      def create_definitions
-        lines[1..-2]
+      def ddl
+        sql = "show create table `#{ @table_name }`"
+        @connection.execute(sql).fetch_row.last
       end
 
       def parse
-        _, name = *lines.first.match("`([^ ]*)`")
-        pk_line = create_definitions.grep(primary).first
+        schema = read_information_schema
 
-        if pk_line
-          _, pk = *pk_line.match(primary)
-          table = Table.new(name, pk, @ddl)
-
-          create_definitions.each do |definition|
-            case definition
-              when index
-                table.indices[$1] = { :metadata => $2 }
-              when column
-                table.columns[$1] = { :type => $2, :metadata => $3 }
-            end
+        Table.new(@table_name, extract_primary_key(schema), ddl).tap do |table|
+          schema.each do |defn|
+            table.columns[defn["COLUMN_NAME"]] = {
+              :type => defn["COLUMN_TYPE"],
+              :is_nullable => defn["IS_NULLABLE"],
+              :column_default => defn["COLUMN_DEFAULT"]
+            }
           end
 
-          table
+          extract_indices(read_indices).each do |idx, columns|
+            table.indices[idx] = columns
+          end
         end
       end
 
     private
 
-      def primary
-        /^PRIMARY KEY (?:USING (?:HASH|[BR]TREE) )?\(`([^ ]*)`\),?$/
+      def read_information_schema
+        @connection.select_all %Q{
+          select *
+            from information_schema.columns
+           where table_name = "#{ @table_name }"
+             and table_schema = "#{ @schema_name }"
+        }
       end
 
-      def index
-        /^(?:UNIQUE )?(?:INDEX|KEY) `([^ ]*)` (.*?),?$/
+      def read_indices
+        @connection.select_all %Q{
+          show indexes from `#{ @schema_name }`.`#{ @table_name }`
+         where key_name != "PRIMARY"
+        }
       end
 
-      def column
-        /^`([^ ]*)` ([^ ]*) (.*?),?$/
+      def extract_indices(indices)
+        indices.map { |row| [row["Key_name"], row["Column_name"]] }.
+          inject(Hash.new { |h, k| h[k] = []}) do |memo, (idx, column)|
+            memo[idx] << column
+            memo
+          end
+      end
+
+      def extract_primary_key(schema)
+        cols = schema.select { |defn| defn["COLUMN_KEY"] == "PRI" }
+        keys = cols.map { |defn| defn["COLUMN_NAME"] }
+        keys.length == 1 ? keys.first : keys
       end
     end
   end
