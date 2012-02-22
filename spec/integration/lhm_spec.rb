@@ -119,6 +119,22 @@ describe Lhm do
       end
     end
 
+    it "should change the last column in a table" do
+      table_create(:small_table)
+
+      Lhm.change_table(:small_table) do |t|
+        t.change_column(:id, "int(5)")
+      end
+
+      slave do
+        table_read(:small_table).columns["id"].must_equal({
+          :type => "int(5)",
+          :is_nullable => "NO",
+          :column_default => "0"
+        })
+      end
+    end
+
     describe "parallel" do
       it "should perserve inserts during migration" do
         50.times { |n| execute("insert into users set reference = '#{ n }'") }

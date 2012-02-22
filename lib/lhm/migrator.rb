@@ -66,8 +66,7 @@ module Lhm
     # @param [String] name Name of the column to change
     # @param [String] definition Valid SQL column definition
     def change_column(name, definition)
-      remove_column(name)
-      add_column(name, definition)
+      ddl("alter table `%s` modify column `%s` %s" % [@name, name, definition])
     end
 
     # Remove a column from a table
