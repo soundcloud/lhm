@@ -1,19 +1,23 @@
-# 1.0.2 (Febuary 17, 2012)
+# 1.0.3 (February 23, 2012)
+
+* Improve change_column
+
+# 1.0.2 (February 17, 2012)
 
 * closes https://github.com/soundcloud/large-hadron-migrator/issues/11
   this critical bug could cause data loss. table parser was replaced with
   an implementation that reads directly from information_schema.
 
-# 1.0.1 (Febuary 09, 2012)
+# 1.0.1 (February 09, 2012)
 
 * released to rubygems
 
-# 1.0.0 (Febuary 09, 2012)
+# 1.0.0 (February 09, 2012)
 
 * added change_column
 * final 1.0 release
 
-# 1.0.0.rc8 (Febuary 09, 2012)
+# 1.0.0.rc8 (February 09, 2012)
 
 * removed spec binaries from gem bins
 
