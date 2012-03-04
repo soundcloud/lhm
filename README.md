@@ -31,13 +31,13 @@ ActiveRecord migrations.
 ## The idea
 
 The basic idea is to perform the migration online while the system is live,
-without locking the table. Similar to OAK (online alter table) [2] and the
-facebook tool [0], we use a copy table, triggers and a journal table.
+without locking the table. In contrast to OAK (online alter table) [0] and the
+facebook tool [1], we only use a copy table and triggers.
 
 The Large Hadron is a test driven Ruby solution which can easily be dropped
 into an ActiveRecord migration. It presumes a single auto incremented
 numerical primary key called id as per the Rails convention. Unlike the
-twitter solution [1], it does not require the presence of an indexed
+twitter solution [2], it does not require the presence of an indexed
 `updated_at` column.
 
 ## Usage
@@ -96,7 +96,7 @@ The license is included as LICENSE in this directory.
 
 ## Footnotes
 
-[0]: http://www.facebook.com/note.php?note\_id=430801045932 "Facebook"
-[1]: https://github.com/freels/table\_migrator "Twitter"
-[2]: http://openarkkit.googlecode.com "OAK online alter table"
+[0]: http://openarkkit.googlecode.com "OAK online alter table"
+[1]: http://www.facebook.com/note.php?note\_id=430801045932 "Facebook"
+[2]: https://github.com/freels/table\_migrator "Twitter"
 
