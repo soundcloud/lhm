@@ -28,7 +28,7 @@ module Lhm
       [statements].flatten.each do |statement|
         connection.execute(tagged(statement))
       end
-    rescue ActiveRecord::StatementInvalid, Mysql::Error => e
+    rescue => e
       error e.message
     end
 
@@ -36,7 +36,7 @@ module Lhm
       [statements].flatten.inject(0) do |memo, statement|
         memo += connection.update(tagged(statement))
       end
-    rescue ActiveRecord::StatementInvalid, Mysql::Error => e
+    rescue => e
       error e.message
     end
 
