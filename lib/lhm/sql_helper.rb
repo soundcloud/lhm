@@ -40,6 +40,10 @@ module Lhm
       error e.message
     end
 
+    def version_string
+      @version_string ||= connection.execute("show variables like 'version';").first.last
+    end
+
   private
 
     def tagged(statement)
@@ -50,6 +54,43 @@ module Lhm
       Array(cols).map do |column|
         column.to_s.match(/`?([^\(]+)`?(\([^\)]+\))?/).captures
       end
+    end
+
+    # Older versions of MySQL contain an atomic rename bug affecting bin 
+    # log order. Affected versions extract from bug report:
+    #
+    #   http://bugs.mysql.com/bug.php?id=39675
+    # 
+    # More Info: http://dev.mysql.com/doc/refman/5.5/en/metadata-locking.html
+    def supports_atomic_switch?
+      major, minor, tiny = version_string.split('.').map(&:to_i)
+
+      case major
+      when 4 then return false if minor and minor < 2
+      when 5
+        case minor
+        when 0 then return false if tiny and tiny < 52
+        when 1 then return false
+        when 4 then return false if tiny and tiny < 4
+        when 5 then return false if tiny and tiny < 3
+        end
+      when 6
+        case minor
+        when 0 then return false if tiny and tiny < 11
+        end
+      end
+      return true
+    end
+
+    def atomic_switch_warning
+      puts "\n********************************** WARNING **************************"
+      puts "* This version of mysql (#{version_string}) might not support atomic table"
+      puts "* renames while writing to binlogs [http://bugs.mysql.com/bug.php?id=39675]."
+      puts "* Defaulting to a nonatomic locking switch. You may cancel and force the"
+      puts "* atomic switch by restarting with options[:atomic_switch] => true"
+      puts "*********************************************************************\n"
+      puts "Continuing in... "
+      30.downto(1).each { |i| puts "#{i}... "; sleep 1 }
     end
   end
 end
