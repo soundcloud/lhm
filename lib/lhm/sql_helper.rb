@@ -41,7 +41,7 @@ module Lhm
     end
 
     def version_string
-      @version_string ||= connection.execute("show variables like 'version';").first.last
+      connection.execute("show variables like 'version'").first.last
     end
 
   private
@@ -57,7 +57,7 @@ module Lhm
     end
 
     # Older versions of MySQL contain an atomic rename bug affecting bin 
-    # log order. Affected versions extract from bug report:
+    # log order. Affected versions extracted from bug report:
     #
     #   http://bugs.mysql.com/bug.php?id=39675
     # 
@@ -80,17 +80,6 @@ module Lhm
         end
       end
       return true
-    end
-
-    def atomic_switch_warning
-      puts "\n********************************** WARNING **************************"
-      puts "* This version of mysql (#{version_string}) might not support atomic table"
-      puts "* renames while writing to binlogs [http://bugs.mysql.com/bug.php?id=39675]."
-      puts "* Defaulting to a nonatomic locking switch. You may cancel and force the"
-      puts "* atomic switch by restarting with options[:atomic_switch] => true"
-      puts "*********************************************************************\n"
-      puts "Continuing in... "
-      30.downto(1).each { |i| puts "#{i}... "; sleep 1 }
     end
   end
 end
