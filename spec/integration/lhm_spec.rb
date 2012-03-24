@@ -57,7 +57,17 @@ describe Lhm do
       end
 
       slave do
-        key?(:users, [:comment, :created_at]).must_equal(true)
+        index_on_columns?(:users, [:comment, :created_at]).must_equal(true)
+      end
+    end
+
+    it "should add an index with a custom name" do
+      Lhm.change_table(:users) do |t|
+        t.add_index([:comment, :created_at], :my_index_name)
+      end
+
+      slave do
+        index?(:users, :my_index_name).must_equal(true)
       end
     end
 
@@ -67,7 +77,7 @@ describe Lhm do
       end
 
       slave do
-        key?(:users, :group).must_equal(true)
+        index_on_columns?(:users, :group).must_equal(true)
       end
     end
 
@@ -77,7 +87,7 @@ describe Lhm do
       end
 
       slave do
-        key?(:users, :comment, :unique).must_equal(true)
+        index_on_columns?(:users, :comment, :unique).must_equal(true)
       end
     end
 
@@ -87,7 +97,17 @@ describe Lhm do
       end
 
       slave do
-        key?(:users, [:username, :created_at]).must_equal(false)
+        index_on_columns?(:users, [:username, :created_at]).must_equal(false)
+      end
+    end
+
+    it "should remove an index with a custom name" do
+      Lhm.change_table(:users) do |t|
+        t.remove_index(:reference, :index_users_on_reference)
+      end
+
+      slave do
+        index?(:users, :index_users_on_reference).must_equal(false)
       end
     end
 

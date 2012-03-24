@@ -99,9 +99,14 @@ module IntegrationHelper
     select_value(query).to_i
   end
 
-  def key?(table_name, cols, type = :non_unique)
-    non_unique = type == :non_unique ? 1 : 0
+  def index_on_columns?(table_name, cols, type = :non_unique)
     key_name = Lhm::SqlHelper.idx_name(table_name, cols)
+
+    index?(table_name, key_name, type)
+  end
+
+  def index?(table_name, key_name, type = :non_unique)
+    non_unique = type == :non_unique ? 1 : 0
 
     !!select_value(%Q<
       show indexes in #{ table_name }

@@ -16,14 +16,22 @@ describe Lhm::Migrator do
 
   describe "index changes" do
     it "should add an index" do
-      @creator.add_index(["a", "b"])
+      @creator.add_index(:a)
+
+      @creator.statements.must_equal([
+        "create index `index_alt_on_a` on `lhmn_alt` (`a`)"
+      ])
+    end
+
+    it "should add a composite index" do
+      @creator.add_index([:a, :b])
 
       @creator.statements.must_equal([
         "create index `index_alt_on_a_and_b` on `lhmn_alt` (`a`, `b`)"
       ])
     end
 
-    it "should add an index with prefixed columns" do
+    it "should add an index with prefix length" do
       @creator.add_index(["a(10)", "b"])
 
       @creator.statements.must_equal([
@@ -31,11 +39,27 @@ describe Lhm::Migrator do
       ])
     end
 
-    it "should add an unique index" do
+    it "should add an index with a custom name" do
+      @creator.add_index([:a, :b], :custom_index_name)
+
+      @creator.statements.must_equal([
+        "create index `custom_index_name` on `lhmn_alt` (`a`, `b`)"
+      ])
+    end
+
+    it "should add a unique index" do
       @creator.add_unique_index(["a(5)", :b])
 
       @creator.statements.must_equal([
         "create unique index `index_alt_on_a_and_b` on `lhmn_alt` (`a`(5), `b`)"
+      ])
+    end
+
+    it "should add a unique index with a custom name" do
+      @creator.add_unique_index([:a, :b], :custom_index_name)
+
+      @creator.statements.must_equal([
+        "create unique index `custom_index_name` on `lhmn_alt` (`a`, `b`)"
       ])
     end
 
@@ -44,6 +68,14 @@ describe Lhm::Migrator do
 
       @creator.statements.must_equal([
         "drop index `index_alt_on_b_and_a` on `lhmn_alt`"
+      ])
+    end
+
+    it "should remove an index with a custom name" do
+      @creator.remove_index([:a, :b], :custom_index_name)
+
+      @creator.statements.must_equal([
+        "drop index `custom_index_name` on `lhmn_alt`"
       ])
     end
   end

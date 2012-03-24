@@ -95,8 +95,10 @@ module Lhm
     # @param [String, Symbol, Array<String, Symbol>] columns
     #   A column name given as String or Symbol. An Array of Strings or Symbols
     #   for compound indexes. It's possible to pass a length limit.
-    def add_index(columns)
-      ddl(index_ddl(columns))
+    # @param [String, Symbol] index_name
+    #   Optional name of the index to be created
+    def add_index(columns, index_name = nil)
+      ddl(index_ddl(columns, false, index_name))
     end
 
     # Add a unique index to a table
@@ -112,8 +114,10 @@ module Lhm
     # @param [String, Symbol, Array<String, Symbol>] columns
     #   A column name given as String or Symbol. An Array of Strings or Symbols
     #   for compound indexes. It's possible to pass a length limit.
-    def add_unique_index(columns)
-      ddl(index_ddl(columns, :unique))
+    # @param [String, Symbol] index_name
+    #   Optional name of the index to be created
+    def add_unique_index(columns, index_name = nil)
+      ddl(index_ddl(columns, true, index_name))
     end
 
     # Remove an index from a table
@@ -128,8 +132,11 @@ module Lhm
     # @param [String, Symbol, Array<String, Symbol>] columns
     #   A column name given as String or Symbol. An Array of Strings or Symbols
     #   for compound indexes.
-    def remove_index(columns)
-      ddl("drop index `%s` on `%s`" % [idx_name(@origin.name, columns), @name])
+    # @param [String, Symbol] index_name
+    #   Optional name of the index to be removed
+    def remove_index(columns, index_name = nil)
+      index_name ||= idx_name(@origin.name, columns)
+      ddl("drop index `%s` on `%s`" % [index_name, @name])
     end
 
   private
@@ -167,9 +174,10 @@ module Lhm
       Table.parse(@origin.destination_name, connection)
     end
 
-    def index_ddl(cols, unique = nil)
+    def index_ddl(cols, unique = nil, index_name = nil)
       type = unique ? "unique index" : "index"
-      parts = [type, idx_name(@origin.name, cols), @name, idx_spec(cols)]
+      index_name ||= idx_name(@origin.name, cols)
+      parts = [type, index_name, @name, idx_spec(cols)]
       "create %s `%s` on `%s` (%s)" % parts
     end
   end

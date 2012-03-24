@@ -1,3 +1,7 @@
+# 1.1.0 (not released yet)
+
+* Add option to specify custom index name
+
 # 1.0.3 (February 23, 2012)
 
 * Improve change_column
