@@ -38,7 +38,11 @@ module Lhm
 
       def ddl
         sql = "show create table `#{ @table_name }`"
-        @connection.execute(sql).fetch_row.last
+        results = []
+        @connection.execute(sql).each(:as => :array) do |r|
+          results << r
+        end
+        results.first.last
       end
 
       def parse

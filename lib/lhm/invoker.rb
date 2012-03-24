@@ -3,6 +3,7 @@
 
 require 'lhm/chunker'
 require 'lhm/entangler'
+require 'lhm/atomic_switcher'
 require 'lhm/locked_switcher'
 require 'lhm/migrator'
 
@@ -13,19 +14,34 @@ module Lhm
   # Once the origin and destination tables have converged, origin is archived
   # and replaced by destination.
   class Invoker
-    attr_reader :migrator
+    include SqlHelper
+
+    attr_reader :migrator, :connection
 
     def initialize(origin, connection)
       @connection = connection
       @migrator = Migrator.new(origin, connection)
     end
 
-    def run(chunk_options = {})
+    def run(options = {})
+      if !options.include?(:atomic_switch)
+        if supports_atomic_switch? 
+          options[:atomic_switch] = true
+        else
+          raise Error.new("Using mysql #{version_string}. You must explicitly" +
+           "set options[:atomic_switch] (re SqlHelper#supports_atomic_switch?)") 
+        end
+      end
+
       migration = @migrator.run
 
       Entangler.new(migration, @connection).run do
-        Chunker.new(migration, @connection, chunk_options).run
-        LockedSwitcher.new(migration, @connection).run
+        Chunker.new(migration, @connection, options).run
+        if options[:atomic_switch]
+          AtomicSwitcher.new(migration, @connection).run
+        else
+          LockedSwitcher.new(migration, @connection).run
+        end
       end
     end
   end

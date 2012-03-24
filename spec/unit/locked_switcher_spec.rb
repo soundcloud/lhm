@@ -15,7 +15,7 @@ describe Lhm::LockedSwitcher do
     @origin      = Lhm::Table.new("origin")
     @destination = Lhm::Table.new("destination")
     @migration   = Lhm::Migration.new(@origin, @destination, @start)
-    @switcher    = Lhm::LockedSwitcher.new(@migration)
+    @switcher    = Lhm::LockedSwitcher.new(@migration, nil)
   end
 
   describe "uncommitted" do

@@ -6,11 +6,7 @@ require 'lhm/migration'
 require 'lhm/sql_helper'
 
 module Lhm
-  # Switches origin with destination table with a write lock. Use this as
-  # a safe alternative to rename, which can cause slave inconsistencies:
-  #
-  #   http://bugs.mysql.com/bug.php?id=39675
-  #
+  # Switches origin with destination table nonatomically using a locked write. 
   # LockedSwitcher adopts the Facebook strategy, with the following caveat:
   #
   #   "Since alter table causes an implicit commit in innodb, innodb locks get
@@ -36,6 +32,7 @@ module Lhm
     def statements
       uncommitted { switch }
     end
+
 
     def switch
       [
