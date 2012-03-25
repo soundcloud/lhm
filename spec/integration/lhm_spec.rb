@@ -16,7 +16,7 @@ describe Lhm do
     end
 
     it "should add a column" do
-      Lhm.change_table(:users) do |t|
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.add_column(:logins, "INT(12) DEFAULT '0'")
       end
 
@@ -32,7 +32,7 @@ describe Lhm do
     it "should copy all rows" do
       23.times { |n| execute("insert into users set reference = '#{ n }'") }
 
-      Lhm.change_table(:users) do |t|
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.add_column(:logins, "INT(12) DEFAULT '0'")
       end
 
@@ -42,7 +42,7 @@ describe Lhm do
     end
 
     it "should remove a column" do
-      Lhm.change_table(:users) do |t|
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.remove_column(:comment)
       end
 
@@ -52,7 +52,7 @@ describe Lhm do
     end
 
     it "should add an index" do
-      Lhm.change_table(:users) do |t|
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.add_index([:comment, :created_at])
       end
 
@@ -62,7 +62,7 @@ describe Lhm do
     end
 
     it "should add an index with a custom name" do
-      Lhm.change_table(:users) do |t|
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.add_index([:comment, :created_at], :my_index_name)
       end
 
@@ -72,7 +72,7 @@ describe Lhm do
     end
 
     it "should add an index on a column with a reserved name" do
-      Lhm.change_table(:users) do |t|
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.add_index(:group)
       end
 
@@ -82,7 +82,7 @@ describe Lhm do
     end
 
     it "should add a unqiue index" do
-      Lhm.change_table(:users) do |t|
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.add_unique_index(:comment)
       end
 
@@ -92,7 +92,7 @@ describe Lhm do
     end
 
     it "should remove an index" do
-      Lhm.change_table(:users) do |t|
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.remove_index([:username, :created_at])
       end
 
@@ -102,7 +102,7 @@ describe Lhm do
     end
 
     it "should remove an index with a custom name" do
-      Lhm.change_table(:users) do |t|
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.remove_index(:reference, :index_users_on_reference)
       end
 
@@ -112,7 +112,7 @@ describe Lhm do
     end
 
     it "should apply a ddl statement" do
-      Lhm.change_table(:users) do |t|
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.ddl("alter table %s add column flag tinyint(1)" % t.name)
       end
 
@@ -126,7 +126,7 @@ describe Lhm do
     end
 
     it "should change a column" do
-      Lhm.change_table(:users) do |t|
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.change_column(:comment, "varchar(20) DEFAULT 'none' NOT NULL")
       end
 
@@ -142,7 +142,7 @@ describe Lhm do
     it "should change the last column in a table" do
       table_create(:small_table)
 
-      Lhm.change_table(:small_table) do |t|
+      Lhm.change_table(:small_table, :atomic_switch => false) do |t|
         t.change_column(:id, "int(5)")
       end
 
@@ -166,7 +166,8 @@ describe Lhm do
           end
         end
 
-        Lhm.change_table(:users, :stride => 10, :throttle => 97) do |t|
+        options = { :stride => 10, :throttle => 97, :atomic_switch => false }
+        Lhm.change_table(:users, options) do |t|
           t.add_column(:parallel, "INT(10) DEFAULT '0'")
         end
 
@@ -187,7 +188,8 @@ describe Lhm do
           end
         end
 
-        Lhm.change_table(:users, :stride => 10, :throttle => 97) do |t|
+        options = { :stride => 10, :throttle => 97, :atomic_switch => false }
+        Lhm.change_table(:users, options) do |t|
           t.add_column(:parallel, "INT(10) DEFAULT '0'")
         end
 

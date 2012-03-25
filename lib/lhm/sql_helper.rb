@@ -40,6 +40,10 @@ module Lhm
       error e.message
     end
 
+    def version_string
+      connection.select_one("show variables like 'version'")["Value"]
+    end
+
   private
 
     def tagged(statement)
@@ -50,6 +54,32 @@ module Lhm
       Array(cols).map do |column|
         column.to_s.match(/`?([^\(]+)`?(\([^\)]+\))?/).captures
       end
+    end
+
+    # Older versions of MySQL contain an atomic rename bug affecting bin
+    # log order. Affected versions extracted from bug report:
+    #
+    #   http://bugs.mysql.com/bug.php?id=39675
+    #
+    # More Info: http://dev.mysql.com/doc/refman/5.5/en/metadata-locking.html
+    def supports_atomic_switch?
+      major, minor, tiny = version_string.split('.').map(&:to_i)
+
+      case major
+      when 4 then return false if minor and minor < 2
+      when 5
+        case minor
+        when 0 then return false if tiny and tiny < 52
+        when 1 then return false
+        when 4 then return false if tiny and tiny < 4
+        when 5 then return false if tiny and tiny < 3
+        end
+      when 6
+        case minor
+        when 0 then return false if tiny and tiny < 11
+        end
+      end
+      return true
     end
   end
 end

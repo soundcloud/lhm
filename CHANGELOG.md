@@ -2,6 +2,7 @@
 
 * Add option to specify custom index name
 * Add mysql2 compatibility
+* Add AtomicSwitcher
 
 # 1.0.3 (February 23, 2012)
 
