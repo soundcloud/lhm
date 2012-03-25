@@ -53,6 +53,7 @@ module IntegrationHelper
       connection.execute(*args)
     rescue ActiveRecord::StatementInvalid => e
       if (retries -= 1) > 0 && e.message =~ /Table '.*?' doesn't exist/
+        sleep 0.1
         retry
       else
         raise
@@ -122,7 +123,7 @@ module IntegrationHelper
   def index?(table_name, key_name, type = :non_unique)
     non_unique = type == :non_unique ? 1 : 0
 
-    !!select_value(%Q<
+    !!select_one(%Q<
       show indexes in #{ table_name }
      where key_name = '#{ key_name }'
        and non_unique = #{ non_unique }
