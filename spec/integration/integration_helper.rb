@@ -4,34 +4,39 @@
 require File.expand_path(File.dirname(__FILE__)) + "/../bootstrap"
 
 require 'active_record'
+begin
+  require 'mysql2'
+rescue LoadError
+  require 'mysql'
+end
 require 'lhm/table'
 require 'lhm/sql_helper'
 
 module IntegrationHelper
-  attr_accessor :connection
-
   #
   # Connectivity
   #
 
+  def connection
+    ActiveRecord::Base.connection
+  end
+
   def connect_master!
-    @connection = connect!(3306)
+    connect!(3306)
   end
 
   def connect_slave!
-    @connection = connect!(3307)
+    connect!(3307)
   end
 
   def connect!(port)
     ActiveRecord::Base.establish_connection(
-      :adapter => 'mysql',
+      :adapter => defined?(Mysql2) ? 'mysql2' : 'mysql',
       :host => '127.0.0.1',
       :database => 'lhm',
       :username => '',
       :port => port
     )
-
-    ActiveRecord::Base.connection
   end
 
   def select_one(*args)

@@ -1,6 +1,7 @@
 # 1.1.0 (not released yet)
 
 * Add option to specify custom index name
+* Add mysql2 compatibility
 
 # 1.0.3 (February 23, 2012)
 

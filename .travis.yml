@@ -5,5 +5,6 @@ rvm:
   - 1.8.7
   - 1.9.3
 gemfile:
-  - gemfiles/ar-2.3.gemfile
-  - gemfiles/ar-3.2.gemfile
+  - gemfiles/ar-2.3_mysql.gemfile
+  - gemfiles/ar-3.2_mysql.gemfile
+  - gemfiles/ar-3.2_mysql2.gemfile
