@@ -48,7 +48,16 @@ module IntegrationHelper
   end
 
   def execute(*args)
-    connection.execute(*args)
+    retries = 10
+    begin
+      connection.execute(*args)
+    rescue ActiveRecord::StatementInvalid => e
+      if (retries -= 1) > 0 && e.message =~ /Table '.*?' doesn't exist/
+        retry
+      else
+        raise
+      end
+    end
   end
 
   def slave(&block)
