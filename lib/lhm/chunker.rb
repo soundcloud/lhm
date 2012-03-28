@@ -91,6 +91,7 @@ module Lhm
 
         print "."
       end
+      print "\n"
     end
   end
 end
