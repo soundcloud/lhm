@@ -7,6 +7,10 @@ require 'lhm/sql_helper'
 
 module Lhm
   # Switches origin with destination table using an atomic rename.
+  #
+  # It should only be used if the MySQL server version is not affected by the
+  # bin log affecting bug #39675. This can be verified using
+  # Lhm::SqlHelper.supports_atomic_switch?.
   class AtomicSwitcher
     include Command
     include SqlHelper
