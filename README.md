@@ -91,7 +91,7 @@ class MigrateUsers < ActiveRecord::Migration
   def self.down
     Lhm.change_table :users do |m|
       m.remove_index  [:arbitrary_id, :created_at]
-      m.remove_column :arbitrary)
+      m.remove_column :arbitrary
     end
   end
 end
