@@ -22,7 +22,7 @@ module Lhm
     end
 
     def startstamp
-      (@start.to_f * 1000).round
+      @start.to_i
     end
   end
 end

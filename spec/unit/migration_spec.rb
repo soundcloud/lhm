@@ -17,7 +17,7 @@ describe Lhm::Migration do
   end
 
   it "should name archive" do
-    stamp = (@start.to_f * 1000).round
+    stamp = @start.to_i
     @migration.archive_name.must_equal "lhma_#{stamp}_origin"
   end
 end
