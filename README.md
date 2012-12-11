@@ -97,6 +97,8 @@ class MigrateUsers < ActiveRecord::Migration
 end
 ```
 
+**Note:** LHM won't delete the old, leftover table. This is on purpose, in order to prevent accidental data loss.
+
 ## Table rename strategies
 
 There are two different table rename strategies available: LockedSwitcher and
