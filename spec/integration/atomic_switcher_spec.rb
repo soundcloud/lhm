@@ -21,6 +21,7 @@ describe Lhm::AtomicSwitcher do
 
     it "rename origin to archive" do
       switcher = Lhm::AtomicSwitcher.new(@migration, connection)
+      sleep 2
       switcher.run
 
       slave do
@@ -31,6 +32,7 @@ describe Lhm::AtomicSwitcher do
 
     it "rename destination to origin" do
       switcher = Lhm::AtomicSwitcher.new(@migration, connection)
+      sleep 2
       switcher.run
 
       slave do

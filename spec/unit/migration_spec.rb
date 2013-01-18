@@ -17,7 +17,7 @@ describe Lhm::Migration do
   end
 
   it "should name archive" do
-    stamp = "%Y_%m_%d_%H_%M_%S_#{ "%03d" % (@start.usec / 1000) }"
-    @migration.archive_name.must_equal "lhma_#{ @start.strftime(stamp) }_origin"
+    stamp = @start.to_i
+    @migration.archive_name.must_equal "lhma_#{stamp}_origin"
   end
 end
