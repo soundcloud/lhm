@@ -6,7 +6,7 @@ require 'lhm/connection'
 if defined?(DataMapper)
   describe Lhm::Connection::DataMapperConnection do
     let(:data_mapper) { MiniTest::Mock.new }
-    let(:options)     { { 'path' => '/the db' } }
+    let(:options)     { { 'database' => 'the db' } }
 
     before do
       data_mapper.expect :is_a?, true, [DataMapper::Adapters::AbstractAdapter]
@@ -21,9 +21,15 @@ if defined?(DataMapper)
       connection.must_be_instance_of(Lhm::Connection::DataMapperConnection)
     end
 
-
-    it 'initializes the db name from the options' do
+    it 'initializes the db name from the database option' do
       connection.current_database.must_equal('the db')
+    end
+
+    it 'initializes the db name form the path if the database option is not available' do
+      options['database'] = nil
+      options['path'] = '/still the db'
+
+      connection.current_database.must_equal('still the db')
     end
 
     it 'backticks the table names' do

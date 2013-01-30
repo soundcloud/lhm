@@ -17,7 +17,7 @@ module Lhm
 
       def initialize(adapter)
         @adapter       = adapter
-        @database_name = adapter.options['path'][1..-1]
+        @database_name = adapter.options['database'] || adapter.options['path'][1..-1]
       end
 
       def sql(statements)
