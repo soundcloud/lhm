@@ -1,3 +1,8 @@
+# 1.2.0 (January 30, 2013)
+
+* Added DataMapper support, no API changes for current users. Refer to the
+  README for information.
+
 # 1.1.0 (April 29, 2012)
 
 * Add option to specify custom index name
