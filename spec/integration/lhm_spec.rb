@@ -161,10 +161,12 @@ describe Lhm do
 
         insert = Thread.new do
           10.times do |n|
+            connect_master!
             execute("insert into users set reference = '#{ 100 + n }'")
             sleep(0.17)
           end
         end
+        sleep 2
 
         options = { :stride => 10, :throttle => 97, :atomic_switch => false }
         Lhm.change_table(:users, options) do |t|
@@ -187,6 +189,7 @@ describe Lhm do
             sleep(0.17)
           end
         end
+        sleep 2
 
         options = { :stride => 10, :throttle => 97, :atomic_switch => false }
         Lhm.change_table(:users, options) do |t|

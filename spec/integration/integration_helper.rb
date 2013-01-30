@@ -3,22 +3,27 @@
 
 require File.expand_path(File.dirname(__FILE__)) + "/../bootstrap"
 
-require 'active_record'
 begin
-  require 'mysql2'
+  require 'active_record'
+  begin
+    require 'mysql2'
+  rescue LoadError
+    require 'mysql'
+  end
 rescue LoadError
-  require 'mysql'
+  require 'dm-core'
+  require 'dm-mysql-adapter'
 end
 require 'lhm/table'
 require 'lhm/sql_helper'
+require 'lhm/connection'
 
 module IntegrationHelper
   #
   # Connectivity
   #
-
   def connection
-    ActiveRecord::Base.connection
+    @connection
   end
 
   def connect_master!
@@ -30,28 +35,37 @@ module IntegrationHelper
   end
 
   def connect!(port)
-    ActiveRecord::Base.establish_connection(
-      :adapter => defined?(Mysql2) ? 'mysql2' : 'mysql',
-      :host => '127.0.0.1',
-      :database => 'lhm',
-      :username => '',
-      :port => port
-    )
+    adapter = nil
+    if defined?(ActiveRecord)
+      ActiveRecord::Base.establish_connection(
+        :adapter  => defined?(Mysql2) ? 'mysql2' : 'mysql',
+        :host     => '127.0.0.1',
+        :database => 'lhm',
+        :username => 'root',
+        :port     => port
+      )
+      adapter = ActiveRecord::Base.connection
+    elsif defined?(DataMapper)
+      adapter = DataMapper.setup(:default, "mysql://root@localhost:#{port}/lhm")
+    end
+
+    Lhm.setup(adapter)
+    @connection = Lhm::Connection.new(adapter)
   end
 
   def select_one(*args)
-    connection.select_one(*args)
+    @connection.select_one(*args)
   end
 
   def select_value(*args)
-    connection.select_value(*args)
+    @connection.select_value(*args)
   end
 
   def execute(*args)
     retries = 10
     begin
-      connection.execute(*args)
-    rescue ActiveRecord::StatementInvalid => e
+      @connection.execute(*args)
+    rescue => e
       if (retries -= 1) > 0 && e.message =~ /Table '.*?' doesn't exist/
         sleep 0.1
         retry
@@ -69,7 +83,10 @@ module IntegrationHelper
       # check the master binlog position and wait for the slave to catch up
       # to that position.
       sleep 1
+    elsif
+      connect_master!
     end
+
 
     yield block
 
@@ -93,7 +110,7 @@ module IntegrationHelper
   end
 
   def table_read(fixture_name)
-    Lhm::Table.parse(fixture_name, connection)
+    Lhm::Table.parse(fixture_name, @connection)
   end
 
   def table_exists?(table)

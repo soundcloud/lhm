@@ -17,4 +17,3 @@ end
 
 task :specs => [:unit, :integration]
 task :default => :specs
-

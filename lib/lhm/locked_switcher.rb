@@ -53,7 +53,8 @@ module Lhm
     end
 
     def validate
-      unless table?(@origin.name) && table?(@destination.name)
+      unless @connection.table_exists?(@origin.name) &&
+             @connection.table_exists?(@destination.name)
         error "`#{ @origin.name }` and `#{ @destination.name }` must exist"
       end
     end
@@ -61,11 +62,11 @@ module Lhm
   private
 
     def revert
-      sql "unlock tables"
+      @connection.sql("unlock tables")
     end
 
     def execute
-      sql statements
+      @connection.sql(statements)
     end
   end
 end

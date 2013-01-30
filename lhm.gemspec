@@ -21,7 +21,5 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "minitest", "= 2.10.0"
   s.add_development_dependency "rake"
-
-  s.add_dependency "activerecord"
 end
 
