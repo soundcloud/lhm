@@ -8,3 +8,4 @@ gemfile:
   - gemfiles/ar-2.3_mysql.gemfile
   - gemfiles/ar-3.2_mysql.gemfile
   - gemfiles/ar-3.2_mysql2.gemfile
+  - gemfiles/dm_mysql.gemfile

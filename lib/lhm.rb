@@ -1,9 +1,9 @@
 # Copyright (c) 2011, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
 # Schmidt
 
-require 'active_record'
 require 'lhm/table'
 require 'lhm/invoker'
+require 'lhm/connection'
 require 'lhm/version'
 
 # Large hadron migrator - online schema change tool
@@ -34,12 +34,25 @@ module Lhm
   # @return [Boolean] Returns true if the migration finishes
   # @raise [Error] Raises Lhm::Error in case of a error and aborts the migration
   def self.change_table(table_name, options = {}, &block)
-    connection = ActiveRecord::Base.connection
+    connection = Connection.new(adapter)
+
     origin = Table.parse(table_name, connection)
     invoker = Invoker.new(origin, connection)
     block.call(invoker.migrator)
     invoker.run(options)
 
     true
+  end
+
+  def self.setup(adapter)
+    @@adapter = adapter
+  end
+
+  def self.adapter
+    @@adapter ||=
+      begin
+        raise 'Please call Lhm.setup' unless defined?(ActiveRecord)
+        ActiveRecord::Base.connection
+      end
   end
 end

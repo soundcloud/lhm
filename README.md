@@ -22,7 +22,7 @@ is great if you are using this engine, but only solves half the problem.
 At SoundCloud we started having migration pains quite a while ago, and after
 looking around for third party solutions, we decided to create our
 own. We called it Large Hadron Migrator, and it is a gem for online
-ActiveRecord migrations.
+ActiveRecord and DataMapper migrations.
 
 ![LHC](http://farm4.static.flickr.com/3093/2844971993_17f2ddf2a8_z.jpg)
 
@@ -35,18 +35,22 @@ without locking the table. In contrast to [OAK][0] and the
 [facebook tool][1], we only use a copy table and triggers.
 
 The Large Hadron is a test driven Ruby solution which can easily be dropped
-into an ActiveRecord migration. It presumes a single auto incremented
-numerical primary key called id as per the Rails convention. Unlike the
-[twitter solution][2], it does not require the presence of an indexed
+into an ActiveRecord or DataMapper migration. It presumes a single auto
+incremented numerical primary key called id as per the Rails convention. Unlike
+the [twitter solution][2], it does not require the presence of an indexed
 `updated_at` column.
 
 ## Requirements
 
 Lhm currently only works with MySQL databases and requires an established
-ActiveRecord connection.
+ActiveRecord or DataMapper connection.
 
 It is compatible and [continuously tested][4] with Ruby 1.8.7 and Ruby 1.9.x,
-ActiveRecord 2.3.x and 3.x as well as mysql and mysql2 adapters.
+ActiveRecord 2.3.x and 3.x (mysql and mysql2 adapters), as well as DataMapper
+1.2 (dm-mysql-adapter).
+
+Lhm also works with dm-master-slave-adapter, it'll bind to the master before
+running the migrations.
 
 ## Installation
 
@@ -66,6 +70,10 @@ ActiveRecord::Base.establish_connection(
   :database => 'lhm'
 )
 
+# or with DataMapper
+Lhm.setup(DataMapper.setup(:default, 'mysql://127.0.0.1/lhm'))
+
+# and migrate
 Lhm.change_table :users do |m|
   m.add_column :arbitrary, "INT(12)"
   m.add_index  [:arbitrary_id, :created_at]
@@ -97,7 +105,33 @@ class MigrateUsers < ActiveRecord::Migration
 end
 ```
 
-**Note:** LHM won't delete the old, leftover table. This is on purpose, in order to prevent accidental data loss.
+Using dm-migrations, you'd define all your migrations as follows, and then call
+`migrate_up!` or `migrate_down!` as normal.
+
+```ruby
+require 'dm-migrations/migration_runner'
+require 'lhm'
+
+migration 1, :migrate_users do
+  up do
+    Lhm.change_table :users do |m|
+      m.add_column :arbitrary, "INT(12)"
+      m.add_index  [:arbitrary_id, :created_at]
+      m.ddl("alter table %s add column flag tinyint(1)" % m.name)
+    end
+  end
+
+  down do
+    Lhm.change_table :users do |m|
+      m.remove_index  [:arbitrary_id, :created_at]
+      m.remove_column :arbitrary
+    end
+  end
+end
+```
+
+**Note:** Lhm won't delete the old, leftover table. This is on purpose, in order
+to prevent accidental data loss.
 
 ## Table rename strategies
 

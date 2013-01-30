@@ -37,10 +37,7 @@ module Lhm
       end
 
       def ddl
-        sql = "show create table `#{ @table_name }`"
-        specification = nil
-        @connection.execute(sql).each { |row| specification = row.last }
-        specification
+        @connection.show_create(@table_name)
       end
 
       def parse
@@ -48,10 +45,14 @@ module Lhm
 
         Table.new(@table_name, extract_primary_key(schema), ddl).tap do |table|
           schema.each do |defn|
-            table.columns[defn["COLUMN_NAME"]] = {
-              :type => defn["COLUMN_TYPE"],
-              :is_nullable => defn["IS_NULLABLE"],
-              :column_default => defn["COLUMN_DEFAULT"]
+            column_name    = struct_key(defn, "COLUMN_NAME")
+            column_type    = struct_key(defn, "COLUMN_TYPE")
+            is_nullable    = struct_key(defn, "IS_NULLABLE")
+            column_default = struct_key(defn, "COLUMN_DEFAULT")
+            table.columns[defn[column_name]] = {
+              :type => defn[column_type],
+              :is_nullable => defn[is_nullable],
+              :column_default => defn[column_default]
             }
           end
 
@@ -67,20 +68,25 @@ module Lhm
         @connection.select_all %Q{
           select *
             from information_schema.columns
-           where table_name = "#{ @table_name }"
-             and table_schema = "#{ @schema_name }"
+           where table_name = '#{ @table_name }'
+             and table_schema = '#{ @schema_name }'
         }
       end
 
       def read_indices
         @connection.select_all %Q{
           show indexes from `#{ @schema_name }`.`#{ @table_name }`
-         where key_name != "PRIMARY"
+         where key_name != 'PRIMARY'
         }
       end
 
       def extract_indices(indices)
-        indices.map { |row| [row["Key_name"], row["Column_name"]] }.
+        indices.
+          map do |row|
+            key_name = struct_key(row, "Key_name")
+            column_name = struct_key(row, "COLUMN_NAME")
+            [row[key_name], row[column_name]]
+          end.
           inject(Hash.new { |h, k| h[k] = []}) do |memo, (idx, column)|
             memo[idx] << column
             memo
@@ -88,8 +94,16 @@ module Lhm
       end
 
       def extract_primary_key(schema)
-        cols = schema.select { |defn| defn["COLUMN_KEY"] == "PRI" }
-        keys = cols.map { |defn| defn["COLUMN_NAME"] }
+        cols = schema.select do |defn|
+          column_key = struct_key(defn, "COLUMN_KEY")
+          defn[column_key] == "PRI"
+        end
+
+        keys = cols.map do |defn|
+          column_name = struct_key(defn, "COLUMN_NAME")
+          defn[column_name]
+        end
+
         keys.length == 1 ? keys.first : keys
       end
     end

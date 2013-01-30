@@ -20,28 +20,10 @@ module Lhm
       end.join(', ')
     end
 
-    def table?(table_name)
-      connection.table_exists?(table_name)
-    end
-
-    def sql(statements)
-      [statements].flatten.each do |statement|
-        connection.execute(tagged(statement))
-      end
-    rescue ActiveRecord::StatementInvalid => e
-      error e.message
-    end
-
-    def update(statements)
-      [statements].flatten.inject(0) do |memo, statement|
-        memo += connection.update(tagged(statement))
-      end
-    rescue ActiveRecord::StatementInvalid => e
-      error e.message
-    end
-
     def version_string
-      connection.select_one("show variables like 'version'")["Value"]
+      row = connection.select_one("show variables like 'version'")
+      value = struct_key(row, "Value")
+      row[value]
     end
 
   private
@@ -80,6 +62,16 @@ module Lhm
         end
       end
       return true
+    end
+
+    def struct_key(struct, key)
+      keys = if struct.is_a? Hash
+               struct.keys
+             else
+               struct.members
+             end
+
+      keys.find {|k| k.to_s.downcase == key.to_s.downcase }
     end
   end
 end
