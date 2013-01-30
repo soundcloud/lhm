@@ -83,7 +83,7 @@ module Lhm
 
     def execute
       up_to do |lowest, highest|
-        affected_rows = update(copy(lowest, highest))
+        affected_rows = @connection.update(copy(lowest, highest))
 
         if affected_rows > 0
           sleep(throttle_seconds)

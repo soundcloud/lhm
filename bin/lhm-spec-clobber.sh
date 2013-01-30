@@ -6,15 +6,15 @@ set -u
 source ~/.lhm
 
 lhmkill() {
-  ps -ef | gsed -n "/[m]ysqld.*lhm-cluster/p" | awk '{ print $2 }' | xargs kill
-  sleep 5
+  echo killing lhm-cluster
+  ps -ef | sed -n "/[m]ysqld.*lhm-cluster/p" | awk '{ print $2 }' | xargs kill
+  sleep 2
 }
 
 echo stopping other running mysql instance
 launchctl remove com.mysql.mysqld || { echo launchctl did not remove mysqld; }
 "$mysqldir"/bin/mysqladmin shutdown || { echo mysqladmin did not shut down anything; }
 
-echo killing lhm-cluster
 lhmkill
 
 echo removing $basedir

@@ -142,7 +142,7 @@ module Lhm
   private
 
     def validate
-      unless table?(@origin.name)
+      unless @connection.table_exists?(@origin.name)
         error("could not find origin table #{ @origin.name }")
       end
 
@@ -152,22 +152,19 @@ module Lhm
 
       dest = @origin.destination_name
 
-      if table?(dest)
+      if @connection.table_exists?(dest)
         error("#{ dest } should not exist; not cleaned up from previous run?")
       end
     end
 
     def execute
       destination_create
-      sql(@statements)
+      @connection.sql(@statements)
       Migration.new(@origin, destination_read)
     end
 
     def destination_create
-      original = "CREATE TABLE `#{ @origin.name }`"
-      replacement = "CREATE TABLE `#{ @origin.destination_name }`"
-
-      sql(@origin.ddl.gsub(original, replacement))
+      @connection.destination_create(@origin)
     end
 
     def destination_read
