@@ -11,7 +11,7 @@ module Lhm
       @name = name
       @columns = {}
       @indices = {}
-      @pk = pk
+      @pk = "id"
       @ddl = ddl
     end
 
