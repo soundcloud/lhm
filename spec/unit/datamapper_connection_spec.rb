@@ -1,4 +1,4 @@
-# Copyright (c) 2011, SoundCloud Ltd.
+# Copyright (c) 2011 - 2013, SoundCloud Ltd.
 
 require File.expand_path(File.dirname(__FILE__)) + '/unit_helper'
 require 'lhm/connection'
