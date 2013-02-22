@@ -1,7 +1,8 @@
-# 1.2.0 (January 30, 2013)
+# 1.2.0 (February 22, 2013)
 
 * Added DataMapper support, no API changes for current users. Refer to the
   README for information.
+* Documentation updates. Thanks @tiegz and @vinbarnes.
 
 # 1.1.0 (April 29, 2012)
 
