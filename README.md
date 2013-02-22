@@ -138,15 +138,15 @@ to prevent accidental data loss.
 There are two different table rename strategies available: LockedSwitcher and
 AtomicSwitcher.
 
-For all setups which use replication and a MySQL version
-affected by the the [binlog bug #39675](http://bugs.mysql.com/bug.php?id=39675),
-we recommend the LockedSwitcher strategy to avoid replication issues. This
-strategy locks the table being migrated and issues two ALTER TABLE statements.
-The AtomicSwitcher uses a single atomic RENAME TABLE query and should be favored
-in setups which do not suffer from the mentioned replication bug.
+The LockedSwitcher strategy locks the table being migrated and issues two ALTER TABLE statements. 
+The AtomicSwitcher uses a single atomic RENAME TABLE query and is the favored solution.
 
-Lhm chooses the strategy automatically based on the used MySQL server version,
-but you can override the behavior with an option:
+Lhm chooses AtomicSwitcher if no strategy is specified, **unless** your version of MySQL is 
+affected by [binlog bug #39675](http://bugs.mysql.com/bug.php?id=39675). If your version is 
+affected, Lhm will raise an error if you don't specify a strategy. You're recommended 
+to use the LockedSwitcher in these cases to avoid replication issues. 
+
+To specify the strategy in your migration:
 
 ```ruby
 Lhm.change_table :users, :atomic_switch => true do |m|
