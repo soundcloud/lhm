@@ -28,7 +28,7 @@ module Lhm
 
       def show_create(table_name)
         sql = "show create table `#{ table_name }`"
-        select_values(sql).last
+        select_one(sql).values.last
       end
 
       def current_database
@@ -51,7 +51,7 @@ module Lhm
       end
 
       def select_values(sql)
-        select_one(sql).values
+        select_all(sql)
       end
 
       def select_value(sql)

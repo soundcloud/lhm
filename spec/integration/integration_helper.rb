@@ -50,6 +50,10 @@ module IntegrationHelper
     end
 
     Lhm.setup(adapter)
+    unless defined?(@@cleaned_up)
+      Lhm.cleanup(true)
+      @@cleaned_up  = true
+    end
     @connection = Lhm::Connection.new(adapter)
   end
 
@@ -153,5 +157,18 @@ module IntegrationHelper
 
   def master_slave_mode?
     !!ENV["MASTER_SLAVE"]
+  end
+
+  #
+  # Misc
+  #
+  
+  def capture_stdout
+    out = StringIO.new
+    $stdout = out
+    yield
+    return out.string
+  ensure
+    $stdout = ::STDOUT
   end
 end
