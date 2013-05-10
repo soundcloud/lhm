@@ -28,8 +28,7 @@ module Lhm
   #   Time to wait between chunks in milliseconds (defaults to: 100)
   # @option options [Boolean] :atomic_switch
   #   Use atomic switch to rename tables (defaults to: true)
-  #   If using a version of mysql affected by atomic switch bug, LHM forces user
-  #   to set this option (see SqlHelper#supports_atomic_switch?)
+  #   (see SqlHelper#supports_atomic_switch?)
   # @yield [Migrator] Yielded Migrator object records the changes
   # @return [Boolean] Returns true if the migration finishes
   # @raise [Error] Raises Lhm::Error in case of a error and aborts the migration
