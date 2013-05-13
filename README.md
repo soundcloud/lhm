@@ -52,6 +52,11 @@ ActiveRecord 2.3.x and 3.x (mysql and mysql2 adapters), as well as DataMapper
 Lhm also works with dm-master-slave-adapter, it'll bind to the master before
 running the migrations.
 
+## Limitations
+
+Lhm requires a monotonically increasing numeric Primary Key on the table, due to how
+the Chunker works.
+
 ## Installation
 
 Install it via `gem install lhm` or add `gem "lhm"` to your Gemfile.
