@@ -20,4 +20,9 @@ describe Lhm::Migration do
     stamp = "%Y_%m_%d_%H_%M_%S_#{ "%03d" % (@start.usec / 1000) }"
     @migration.archive_name.must_equal "lhma_#{ @start.strftime(stamp) }_origin"
   end
+
+  it "should limit table name to 64 characters" do
+    migration = Lhm::Migration.new(OpenStruct.new(:name => "a_very_very_long_table_name_that_should_make_the_LHMA_table_go_over_64_chars"), nil)
+    migration.archive_name.size == 64
+  end
 end

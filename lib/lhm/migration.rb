@@ -14,7 +14,7 @@ module Lhm
     end
 
     def archive_name
-      "lhma_#{ startstamp }_#{ @origin.name }"
+      "lhma_#{ startstamp }_#{ @origin.name }"[0...64]
     end
 
     def intersection
