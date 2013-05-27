@@ -34,14 +34,29 @@ module Lhm
   # @return [Boolean] Returns true if the migration finishes
   # @raise [Error] Raises Lhm::Error in case of a error and aborts the migration
   def self.change_table(table_name, options = {}, &block)
-    connection = Connection.new(adapter)
-
     origin = Table.parse(table_name, connection)
     invoker = Invoker.new(origin, connection)
     block.call(invoker.migrator)
     invoker.run(options)
 
     true
+  end
+
+  def self.cleanup(run = false)
+    lhm_tables = connection.select_values("show tables").select do |name|
+      name =~ /^lhm(a|n)_/
+    end
+    return true if lhm_tables.empty?
+    if run
+      lhm_tables.each do |table|
+        connection.execute("drop table #{table}")
+      end
+      true
+    else
+      puts "Existing LHM backup tables: #{lhm_tables.join(", ")}."
+      puts "Run Lhm.cleanup(true) to drop them all."
+      false
+    end
   end
 
   def self.setup(adapter)
@@ -55,4 +70,10 @@ module Lhm
         ActiveRecord::Base.connection
       end
   end
+
+  protected
+  def self.connection
+    Connection.new(adapter)
+  end
+
 end
