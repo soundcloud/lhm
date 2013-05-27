@@ -24,14 +24,9 @@ module Lhm
     end
 
     def run(options = {})
-      if !options.include?(:atomic_switch)
-        if supports_atomic_switch?
-          options[:atomic_switch] = true
-        else
-          raise Error.new(
-            "Using mysql #{version_string}. You must explicitly set " +
-            "options[:atomic_switch] (re SqlHelper#supports_atomic_switch?)")
-        end
+      unless options.include?(:atomic_switch)
+        options[:atomic_switch] = supports_atomic_switch?
+        atomic_switch_warning unless options[:atomic_switch]
       end
 
       migration = @migrator.run

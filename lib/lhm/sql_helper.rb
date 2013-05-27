@@ -73,5 +73,16 @@ module Lhm
 
       keys.find {|k| k.to_s.downcase == key.to_s.downcase }
     end
+
+    def atomic_switch_warning
+      puts "\n********************************** WARNING **************************"
+      puts "* This version of mysql (#{version_string}) might not support atomic table"
+      puts "* renames while writing to binlogs [http://bugs.mysql.com/bug.php?id=39675]."
+      puts "* Defaulting to a nonatomic locking switch. You may cancel and force the"
+      puts "* atomic switch by restarting with options[:atomic_switch] => true"
+      puts "*********************************************************************\n"
+      puts "Continuing in... "
+      30.downto(1).each { |i| puts "#{i}... "; sleep 1 }
+    end
   end
 end
