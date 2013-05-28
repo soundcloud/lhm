@@ -1,3 +1,8 @@
+# 1.3.0 (May 28, 2013)
+
+* Add Lhm.cleanup method for removing copy tables, thanks @bogdan
+* Limit copy table names to 64 characters, thanks @charliesome
+
 # 1.2.0 (February 22, 2013)
 
 * Added DataMapper support, no API changes for current users. Refer to the
