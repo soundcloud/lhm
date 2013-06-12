@@ -159,6 +159,24 @@ Lhm.change_table :users, :atomic_switch => true do |m|
 end
 ```
 
+## Cleaning up after an interrupted Lhm run
+
+If an Lhm migration is interrupted, it may leave behind the temporary tables
+used in the migration. If the migration is re-started, the unexpected presence
+of these tables will cause an error. In this case, `Lhm.cleanup` can be used
+to drop any orphaned Lhm temporary tables.
+
+To see what Lhm tables are found:
+
+```ruby
+Lhm.cleanup
+```
+
+To remove any Lhm tables found:
+```ruby
+Lhm.cleanup(true)
+```
+
 ## Contributing
 
 We'll check out your contribution if you:
