@@ -3,6 +3,7 @@
 
 require 'lhm/command'
 require 'lhm/sql_helper'
+require 'pry'
 
 module Lhm
   class Chunker
@@ -16,29 +17,27 @@ module Lhm
     def initialize(migration, connection = nil, options = {})
       @migration = migration
       @connection = connection
+
       @stride = options[:stride] || 40_000
       @throttle = options[:throttle] || 100
+
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
+      @paused = false
     end
 
     # Copies chunks of size `stride`, starting from `start` up to id `limit`.
-    def up_to(&block)
-      1.upto(traversable_chunks_size) do |n|
-        yield(bottom(n), top(n))
+    def copy_chunks(&block)
+      lowest = @start
+      while lowest <= @limit
+        highest = highest_for(lowest)
+        yield lowest, highest
+        lowest = highest + 1
       end
     end
 
-    def traversable_chunks_size
-      @limit && @start ? ((@limit - @start + 1) / @stride.to_f).ceil : 0
-    end
-
-    def bottom(chunk)
-      (chunk - 1) * @stride + @start
-    end
-
-    def top(chunk)
-      [chunk * @stride + @start - 1, @limit].min
+    def highest_for(lowest)
+      [lowest - 1 + @stride, @limit].min
     end
 
     def copy(lowest, highest)
@@ -49,12 +48,12 @@ module Lhm
 
     def select_start
       start = connection.select_value("select min(id) from #{ origin_name }")
-      start ? start.to_i : nil
+      start ? start.to_i : 0
     end
 
     def select_limit
       limit = connection.select_value("select max(id) from #{ origin_name }")
-      limit ? limit.to_i : nil
+      limit ? limit.to_i : 0
     end
 
     def throttle_seconds
@@ -90,16 +89,47 @@ module Lhm
     end
 
     def execute
-      up_to do |lowest, highest|
-        affected_rows = @connection.update(copy(lowest, highest))
+      with_pry do
+        copy_chunks do |lowest, highest|
+          affected_rows = @connection.update(copy(lowest, highest))
 
-        if affected_rows > 0
-          sleep(throttle_seconds)
+          maybe_start_pry
+
+          if affected_rows > 0
+            sleep(throttle_seconds)
+          end
+
+          print "."
         end
-
-        print "."
       end
       print "\n"
+    end
+
+    def with_pry
+      old_handler = Signal.trap('SIGINT') { paused? ? exit : pause! }
+      yield
+    ensure
+      Signal.trap('SIGINT', old_handler)
+    end
+
+    def maybe_start_pry
+      if paused?
+        puts "\n@throttle = #{@throttle}; @stride = #{@stride}"
+        self.pry
+        resume!
+      end
+    end
+
+    def pause!
+      @paused = true
+    end
+
+    def resume!
+      @paused = false
+    end
+
+    def paused?
+      !!@paused
     end
   end
 end
