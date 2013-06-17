@@ -26,6 +26,10 @@ module Lhm
   #   Size of a chunk (defaults to: 40,000)
   # @option options [Fixnum] :throttle
   #   Time to wait between chunks in milliseconds (defaults to: 100)
+  # @option options [Fixnum] :start
+  #   Primary Key position at which to start copying chunks
+  # @option options [Fixnum] :limit
+  #   Primary Key position at which to stop copying chunks
   # @option options [Boolean] :atomic_switch
   #   Use atomic switch to rename tables (defaults to: true)
   #   If using a version of mysql affected by atomic switch bug, LHM forces user
