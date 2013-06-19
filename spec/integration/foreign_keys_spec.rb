@@ -11,20 +11,43 @@ describe Lhm do
   before(:each) { connect_master! }
 
   before(:each) do
-    # Be absolutely sure it is not there
-    execute 'drop table if exists fk_example'
+    # Be absolutely sure none of these exist yet
+    Lhm.cleanup(true)
+    %w{fk_example fk_example_non_sequential}.each do |table|
+      execute "drop table if exists #{table}"
+    end
+
     table_create(:users)
-    table_create(:fk_example)
   end
 
-  after(:each) do
-    # Clean it up since it could cause trouble
-    execute 'drop table if exists fk_example'
-  end
+  describe 'the simplest case' do
+    before(:each) do
+      table_create(:fk_example)
+    end
 
-  it 'should handle tables with foriegn keys' do
-    Lhm.change_table(:fk_example) do |t|
-      t.add_column(:new_column, "INT(12) DEFAULT '0'")
+    after (:each) do
+      # Clean it up since it could cause trouble
+      execute 'drop table if exists fk_example'
+      Lhm.cleanup(true)
+    end
+    it 'should handle tables with foriegn keys' do
+      Lhm.change_table(:fk_example) do |t|
+        t.add_column(:new_column, "INT(12) DEFAULT '0'")
+      end
     end
   end
+
+  describe 'the foreign key sequence number is not 1' do
+    before(:each) do
+      table_create(:fk_example_non_sequential)
+    end
+
+    it 'should be able to create this table' do
+      Lhm.change_table(:fk_example_non_sequential) do |t|
+        t.add_column(:new_column, "INT(12) DEFAULT '0'")
+      end
+    end
+  end
+
+
 end

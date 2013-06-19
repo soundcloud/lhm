@@ -5,10 +5,11 @@ require 'lhm/sql_helper'
 
 module Lhm
   class Table
-    attr_reader :name, :columns, :indices, :constraints, :pk, :ddl
+    attr_reader :schema, :name, :columns, :indices, :constraints, :pk, :ddl
 
-    def initialize(name, pk = "id", ddl = nil)
+    def initialize(name, schema = 'default', pk = "id", ddl = nil)
       @name = name
+      @schema = schema
       @columns = {}
       @indices = {}
       @constraints = {}
@@ -41,12 +42,18 @@ module Lhm
 
       foreign_keys.keys.each_with_index do |key, i|
         original = foreign_keys[key][:name]
-        # Offset the new key names by the total size so they cannot overlap
-        replacement = original.sub(/(_\d+)?$/, "_#{foreign_keys.size + i + 1}")
+        replacement = replacement_constraint(original)
         dest.gsub!(original, replacement)
       end
 
       dest
+    end
+
+    @@schema_constraints = {}
+
+    def self.schema_constraints(schema, value = nil)
+      @@schema_constraints[schema] = value if value
+      @@schema_constraints[schema]
     end
 
     class Parser
@@ -65,7 +72,7 @@ module Lhm
       def parse
         schema = read_information_schema
 
-        Table.new(@table_name, extract_primary_key(schema), ddl).tap do |table|
+        Table.new(@table_name, @schema_name, extract_primary_key(schema), ddl).tap do |table|
           schema.each do |defn|
             column_name    = struct_key(defn, "COLUMN_NAME")
             column_type    = struct_key(defn, "COLUMN_TYPE")
@@ -82,9 +89,18 @@ module Lhm
             table.indices[idx] = columns
           end
 
-          extract_constraints(read_constraints).each do |data|
-            table.constraints[data[:column]] = data
+          constraints = {}
+
+          extract_constraints(read_constraints(nil)).each do |data|
+            if data[:schema] == @schema_name && data[:table] == @table_name
+              table.constraints[data[:column]] = data
+            end
+
+            next if data[:name] == 'PRIMARY'
+            constraints[data[:name]] = data
           end
+
+          Table.schema_constraints(@schema_name, constraints)
         end
       end
 
@@ -119,28 +135,44 @@ module Lhm
           end
       end
 
-      def read_constraints
-        @connection.select_all %Q{
+      def read_constraints(table = @table_name)
+        query = %Q{
           select *
             from information_schema.key_column_usage
-           where table_name = '#{ @table_name }'
-             and table_schema = '#{ @schema_name }'
+           where table_schema = '#{ @schema_name }'
         }
+        query += %Q{
+             and table_name = '#{ @table_name }'
+        } if table
+
+        @connection.select_all(query)
       end
 
       def extract_constraints(constraints)
-        constraints.map do |row|
-          constraint_name = struct_key(row, 'CONSTRAINT_NAME')
-          column_name = struct_key(row, "COLUMN_NAME")
-          ref_table_name = struct_key(row, 'REFERENCED_TABLE_NAME')
-          ref_col_name = struct_key(row, 'REFERENCED_COLUMN_NAME')
+        columns = %w{
+          CONSTRAINT_NAME
+          TABLE_SCHEMA
+          TABLE_NAME
+          COLUMN_NAME
+          ORDINAL_POSITION
+          POSITION_IN_UNIQUE_CONSTRAINT
+          REFERENCED_TABLE_SCHEMA
+          REFERENCED_TABLE_NAME
+          REFERENCED_COLUMN_NAME
+        }
 
-          {
-            :name              => row[constraint_name],
-            :column            => row[column_name],
-            :referenced_table  => row[ref_table_name],
-            :referenced_column => row[ref_col_name]
-          }
+        constraints.map do |row|
+          result = {}
+          columns.each do |c|
+            sym = c.dup
+            # The order of these substitutions is important
+            sym.gsub!(/CONSTRAINT_/, '')
+            sym.gsub!(/_NAME/, '')
+            sym.gsub!(/TABLE_/, '')
+            result[sym.downcase.to_sym] = row[struct_key(row, c)]
+          end
+
+          result
         end
       end
 
@@ -158,5 +190,22 @@ module Lhm
         keys.length == 1 ? keys.first : keys
       end
     end
+
+    private
+
+    def replacement_constraint(name)
+      existing = Table.schema_constraints(@schema)
+
+      seq = 1
+      name = name.dup
+
+      begin
+        name.sub!(/(_\d+)?$/, "_#{seq}")
+        seq += 1
+      end while existing.has_key?(name)
+
+      return name
+    end
+
   end
 end
