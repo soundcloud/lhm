@@ -103,11 +103,11 @@ describe Lhm do
 
     it "should remove an index with a custom name" do
       Lhm.change_table(:users, :atomic_switch => false) do |t|
-        t.remove_index(:reference, :index_users_on_reference)
+        t.remove_index([:username, :group])
       end
 
       slave do
-        index?(:users, :index_users_on_reference).must_equal(false)
+        index?(:users, :index_with_a_custom_name).must_equal(false)
       end
     end
 
