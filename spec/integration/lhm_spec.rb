@@ -111,6 +111,16 @@ describe Lhm do
       end
     end
 
+    it "should remove an index with a custom name by name" do
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
+        t.remove_index(:irrelevant_column_name, :index_with_a_custom_name)
+      end
+
+      slave do
+        index?(:users, :index_with_a_custom_name).must_equal(false)
+      end
+    end
+
     it "should apply a ddl statement" do
       Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.ddl("alter table %s add column flag tinyint(1)" % t.name)
