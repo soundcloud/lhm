@@ -14,7 +14,7 @@ module Lhm
     # Creates entanglement between two tables. All creates, updates and deletes
     # to origin will be repeated on the destination table.
     def initialize(migration, connection = nil)
-      @common = migration.intersection
+      @intersection = migration.intersection
       @origin = migration.origin
       @destination = migration.destination
       @connection = connection
@@ -40,8 +40,8 @@ module Lhm
       strip %Q{
         create trigger `#{ trigger(:ins) }`
         after insert on `#{ @origin.name }` for each row
-        replace into `#{ @destination.name }` (#{ @common.joined }) #{ SqlHelper.annotation }
-        values (#{ @common.typed("NEW") })
+        replace into `#{ @destination.name }` (#{ @intersection.destination.joined }) #{ SqlHelper.annotation }
+        values (#{ @intersection.origin.typed("NEW") })
       }
     end
 
@@ -49,8 +49,8 @@ module Lhm
       strip %Q{
         create trigger `#{ trigger(:upd) }`
         after update on `#{ @origin.name }` for each row
-        replace into `#{ @destination.name }` (#{ @common.joined }) #{ SqlHelper.annotation }
-        values (#{ @common.typed("NEW") })
+        replace into `#{ @destination.name }` (#{ @intersection.destination.joined }) #{ SqlHelper.annotation }
+        values (#{ @intersection.origin.typed("NEW") })
       }
     end
 
