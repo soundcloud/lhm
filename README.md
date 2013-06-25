@@ -1,4 +1,4 @@
-# Large Hadron Migrator [![Build Status](https://secure.travis-ci.org/soundcloud/large-hadron-migrator.png?branch=master)][4]
+# Large Hadron Migrator [![Build Status][5]][4]
 
 Rails style database migrations are a useful way to evolve your data schema in
 an agile manner. Most Rails projects start like this, and at first, making
@@ -143,13 +143,13 @@ to prevent accidental data loss.
 There are two different table rename strategies available: LockedSwitcher and
 AtomicSwitcher.
 
-The LockedSwitcher strategy locks the table being migrated and issues two ALTER TABLE statements. 
+The LockedSwitcher strategy locks the table being migrated and issues two ALTER TABLE statements.
 The AtomicSwitcher uses a single atomic RENAME TABLE query and is the favored solution.
 
-Lhm chooses AtomicSwitcher if no strategy is specified, **unless** your version of MySQL is 
-affected by [binlog bug #39675](http://bugs.mysql.com/bug.php?id=39675). If your version is 
-affected, Lhm will raise an error if you don't specify a strategy. You're recommended 
-to use the LockedSwitcher in these cases to avoid replication issues. 
+Lhm chooses AtomicSwitcher if no strategy is specified, **unless** your version of MySQL is
+affected by [binlog bug #39675](http://bugs.mysql.com/bug.php?id=39675). If your version is
+affected, Lhm will raise an error if you don't specify a strategy. You're recommended
+to use the LockedSwitcher in these cases to avoid replication issues.
 
 To specify the strategy in your migration:
 
@@ -202,4 +202,5 @@ The license is included as LICENSE in this directory.
 [1]: http://www.facebook.com/note.php?note\_id=430801045932
 [2]: https://github.com/freels/table_migrator
 [3]: http://www.percona.com/doc/percona-toolkit/2.1/pt-online-schema-change.html
-[4]: http://travis-ci.org/soundcloud/large-hadron-migrator
+[4]: https://travis-ci.org/soundcloud/lhm
+[5]: https://travis-ci.org/soundcloud/lhm.png?branch=master
