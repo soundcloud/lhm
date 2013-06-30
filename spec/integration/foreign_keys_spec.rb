@@ -34,6 +34,14 @@ describe Lhm do
       Lhm.change_table(:fk_example) do |t|
         t.add_column(:new_column, "INT(12) DEFAULT '0'")
       end
+
+      slave do
+        table_read(:fk_example).constraints['user_id'].slice(:name, :referenced_table, :referenced_column).must_equal({
+          name: 'fk_example_ibfk_2',
+          referenced_table: 'users',
+          referenced_column: 'id'
+        })
+      end
     end
   end
 
@@ -45,6 +53,14 @@ describe Lhm do
     it 'should be able to create this table' do
       Lhm.change_table(:fk_example_non_sequential) do |t|
         t.add_column(:new_column, "INT(12) DEFAULT '0'")
+      end
+
+      slave do
+        table_read(:fk_example_non_sequential).constraints['user_id'].slice(:name, :referenced_table, :referenced_column).must_equal({
+          name: 'fk_example_ibfk_1',
+          referenced_table: 'users',
+          referenced_column: 'id'
+        })
       end
     end
   end
