@@ -43,6 +43,23 @@ describe Lhm::Table do
           indices["index_users_on_reference"].
           must_equal(["reference"])
       end
+
+      it "should parse constraints" do
+        begin
+          @table = table_create(:fk_example)
+          @table.constraints.keys.must_equal %w{user_id}
+
+          compare = {
+            name: "fk_example_ibfk_1",
+            referenced_table: "users",
+            referenced_column: "id"
+          }
+
+          @table.constraints['user_id'].slice(*(compare.keys)).must_equal compare
+        ensure
+          execute 'drop table if exists fk_example'
+        end
+      end
     end
   end
 end

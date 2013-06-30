@@ -96,7 +96,6 @@ module Lhm
               table.constraints[data[:column]] = data
             end
 
-            next if data[:name] == 'PRIMARY'
             constraints[data[:name]] = data
           end
 
@@ -140,6 +139,7 @@ module Lhm
           select *
             from information_schema.key_column_usage
            where table_schema = '#{ @schema_name }'
+             and referenced_column_name is not null
         }
         query += %Q{
              and table_name = '#{ @table_name }'
