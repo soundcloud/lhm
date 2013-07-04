@@ -41,7 +41,8 @@ module IntegrationHelper
         :adapter  => defined?(Mysql2) ? 'mysql2' : 'mysql',
         :host     => '127.0.0.1',
         :database => 'lhm',
-        :username => 'root',
+        :username => 'soundcloud',
+        :password => 'soundcloud',
         :port     => port
       )
       adapter = ActiveRecord::Base.connection

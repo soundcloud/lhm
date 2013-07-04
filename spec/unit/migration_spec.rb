@@ -13,7 +13,7 @@ describe Lhm::Migration do
     @start = Time.now
     @origin = Lhm::Table.new("origin")
     @destination = Lhm::Table.new("destination")
-    @migration = Lhm::Migration.new(@origin, @destination, @start)
+    @migration = Lhm::Migration.new(@origin, @destination, nil, @start)
   end
 
   it "should name archive" do

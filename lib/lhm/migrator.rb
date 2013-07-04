@@ -13,7 +13,7 @@ module Lhm
     include Command
     include SqlHelper
 
-    attr_reader :name, :statements, :connection
+    attr_reader :name, :statements, :connection, :conditions
 
     def initialize(table, connection = nil)
       @connection = connection
@@ -142,6 +142,10 @@ module Lhm
       ddl("drop index `%s` on `%s`" % [index_name, @name])
     end
 
+    def filter(sql)
+      @conditions = sql
+    end
+
   private
 
     def validate
@@ -163,7 +167,7 @@ module Lhm
     def execute
       destination_create
       @connection.sql(@statements)
-      Migration.new(@origin, destination_read)
+      Migration.new(@origin, destination_read, conditions)
     end
 
     def destination_create

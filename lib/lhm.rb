@@ -1,6 +1,7 @@
 # Copyright (c) 2011 - 2013, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
 # Schmidt
 
+require 'arel'
 require 'lhm/table'
 require 'lhm/invoker'
 require 'lhm/connection'
@@ -42,8 +43,11 @@ module Lhm
     invoker = Invoker.new(origin, connection)
     block.call(invoker.migrator)
     invoker.run(options)
-
     true
+  end
+
+  def self.migrate_data(table_name, options = {}, &block)
+    change_table(table_name, options = {}, &block)
   end
 
   def self.cleanup(run = false)
@@ -75,9 +79,7 @@ module Lhm
       end
   end
 
-  protected
   def self.connection
     Connection.new(adapter)
   end
-
 end

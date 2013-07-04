@@ -5,11 +5,12 @@ require 'lhm/intersection'
 
 module Lhm
   class Migration
-    attr_reader :origin, :destination
+    attr_reader :origin, :destination, :conditions
 
-    def initialize(origin, destination, time = Time.now)
+    def initialize(origin, destination, conditions = nil, time = Time.now)
       @origin = origin
       @destination = destination
+      @conditions = conditions
       @start = time
     end
 
@@ -23,6 +24,10 @@ module Lhm
 
     def startstamp
       @start.strftime "%Y_%m_%d_%H_%M_%S_#{ "%03d" % (@start.usec / 1000) }"
+    end
+
+    def conditions
+      @conditions
     end
   end
 end

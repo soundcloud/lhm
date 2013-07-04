@@ -10,6 +10,52 @@ describe Lhm do
 
   before(:each) { connect_master! }
 
+  describe "#migrate_data" do
+
+    before do
+      table_create(:tracks)
+      table_create(:permissions)
+    end
+
+    describe "when providing a subset of data to copy" do
+
+      before do
+        execute("insert into tracks set id = 13, public = 0")
+        11.times { |n| execute("insert into tracks set id = #{n + 1}, public = 1") }
+        11.times { |n| execute("insert into permissions set track_id = #{n + 1}") }
+
+        Lhm.migrate_data(:permissions, :atomic_switch => false) do |t|
+          t.filter("inner join tracks on tracks.`id` = permissions.`track_id` and tracks.`public` = 1")
+        end
+      end
+
+      describe "when no additional data is inserted into the table" do
+
+        it "migrates the existing data" do
+          slave do
+            count_all(:permissions).must_equal(11)
+          end
+        end
+      end
+
+      describe "when additional data is inserted" do
+
+        before do
+          execute("insert into tracks set id = 14, public = 0")
+          execute("insert into tracks set id = 15, public = 1")
+          execute("insert into permissions set track_id = 14")
+          execute("insert into permissions set track_id = 15")
+        end
+
+        it "migrates only data that matches the selection" do
+          slave do
+            count_all(:permissions).must_equal(12)
+          end
+        end
+      end
+    end
+  end
+
   describe "changes" do
     before(:each) do
       table_create(:users)
