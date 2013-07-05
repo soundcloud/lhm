@@ -24,7 +24,7 @@ describe Lhm do
         11.times { |n| execute("insert into tracks set id = #{n + 1}, public = 1") }
         11.times { |n| execute("insert into permissions set track_id = #{n + 1}") }
 
-        Lhm.migrate_data(:permissions, :atomic_switch => false) do |t|
+        Lhm.change_table(:permissions, :atomic_switch => false) do |t|
           t.filter("inner join tracks on tracks.`id` = permissions.`track_id` and tracks.`public` = 1")
         end
       end

@@ -45,10 +45,6 @@ module Lhm
     true
   end
 
-  def self.migrate_data(table_name, options = {}, &block)
-    change_table(table_name, options = {}, &block)
-  end
-
   def self.cleanup(run = false)
     lhm_tables = connection.select_values("show tables").select do |name|
       name =~ /^lhm(a|n)_/
@@ -77,6 +73,8 @@ module Lhm
         ActiveRecord::Base.connection
       end
   end
+
+  protected
 
   def self.connection
     Connection.new(adapter)
