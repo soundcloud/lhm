@@ -47,9 +47,9 @@ describe Lhm do
           execute("insert into permissions set track_id = 15")
         end
 
-        it "migrates only data that matches the selection" do
+        it "migrates all data" do
           slave do
-            count_all(:permissions).must_equal(12)
+            count_all(:permissions).must_equal(13)
           end
         end
       end
