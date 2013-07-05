@@ -13,7 +13,7 @@ module Lhm
     include Command
     include SqlHelper
 
-    attr_reader :name, :statements, :connection
+    attr_reader :name, :statements, :connection, :conditions
 
     def initialize(table, connection = nil)
       @connection = connection
@@ -142,6 +142,22 @@ module Lhm
       ddl("drop index `%s` on `%s`" % [index_name, @name])
     end
 
+    # Filter the data that is copied into the new table by the provided SQL.
+    # This SQL will be inserted into the copy directly after the "from"
+    # statement - so be sure to use inner/outer join syntax and not cross joins.
+    #
+    # @example Add a conditions filter to the migration.
+    #   Lhm.change_table(:sounds) do |m|
+    #     m.filter("inner join users on users.`id` = sounds.`user_id` and sounds.`public` = 1")
+    #   end
+    #
+    # @param [ String ] sql The sql filter.
+    #
+    # @return [ String ] The sql filter.
+    def filter(sql)
+      @conditions = sql
+    end
+
   private
 
     def validate
@@ -163,7 +179,7 @@ module Lhm
     def execute
       destination_create
       @connection.sql(@statements)
-      Migration.new(@origin, destination_read)
+      Migration.new(@origin, destination_read, conditions)
     end
 
     def destination_create

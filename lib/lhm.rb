@@ -42,7 +42,6 @@ module Lhm
     invoker = Invoker.new(origin, connection)
     block.call(invoker.migrator)
     invoker.run(options)
-
     true
   end
 
@@ -76,8 +75,8 @@ module Lhm
   end
 
   protected
+
   def self.connection
     Connection.new(adapter)
   end
-
 end

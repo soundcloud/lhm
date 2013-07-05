@@ -26,8 +26,8 @@ describe Lhm::Chunker do
     it "should copy the correct range and column" do
       @chunker.copy(from = 1, to = 100).must_equal(
         "insert ignore into `destination` (`secret`) " +
-        "select `secret` from `origin` " +
-        "where `id` between 1 and 100"
+        "select origin.`secret` from `origin` " +
+        "where origin.`id` between 1 and 100"
       )
     end
   end

@@ -159,6 +159,23 @@ Lhm.change_table :users, :atomic_switch => true do |m|
 end
 ```
 
+## Limiting the data that is migrated
+
+For instances where you want to limit the data that is migrated to the new
+table by some conditions, you may tell the migration to filter by a set of
+conditions:
+
+```ruby
+Lhm.change_table(:sounds) do |m|
+  m.filter("inner join users on users.`id` = sounds.`user_id` and sounds.`public` = 1")
+end
+```
+
+Note that this SQL will be inserted into the copy directly after the "from"
+statement - so be sure to use inner/outer join syntax and not cross joins. These
+conditions will not affect the triggers, so any modifications to the table
+during the run will happen on the new table as well.
+
 ## Cleaning up after an interrupted Lhm run
 
 If an Lhm migration is interrupted, it may leave behind the temporary tables
