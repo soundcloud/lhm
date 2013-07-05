@@ -10,9 +10,9 @@ describe Lhm do
 
   before(:each) { connect_master! }
 
-  describe "#migrate_data" do
-
-    before do
+  describe "changes" do
+    before(:each) do
+      table_create(:users)
       table_create(:tracks)
       table_create(:permissions)
     end
@@ -53,12 +53,6 @@ describe Lhm do
           end
         end
       end
-    end
-  end
-
-  describe "changes" do
-    before(:each) do
-      table_create(:users)
     end
 
     it "should add a column" do
