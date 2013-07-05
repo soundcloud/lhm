@@ -25,9 +25,5 @@ module Lhm
     def startstamp
       @start.strftime "%Y_%m_%d_%H_%M_%S_#{ "%03d" % (@start.usec / 1000) }"
     end
-
-    def conditions
-      @conditions
-    end
   end
 end
