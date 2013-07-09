@@ -4,8 +4,9 @@ before_script:
 rvm:
   - 1.9.3
   - 2.0.0
-allow_failures:
-  - rvm: 2.0.0
+matrix:
+  allow_failures:
+    - rvm: 2.0.0
 gemfile:
   - gemfiles/ar-2.3_mysql.gemfile
   - gemfiles/ar-3.2_mysql.gemfile
