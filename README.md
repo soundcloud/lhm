@@ -52,6 +52,9 @@ ActiveRecord 2.3.x and 3.x (mysql and mysql2 adapters), as well as DataMapper
 Lhm also works with dm-master-slave-adapter, it'll bind to the master before
 running the migrations.
 
+The test suite is also run against MRI 2.0.0 in Continuous Integration, but
+there are a few bugs left to fix.
+
 ## Limitations
 
 Lhm requires a monotonically increasing numeric Primary Key on the table, due to how
