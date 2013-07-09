@@ -2,8 +2,10 @@ language: ruby
 before_script:
   - "mysql -e 'create database lhm;'"
 rvm:
-  - 1.8.7
   - 1.9.3
+  - 2.0.0
+allow_failures:
+  - rvm: 2.0.0
 gemfile:
   - gemfiles/ar-2.3_mysql.gemfile
   - gemfiles/ar-3.2_mysql.gemfile

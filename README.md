@@ -45,7 +45,7 @@ the [twitter solution][2], it does not require the presence of an indexed
 Lhm currently only works with MySQL databases and requires an established
 ActiveRecord or DataMapper connection.
 
-It is compatible and [continuously tested][4] with Ruby 1.8.7 and Ruby 1.9.x,
+It is compatible and [continuously tested][4] with MRI 1.9.x,
 ActiveRecord 2.3.x and 3.x (mysql and mysql2 adapters), as well as DataMapper
 1.2 (dm-mysql-adapter).
 
