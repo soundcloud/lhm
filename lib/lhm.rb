@@ -4,6 +4,7 @@
 require 'lhm/table'
 require 'lhm/invoker'
 require 'lhm/connection'
+require 'lhm/throttle'
 require 'lhm/version'
 
 # Large hadron migrator - online schema change tool
@@ -17,6 +18,8 @@ require 'lhm/version'
 #   end
 #
 module Lhm
+  extend Throttle
+  extend self
 
   # Alters a table with the changes described in the block
   #
@@ -37,7 +40,7 @@ module Lhm
   # @yield [Migrator] Yielded Migrator object records the changes
   # @return [Boolean] Returns true if the migration finishes
   # @raise [Error] Raises Lhm::Error in case of a error and aborts the migration
-  def self.change_table(table_name, options = {}, &block)
+  def change_table(table_name, options = {}, &block)
     origin = Table.parse(table_name, connection)
     invoker = Invoker.new(origin, connection)
     block.call(invoker.migrator)
@@ -45,7 +48,7 @@ module Lhm
     true
   end
 
-  def self.cleanup(run = false)
+  def cleanup(run = false)
     lhm_tables = connection.select_values("show tables").select do |name|
       name =~ /^lhm(a|n)_/
     end
@@ -62,11 +65,11 @@ module Lhm
     end
   end
 
-  def self.setup(adapter)
+  def setup(adapter)
     @@adapter = adapter
   end
 
-  def self.adapter
+  def adapter
     @@adapter ||=
       begin
         raise 'Please call Lhm.setup' unless defined?(ActiveRecord)
@@ -76,7 +79,8 @@ module Lhm
 
   protected
 
-  def self.connection
+  def connection
     Connection.new(adapter)
   end
+
 end

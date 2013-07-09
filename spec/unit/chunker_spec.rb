@@ -102,10 +102,4 @@ describe Lhm::Chunker do
       end
     end
   end
-
-  describe "throttling" do
-    it "should default to 100 milliseconds" do
-      @chunker.throttle_seconds.must_equal 0.1
-    end
-  end
 end
