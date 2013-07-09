@@ -17,7 +17,7 @@ module Lhm
       @migration = migration
       @connection = connection
       @stride = options[:stride] || 40_000
-      @throttle = options[:throttle] || 100
+      @throttle = options[:throttle]
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
       @printer = options[:printer] || Printer::Percentage.new
@@ -58,10 +58,6 @@ module Lhm
       limit ? limit.to_i : nil
     end
 
-    def throttle_seconds
-      @throttle / 1000.0
-    end
-
   private
 
     def conditions
@@ -94,8 +90,8 @@ module Lhm
       up_to do |lowest, highest|
         affected_rows = @connection.update(copy(lowest, highest))
 
-        if affected_rows > 0
-          sleep(throttle_seconds)
+        if @throttle && affected_rows > 0
+          @throttle.run
         end
         @printer.notify(lowest, @limit)
       end
