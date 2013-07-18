@@ -17,6 +17,7 @@ module Lhm
       @intersection = migration.intersection
       @origin = migration.origin
       @destination = migration.destination
+      @order_column = migration.order_column
       @connection = connection
     end
 
@@ -59,7 +60,7 @@ module Lhm
         create trigger `#{ trigger(:del) }`
         after delete on `#{ @origin.name }` for each row
         delete ignore from `#{ @destination.name }` #{ SqlHelper.annotation }
-        where `#{ @destination.name }`.`id` = OLD.`id`
+        where `#{ @destination.name }`.`#{ @order_column }` = OLD.`#{ @order_column }`
       }
     end
 

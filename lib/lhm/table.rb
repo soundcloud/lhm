@@ -16,9 +16,11 @@ module Lhm
     end
 
     def satisfies_id_autoincrement_requirement?
-      !!((id = columns['id']) &&
-        id[:extra] == 'auto_increment' &&
-        id[:type] =~ /int\(\d+\)/)
+      monotonically_increasing_numeric_key?(columns["id"])
+    end
+
+    def can_use_order_column?(column_name)
+      monotonically_increasing_numeric_key?(columns[column_name])
     end
 
     def destination_name
@@ -109,8 +111,18 @@ module Lhm
           defn[column_name]
         end
 
-        keys.length == 1 ? keys.first : keys
+        case keys.length
+        when 0 then nil
+        when 1 then keys.first
+        else keys
+        end
       end
+    end
+
+    def monotonically_increasing_numeric_key?(key)
+      !!(key &&
+         key[:extra] == 'auto_increment' &&
+         key[:type] =~ /int\(\d+\)/)
     end
   end
 end

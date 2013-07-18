@@ -17,7 +17,7 @@ describe Lhm::AtomicSwitcher do
       Thread.abort_on_exception = true
       @origin      = table_create("origin")
       @destination = table_create("destination")
-      @migration   = Lhm::Migration.new(@origin, @destination)
+      @migration   = Lhm::Migration.new(@origin, @destination, "id")
       Lhm.logger = Logger.new('/dev/null')
       @connection.execute("SET GLOBAL innodb_lock_wait_timeout=3")
       @connection.execute("SET GLOBAL lock_wait_timeout=3")

@@ -19,9 +19,9 @@ module Lhm
 
     attr_reader :migrator, :connection
 
-    def initialize(origin, connection)
+    def initialize(origin, connection, options)
       @connection = connection
-      @migrator = Migrator.new(origin, connection)
+      @migrator = Migrator.new(origin, connection, options)
     end
 
     def set_session_lock_wait_timeouts
