@@ -16,7 +16,7 @@ module Lhm
     end
 
     def satisfies_primary_key?
-      @pk == "id"
+      @pk.is_a?(String) && !!(@columns[@pk][:type] =~ /int\(\d+\)/)
     end
 
     def destination_name
