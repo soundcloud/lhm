@@ -32,6 +32,23 @@ describe Lhm::Chunker do
     end
   end
 
+  describe "copy into with a different column to order by" do
+    before(:each) do
+      @chunker     = Lhm::Chunker.new(@migration, nil, { :start => 1, :limit => 10, :order_column => 'weird_id' })
+      @origin.columns["secret"] = { :metadata => "VARCHAR(255)"}
+      @destination.columns["secret"] = { :metadata => "VARCHAR(255)"}
+    end
+
+    it "should copy the correct range and column" do
+      @chunker.copy(from = 1, to = 100).must_equal(
+        "insert ignore into `destination` (`secret`) " +
+        "select origin.`secret` from `origin` " +
+        "where origin.`weird_id` between 1 and 100"
+      )
+    end
+  end
+
+
   describe "invalid" do
     before do
       @chunker = Lhm::Chunker.new(@migration, nil, { :start => 0, :limit => -1 })
