@@ -1,8 +1,8 @@
 # Copyright (c) 2011 - 2013, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
 # Schmidt
-
 require 'lhm/command'
 require 'lhm/sql_helper'
+require 'lhm/printer'
 
 module Lhm
   class Chunker
@@ -19,6 +19,7 @@ module Lhm
       @throttler = options[:throttler]
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
+      @printer = options[:printer] || Printer::Percentage.new
     end
 
     def execute
@@ -32,10 +33,10 @@ module Lhm
           @throttler.run
         end
 
-        print "."
+        @printer.notify(bottom, @limit)
         @next_to_insert = top(stride) + 1
       end
-      print "\n"
+      @printer.end
     end
 
   private
