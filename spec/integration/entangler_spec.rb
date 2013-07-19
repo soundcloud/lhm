@@ -16,7 +16,7 @@ describe Lhm::Entangler do
     before(:each) do
       @origin = table_create("origin")
       @destination = table_create("destination")
-      @migration = Lhm::Migration.new(@origin, @destination)
+      @migration = Lhm::Migration.new(@origin, @destination, "id")
       @entangler = Lhm::Entangler.new(@migration, connection)
     end
 

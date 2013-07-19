@@ -16,7 +16,11 @@ module Lhm
     end
 
     def satisfies_primary_key?
-      @pk.is_a?(String) && !!(@columns[@pk][:type] =~ /int\(\d+\)/)
+      @pk.is_a?(String) && numeric_type?(@columns[@pk][:type])
+    end
+
+    def can_use_order_column?(column)
+      numeric_type?(@columns[column][:type])
     end
 
     def destination_name
@@ -104,8 +108,16 @@ module Lhm
           defn[column_name]
         end
 
-        keys.length == 1 ? keys.first : keys
+        case keys.length
+        when 0 then nil
+        when 1 then keys.first
+        else keys
+        end
       end
+    end
+
+    def numeric_type?(type)
+      !!(type.match(/int\(\d+\)|decimal|numeric|float|double|integer/))
     end
   end
 end

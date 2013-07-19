@@ -221,6 +221,23 @@ describe Lhm do
       end
     end
 
+    it "should change a table with a no primary key" do
+      table_create(:no_primary_key)
+
+      Lhm.change_table(:no_primary_key, :atomic_switch => false, :order_column => 'foreign_id') do |t|
+        t.change_column(:value, "text")
+      end
+
+      slave do
+        table_read(:no_primary_key).columns["value"].must_equal({
+          :type => "text",
+          :is_nullable => "YES",
+          :column_default => nil
+        })
+      end
+    end
+
+
     describe "parallel" do
       it "should perserve inserts during migration" do
         50.times { |n| execute("insert into users set reference = '#{ n }'") }

@@ -16,7 +16,7 @@ describe Lhm::Chunker do
     before(:each) do
       @origin = table_create(:origin)
       @destination = table_create(:destination)
-      @migration = Lhm::Migration.new(@origin, @destination)
+      @migration = Lhm::Migration.new(@origin, @destination, "id")
     end
 
     it "should copy 23 rows from origin to destination" do

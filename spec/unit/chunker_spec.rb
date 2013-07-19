@@ -13,7 +13,7 @@ describe Lhm::Chunker do
   before(:each) do
     @origin      = Lhm::Table.new("origin")
     @destination = Lhm::Table.new("destination")
-    @migration   = Lhm::Migration.new(@origin, @destination)
+    @migration   = Lhm::Migration.new(@origin, @destination, "id")
     @chunker     = Lhm::Chunker.new(@migration, nil, { :start => 1, :limit => 10 })
   end
 
@@ -34,7 +34,8 @@ describe Lhm::Chunker do
 
   describe "copy into with a different column to order by" do
     before(:each) do
-      @chunker     = Lhm::Chunker.new(@migration, nil, { :start => 1, :limit => 10, :order_column => 'weird_id' })
+      @migration   = Lhm::Migration.new(@origin, @destination, "weird_id")
+      @chunker     = Lhm::Chunker.new(@migration, nil, { :start => 1, :limit => 10 })
       @origin.columns["secret"] = { :metadata => "VARCHAR(255)"}
       @destination.columns["secret"] = { :metadata => "VARCHAR(255)"}
     end
