@@ -1,8 +1,8 @@
 # Copyright (c) 2011 - 2013, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
 # Schmidt
-
 require 'lhm/command'
 require 'lhm/sql_helper'
+require 'lhm/printer'
 
 module Lhm
   class Chunker
@@ -20,6 +20,7 @@ module Lhm
       @throttle = options[:throttle] || 100
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
+      @printer = options[:printer] || Printer::Percentage.new
     end
 
     # Copies chunks of size `stride`, starting from `start` up to id `limit`.
@@ -96,10 +97,9 @@ module Lhm
         if affected_rows > 0
           sleep(throttle_seconds)
         end
-
-        print "."
+        @printer.notify(lowest, highest)
       end
-      print "\n"
+      @printer.end
     end
   end
 end
