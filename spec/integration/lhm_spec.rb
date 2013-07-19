@@ -205,6 +205,22 @@ describe Lhm do
       end
     end
 
+    it "should change a table with a primary key other than id" do
+      table_create(:primary_keys)
+
+      Lhm.change_table(:primary_keys, :atomic_switch => false) do |t|
+        t.change_column(:weird_id, "int(5)")
+      end
+
+      slave do
+        table_read(:primary_keys).columns["weird_id"].must_equal({
+          :type => "int(5)",
+          :is_nullable => "NO",
+          :column_default => "0"
+        })
+      end
+    end
+
     describe "parallel" do
       it "should perserve inserts during migration" do
         50.times { |n| execute("insert into users set reference = '#{ n }'") }

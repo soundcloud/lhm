@@ -59,7 +59,7 @@ module Lhm
         create trigger `#{ trigger(:del) }`
         after delete on `#{ @origin.name }` for each row
         delete ignore from `#{ @destination.name }` #{ SqlHelper.annotation }
-        where `#{ @destination.name }`.`id` = OLD.`id`
+        where `#{ @destination.name }`.`#{ @destination.pk }` = OLD.`#{ @origin.pk }`
       }
     end
 
