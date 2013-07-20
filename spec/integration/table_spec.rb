@@ -49,13 +49,13 @@ describe Lhm::Table do
           @table = table_create(:fk_example)
           @table.constraints.keys.must_equal %w{user_id}
 
-          compare = {
+          expected = {
             name: "fk_example_ibfk_1",
             referenced_table: "users",
             referenced_column: "id"
           }
 
-          @table.constraints['user_id'].slice(*(compare.keys)).must_equal compare
+          hash_slice(@table.constraints['user_id'], expected.keys).must_equal expected
         ensure
           execute 'drop table if exists fk_example'
         end

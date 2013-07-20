@@ -36,11 +36,13 @@ describe Lhm do
       end
 
       slave do
-        table_read(:fk_example).constraints['user_id'].slice(:name, :referenced_table, :referenced_column).must_equal({
+        actual = table_read(:fk_example).constraints['user_id']
+        expected = {
           name: 'fk_example_ibfk_2',
           referenced_table: 'users',
           referenced_column: 'id'
-        })
+        }
+        hash_slice(actual, expected.keys).must_equal(expected)
       end
     end
   end
@@ -56,11 +58,13 @@ describe Lhm do
       end
 
       slave do
-        table_read(:fk_example_non_sequential).constraints['user_id'].slice(:name, :referenced_table, :referenced_column).must_equal({
+        actual = table_read(:fk_example_non_sequential).constraints['user_id']
+        expected = {
           name: 'fk_example_ibfk_1',
           referenced_table: 'users',
           referenced_column: 'id'
-        })
+        }
+        hash_slice(actual, expected.keys).must_equal(expected)
       end
     end
   end
