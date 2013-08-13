@@ -7,11 +7,18 @@ module Lhm
       end
     end
 
-    class Percentage
+    class Base
 
       def initialize
-        @max_length = 0
         @output = Output.new
+      end
+    end
+
+    class Percentage < Base
+
+      def initialize
+        super
+        @max_length = 0
       end
 
       def notify(lowest, highest)
@@ -36,11 +43,7 @@ module Lhm
       end
     end
 
-    class Dot
-      def initialize
-        @output = Output.new
-      end
-
+    class Dot < Base
       def notify(lowest = nil, highest = nil)
         @output.write "."
       end

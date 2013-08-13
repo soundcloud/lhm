@@ -97,7 +97,7 @@ module Lhm
         if affected_rows > 0
           sleep(throttle_seconds)
         end
-        @printer.notify(lowest, highest)
+        @printer.notify(lowest, @limit)
       end
       @printer.end
     end
