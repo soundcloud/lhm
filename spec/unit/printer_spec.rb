@@ -40,6 +40,7 @@ describe Lhm::Printer do
       @printer.notify(0, 100)
       @printer.notify(1, 1000000)
       @printer.notify(0, 0)
+      @printer.notify(0, nil)
 
       mock.verify
     end

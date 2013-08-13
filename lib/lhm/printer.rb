@@ -22,7 +22,7 @@ module Lhm
       end
 
       def notify(lowest, highest)
-        return if highest == 0
+        return if !highest || highest == 0
         message = "%.2f%% (#{lowest}/#{highest}) complete" % (lowest.to_f / highest * 100.0)
         write(message)
       end
