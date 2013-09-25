@@ -16,7 +16,6 @@ module Lhm
     def initialize(migration, connection = nil, options = {})
       @migration = migration
       @connection = connection
-
       @stride = options[:stride] || 40_000
       @throttle = options[:throttle]
       @start = options[:start] || select_start
@@ -25,17 +24,22 @@ module Lhm
     end
 
     # Copies chunks of size `stride`, starting from `start` up to id `limit`.
-    def copy_chunks(&block)
-      lowest = @start
-      while lowest <= @limit
-        highest = highest_for(lowest)
-        yield lowest, highest
-        lowest = highest + 1
+    def up_to(&block)
+      1.upto(traversable_chunks_size) do |n|
+        yield(bottom(n), top(n))
       end
     end
 
-    def highest_for(lowest)
-      [lowest - 1 + @stride, @limit].min
+    def traversable_chunks_size
+      @limit && @start ? ((@limit - @start + 1) / @stride.to_f).ceil : 0
+    end
+
+    def bottom(chunk)
+      (chunk - 1) * @stride + @start
+    end
+
+    def top(chunk)
+      [chunk * @stride + @start - 1, @limit].min
     end
 
     def copy(lowest, highest)
@@ -46,12 +50,12 @@ module Lhm
 
     def select_start
       start = connection.select_value("select min(id) from #{ origin_name }")
-      start ? start.to_i : 0
+      start ? start.to_i : nil
     end
 
     def select_limit
       limit = connection.select_value("select max(id) from #{ origin_name }")
-      limit ? limit.to_i : 0
+      limit ? limit.to_i : nil
     end
 
     private
@@ -83,7 +87,7 @@ module Lhm
     end
 
     def execute
-      copy_chunks do |lowest, highest|
+      up_to do |lowest, highest|
         affected_rows = @connection.update(copy(lowest, highest))
 
         if @throttle && affected_rows > 0
