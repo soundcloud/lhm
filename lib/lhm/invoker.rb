@@ -24,16 +24,7 @@ module Lhm
     end
 
     def run(options = {})
-      if !options.include?(:atomic_switch)
-        if supports_atomic_switch?
-          options[:atomic_switch] = true
-        else
-          raise Error.new(
-            "Using mysql #{version_string}. You must explicitly set " +
-            "options[:atomic_switch] (re SqlHelper#supports_atomic_switch?)")
-        end
-      end
-
+      normalize_options(options)
       migration = @migrator.run
 
       Entangler.new(migration, @connection).run do
@@ -44,6 +35,28 @@ module Lhm
           LockedSwitcher.new(migration, @connection).run
         end
       end
+    end
+
+    private
+
+    def normalize_options(options)
+
+      if !options.include?(:atomic_switch)
+        if supports_atomic_switch?
+          options[:atomic_switch] = true
+        else
+          raise Error.new(
+            "Using mysql #{version_string}. You must explicitly set " +
+            "options[:atomic_switch] (re SqlHelper#supports_atomic_switch?)")
+        end
+      end
+
+      if options[:throttle]
+        options[:throttle] = Throttle::Factory.create_throttle(*options[:throttle])
+      else
+        options[:throttle] = Lhm.throttle
+      end
+
     end
   end
 end
