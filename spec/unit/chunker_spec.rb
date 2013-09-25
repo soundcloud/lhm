@@ -37,8 +37,12 @@ describe Lhm::Chunker do
       @chunker = Lhm::Chunker.new(@migration, nil, { :start => 0, :limit => -1 })
     end
 
+    it "should have zero chunks" do
+      @chunker.traversable_chunks_size.must_equal 0
+    end
+
     it "should not iterate" do
-      @chunker.copy_chunks do |bottom, top|
+      @chunker.up_to do |bottom, top|
         raise "should not iterate"
       end
     end
@@ -51,18 +55,16 @@ describe Lhm::Chunker do
       })
     end
 
-    it "should have three chunks" do
-      i = 0
-      @chunker.copy_chunks {|*| i += 1 }
-      i.must_equal 3
+    it "should have one chunk" do
+      @chunker.traversable_chunks_size.must_equal 3
     end
 
-    it "should set correct bounds" do
-      bounds = []
-      @chunker.copy_chunks do |lower, upper|
-        bounds << [lower, upper]
-      end
-      bounds.must_equal [[1, 100_000], [100_001, 200_000], [200_001, 300_000]]
+    it "should lower bound chunk on 1" do
+      @chunker.bottom(chunk = 1).must_equal 1
+    end
+
+    it "should upper bound chunk on 100" do
+      @chunker.top(chunk = 1).must_equal 100_000
     end
   end
 
@@ -74,17 +76,15 @@ describe Lhm::Chunker do
     end
 
     it "should have two chunks" do
-      i = 0
-      @chunker.copy_chunks {|*| i += 1 }
-      i.must_equal 2
+      @chunker.traversable_chunks_size.must_equal 2
     end
 
-    it "should set correct bounds" do
-      bounds = []
-      @chunker.copy_chunks do |lower, upper|
-        bounds << [lower, upper]
-      end
-      bounds.must_equal [[2, 100_001], [100_002, 150_000]]
+    it "should lower bound second chunk on 100_000" do
+      @chunker.bottom(chunk = 2).must_equal 100_002
+    end
+
+    it "should upper bound second chunk on 150_000" do
+      @chunker.top(chunk = 2).must_equal 150_000
     end
   end
 
@@ -96,7 +96,7 @@ describe Lhm::Chunker do
     end
 
     it "should iterate" do
-      @chunker.copy_chunks do |bottom, top|
+      @chunker.up_to do |bottom, top|
         bottom.must_equal 53
         top.must_equal 121
       end
