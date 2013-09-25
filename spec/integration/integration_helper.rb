@@ -162,7 +162,7 @@ module IntegrationHelper
   #
   # Misc
   #
-  
+
   def capture_stdout
     out = StringIO.new
     $stdout = out
@@ -170,5 +170,22 @@ module IntegrationHelper
     return out.string
   ensure
     $stdout = ::STDOUT
+  end
+
+  def simulate_failed_migration
+    Lhm::Entangler.class_eval do
+      alias_method :old_after, :after
+      def after
+        true
+      end
+    end
+
+    yield
+  ensure
+    Lhm::Entangler.class_eval do
+      undef_method :after
+      alias_method :after, :old_after
+      undef_method :old_after
+    end
   end
 end
