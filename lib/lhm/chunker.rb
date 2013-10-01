@@ -16,7 +16,6 @@ module Lhm
     def initialize(migration, connection = nil, options = {})
       @migration = migration
       @connection = connection
-      @stride = options[:stride] || 40_000
       @throttler = options[:throttler]
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
@@ -30,15 +29,15 @@ module Lhm
     end
 
     def traversable_chunks_size
-      @limit && @start ? ((@limit - @start + 1) / @stride.to_f).ceil : 0
+      @limit && @start ? ((@limit - @start + 1) / @throttler.stride.to_f).ceil : 0
     end
 
     def bottom(chunk)
-      (chunk - 1) * @stride + @start
+      (chunk - 1) * @throttler.stride + @start
     end
 
     def top(chunk)
-      [chunk * @stride + @start - 1, @limit].min
+      [chunk * @throttler.stride + @start - 1, @limit].min
     end
 
     def copy(lowest, highest)

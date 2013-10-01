@@ -3,10 +3,15 @@ module Lhm
     class Time
       include Command
 
+      DEFAULT_TIMEOUT = 0.1
+      DEFAULT_STRIDE = 40_000
+
       attr_accessor :timeout_seconds
+      attr_accessor :stride
 
       def initialize(options = {})
-        @timeout_seconds = options[:delay] || 0.1
+        @timeout_seconds = options[:delay] || DEFAULT_TIMEOUT
+        @stride = options[:stride] || DEFAULT_STRIDE
       end
 
       def execute
@@ -15,8 +20,9 @@ module Lhm
     end
 
     class LegacyTime < Time
-      def initialize(throttle)
-        @timeout_seconds = throttle / 1000.0
+      def initialize(timeout, stride)
+        @timeout_seconds = timeout / 1000.0
+        @stride = stride
       end
     end
   end
