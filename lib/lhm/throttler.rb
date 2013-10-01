@@ -15,10 +15,6 @@ module Lhm
     class Factory
       def self.create_throttler(type, options = {})
         case type
-        when Fixnum
-          # we still support the throttle as a Fixnum input
-          warn "throttler option will no loger accept a Fixnum in the next versions."
-          legacy_throttler(type)
         when Lhm::Command
           type
         when Symbol
@@ -30,10 +26,6 @@ module Lhm
         else
           raise ArgumentError, 'type argument must be a Symbol, String or Class'
         end
-      end
-
-      def self.legacy_throttler(t)
-        Throttler::LegacyTime.new(t)
       end
     end
   end

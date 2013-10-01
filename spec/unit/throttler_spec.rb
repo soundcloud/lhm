@@ -12,20 +12,6 @@ describe Lhm::Throttler do
   end
 
   describe "#setup_throttler" do
-    describe "when passing 100 milliseconds" do
-      before do
-        @mock.setup_throttler(100)
-      end
-
-      it "instantiates a legacy throttle" do
-        @mock.throttler.class.must_equal Lhm::Throttler::LegacyTime
-      end
-
-      it "returns in seconds" do
-        @mock.throttler.timeout_seconds.must_equal 0.1
-      end
-    end
-
     describe "when passing a key" do
       before do
         @mock.setup_throttler(:time_throttler, :delay => 2)

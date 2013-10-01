@@ -50,7 +50,13 @@ module Lhm
         end
       end
 
-      if options[:throttler] ||= options[:throttle]
+      # we still support the throttle as a Fixnum input
+      if options[:throttle]
+        warn "throttle option will no loger accept a Fixnum in the next versions."
+        options[:throttler] = Throttler::LegacyTime.new(options[:throttle])
+      end
+
+      if options[:throttler]
         options[:throttler] = Throttler::Factory.create_throttler(*options[:throttler])
       else
         options[:throttler] = Lhm.throttler
