@@ -49,17 +49,25 @@ module Lhm
   end
 
   def cleanup(run = false)
-    lhm_tables = connection.select_values("show tables").select do |name|
-      name =~ /^lhm(a|n)_/
-    end
-    return true if lhm_tables.empty?
+    lhm_tables = connection.select_values("show tables").select { |name| name =~ /^lhm(a|n)_/ }
+    lhm_triggers = connection.select_values("show triggers").collect do |trigger|
+      trigger.respond_to?(:trigger) ? trigger.trigger : trigger
+    end.select { |name| name =~ /^lhmt/ }
+
     if run
+      lhm_triggers.each do |trigger|
+        connection.execute("drop trigger #{trigger}")
+      end
       lhm_tables.each do |table|
         connection.execute("drop table #{table}")
       end
       true
+    elsif lhm_tables.empty? && lhm_triggers.empty?
+      puts "Everything is clean. Nothing to do."
+      true
     else
       puts "Existing LHM backup tables: #{lhm_tables.join(", ")}."
+      puts "Existing LHM triggers: #{lhm_triggers.join(", ")}."
       puts "Run Lhm.cleanup(true) to drop them all."
       false
     end

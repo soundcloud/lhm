@@ -12,10 +12,16 @@ describe Lhm, "cleanup" do
   describe "changes" do
     before(:each) do
       table_create(:users)
-      Lhm.change_table(:users, :atomic_switch => false) do |t|
-        t.add_column(:logins, "INT(12) DEFAULT '0'")
-        t.add_index(:logins)
+      simulate_failed_migration do
+        Lhm.change_table(:users, :atomic_switch => false) do |t|
+          t.add_column(:logins, "INT(12) DEFAULT '0'")
+          t.add_index(:logins)
+        end
       end
+    end
+
+    after(:each) do
+      Lhm.cleanup(true)
     end
 
     it "should show temporary tables" do
@@ -24,6 +30,16 @@ describe Lhm, "cleanup" do
       end
       output.must_include("Existing LHM backup tables")
       output.must_match(/lhma_[0-9_]*_users/)
+    end
+
+    it "should show temporary triggers" do
+      output = capture_stdout do
+        Lhm.cleanup
+      end
+      output.must_include("Existing LHM triggers")
+      output.must_include("lhmt_ins_users")
+      output.must_include("lhmt_del")
+      output.must_include("lhmt_upd_users")
     end
 
     it "should delete temporary tables" do
