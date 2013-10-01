@@ -40,7 +40,6 @@ module Lhm
     private
 
     def normalize_options(options)
-
       if !options.include?(:atomic_switch)
         if supports_atomic_switch?
           options[:atomic_switch] = true
@@ -51,12 +50,11 @@ module Lhm
         end
       end
 
-      if options[:throttle]
-        options[:throttle] = Throttle::Factory.create_throttle(*options[:throttle])
+      if options[:throttler] ||= options[:throttle]
+        options[:throttler] = Throttler::Factory.create_throttler(*options[:throttler])
       else
-        options[:throttle] = Lhm.throttle
+        options[:throttler] = Lhm.throttler
       end
-
     end
   end
 end

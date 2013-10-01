@@ -4,7 +4,7 @@
 require 'lhm/table'
 require 'lhm/invoker'
 require 'lhm/connection'
-require 'lhm/throttle'
+require 'lhm/throttler'
 require 'lhm/version'
 
 # Large hadron migrator - online schema change tool
@@ -18,7 +18,7 @@ require 'lhm/version'
 #   end
 #
 module Lhm
-  extend Throttle
+  extend Throttler
   extend self
 
   # Alters a table with the changes described in the block

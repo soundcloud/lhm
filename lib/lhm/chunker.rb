@@ -17,7 +17,7 @@ module Lhm
       @migration = migration
       @connection = connection
       @stride = options[:stride] || 40_000
-      @throttle = options[:throttle]
+      @throttler = options[:throttler]
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
     end
@@ -89,8 +89,8 @@ module Lhm
       up_to do |lowest, highest|
         affected_rows = @connection.update(copy(lowest, highest))
 
-        if @throttle && affected_rows > 0
-          @throttle.run
+        if @throttler && affected_rows > 0
+          @throttler.run
         end
 
         print "."
