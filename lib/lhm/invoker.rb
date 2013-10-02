@@ -40,7 +40,6 @@ module Lhm
     private
 
     def normalize_options(options)
-
       if !options.include?(:atomic_switch)
         if supports_atomic_switch?
           options[:atomic_switch] = true
@@ -51,12 +50,15 @@ module Lhm
         end
       end
 
-      if options[:throttle]
-        options[:throttle] = Throttle::Factory.create_throttle(*options[:throttle])
+      if options[:throttler]
+        options[:throttler] = Throttler::Factory.create_throttler(*options[:throttler])
+      elsif options[:throttle] || options[:stride]
+        # we still support the throttle and stride as a Fixnum input
+        warn "throttle option will no loger accept a Fixnum in the next versions."
+        options[:throttler] = Throttler::LegacyTime.new(options[:throttle], options[:stride])
       else
-        options[:throttle] = Lhm.throttle
+        options[:throttler] = Lhm.throttler
       end
-
     end
   end
 end
