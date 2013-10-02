@@ -37,12 +37,14 @@ module Lhm
   #   Use atomic switch to rename tables (defaults to: true)
   #   If using a version of mysql affected by atomic switch bug, LHM forces user
   #   to set this option (see SqlHelper#supports_atomic_switch?)
+  # @option options [String] :order_column
+  #   Column name to order records by. This column must be unique for every record (defaults to: "id")
   # @yield [Migrator] Yielded Migrator object records the changes
   # @return [Boolean] Returns true if the migration finishes
   # @raise [Error] Raises Lhm::Error in case of a error and aborts the migration
   def change_table(table_name, options = {}, &block)
     origin = Table.parse(table_name, connection)
-    invoker = Invoker.new(origin, connection)
+    invoker = Invoker.new(origin, connection, options)
     block.call(invoker.migrator)
     invoker.run(options)
     true

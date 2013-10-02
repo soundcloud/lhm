@@ -18,11 +18,19 @@ describe Lhm::Table do
   describe "constraints" do
     it "should be satisfied with a single column primary key called id" do
       @table = Lhm::Table.new("table", "id")
+      @table.columns["id"] = {:type => "int(11)"}
       @table.satisfies_primary_key?.must_equal true
     end
 
-    it "should not be satisfied with a primary key unless called id" do
-      @table = Lhm::Table.new("table", "uuid")
+    it "should be satisfied with a primary key called something other than id" do
+      @table = Lhm::Table.new("table", "weird_id")
+      @table.columns["weird_id"] = {:type => "int(11)"}
+      @table.satisfies_primary_key?.must_equal true
+    end
+
+    it "should not be satisfied with a non numeric primary key" do
+      @table = Lhm::Table.new("table", "id")
+      @table.columns["id"] = {:type => "varchar(255)"}
       @table.satisfies_primary_key?.must_equal false
     end
 

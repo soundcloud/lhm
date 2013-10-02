@@ -15,10 +15,11 @@ module Lhm
 
     attr_reader :name, :statements, :connection, :conditions
 
-    def initialize(table, connection = nil)
+    def initialize(table, connection = nil, options = nil)
       @connection = connection
       @origin = table
       @name = table.destination_name
+      @options = options
       @statements = []
     end
 
@@ -166,7 +167,11 @@ module Lhm
       end
 
       unless @origin.satisfies_primary_key?
-        error("origin does not satisfy primary key requirements")
+        if @options[:order_column]
+          error("order column needs to be specified because no satisfactory primary key exists") unless @origin.can_use_order_column?(@options[:order_column])
+        else
+          error("origin does not satisfy primary key requirements")
+        end
       end
 
       dest = @origin.destination_name
@@ -179,7 +184,7 @@ module Lhm
     def execute
       destination_create
       @connection.sql(@statements)
-      Migration.new(@origin, destination_read, conditions)
+      Migration.new(@origin, destination_read, order_column, conditions)
     end
 
     def destination_create
@@ -195,6 +200,10 @@ module Lhm
       index_name ||= idx_name(@origin.name, cols)
       parts = [type, index_name, @name, idx_spec(cols)]
       "create %s `%s` on `%s` (%s)" % parts
+    end
+
+    def order_column
+      @options[:order_column] || @origin.pk
     end
   end
 end
