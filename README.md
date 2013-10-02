@@ -182,17 +182,18 @@ during the run will happen on the new table as well.
 ## Cleaning up after an interrupted Lhm run
 
 If an Lhm migration is interrupted, it may leave behind the temporary tables
-used in the migration. If the migration is re-started, the unexpected presence
-of these tables will cause an error. In this case, `Lhm.cleanup` can be used
-to drop any orphaned Lhm temporary tables.
+and/or triggers used in the migration. If the migration is re-started, the
+unexpected presence of these tables will cause an error.
 
-To see what Lhm tables are found:
+In this case, `Lhm.cleanup` can be used to drop any orphaned Lhm temporary tables or triggers.
+
+To see what Lhm tables/triggers are found:
 
 ```ruby
 Lhm.cleanup
 ```
 
-To remove any Lhm tables found:
+To remove any Lhm tables/triggers found:
 ```ruby
 Lhm.cleanup(true)
 ```
