@@ -6,6 +6,7 @@ require File.expand_path(File.dirname(__FILE__)) + '/unit_helper'
 require 'lhm/table'
 require 'lhm/migration'
 require 'lhm/chunker'
+require 'lhm/throttler'
 
 describe Lhm::Chunker do
   include UnitHelper
@@ -14,7 +15,9 @@ describe Lhm::Chunker do
     @origin      = Lhm::Table.new("origin")
     @destination = Lhm::Table.new("destination")
     @migration   = Lhm::Migration.new(@origin, @destination)
-    @chunker     = Lhm::Chunker.new(@migration, nil, { :start => 1, :limit => 10 })
+    @chunker     = Lhm::Chunker.new(
+      @migration, nil, { :start => 1, :limit => 10, :throttler => Lhm::Throttler::Time.new }
+    )
   end
 
   describe "copy into" do
@@ -34,7 +37,9 @@ describe Lhm::Chunker do
 
   describe "invalid" do
     before do
-      @chunker = Lhm::Chunker.new(@migration, nil, { :start => 0, :limit => -1 })
+      @chunker = Lhm::Chunker.new(
+        @migration, nil, { :start => 0, :limit => -1, :throttler => Lhm::Throttler::Time.new }
+      )
     end
 
     it "should have zero chunks" do
@@ -51,7 +56,7 @@ describe Lhm::Chunker do
   describe "one" do
     before do
       @chunker = Lhm::Chunker.new(@migration, nil, {
-        :stride => 100_000, :start => 1, :limit => 300_000
+        :start => 1, :limit => 300_000, :throttler => Lhm::Throttler::Time.new(:stride => 100_000)
       })
     end
 
@@ -71,7 +76,7 @@ describe Lhm::Chunker do
   describe "two" do
     before do
       @chunker = Lhm::Chunker.new(@migration, nil, {
-        :stride => 100_000, :start => 2, :limit => 150_000
+        :start => 2, :limit => 150_000, :throttler => Lhm::Throttler::Time.new(:stride => 100_000)
       })
     end
 
@@ -91,7 +96,7 @@ describe Lhm::Chunker do
   describe "iterating" do
     before do
       @chunker = Lhm::Chunker.new(@migration, nil, {
-        :stride => 100, :start => 53, :limit => 121
+        :start => 53, :limit => 121, :throttler => Lhm::Throttler::Time.new(:stride => 100)
       })
     end
 
