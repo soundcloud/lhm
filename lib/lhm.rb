@@ -56,10 +56,10 @@ module Lhm
 
     if run
       lhm_triggers.each do |trigger|
-        connection.execute("drop trigger #{trigger}")
+        connection.execute("drop trigger if exists #{trigger}")
       end
       lhm_tables.each do |table|
-        connection.execute("drop table #{table}")
+        connection.execute("drop table if exists #{table}")
       end
       true
     elsif lhm_tables.empty? && lhm_triggers.empty?
