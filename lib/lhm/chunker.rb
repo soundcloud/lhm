@@ -21,23 +21,31 @@ module Lhm
       @limit = options[:limit] || select_limit
     end
 
-    # Copies chunks of size `stride`, starting from `start` up to id `limit`.
-    def up_to(&block)
-      1.upto(traversable_chunks_size) do |n|
-        yield(bottom(n), top(n))
+    def execute
+      return unless @start && @limit
+      @next_to_insert = @start
+      until @next_to_insert >= @limit
+        stride = @throttler.stride
+        affected_rows = @connection.update(copy(bottom, top(stride)))
+
+        if @throttler && affected_rows > 0
+          @throttler.run
+        end
+
+        print "."
+        @next_to_insert = top(stride) + 1
       end
+      print "\n"
     end
 
-    def traversable_chunks_size
-      @limit && @start ? ((@limit - @start + 1) / @throttler.stride.to_f).ceil : 0
+  private
+
+    def bottom
+      @next_to_insert
     end
 
-    def bottom(chunk)
-      (chunk - 1) * @throttler.stride + @start
-    end
-
-    def top(chunk)
-      [chunk * @throttler.stride + @start - 1, @limit].min
+    def top(stride)
+      [(@next_to_insert + stride - 1), @limit].min
     end
 
     def copy(lowest, highest)
@@ -55,8 +63,6 @@ module Lhm
       limit = connection.select_value("select max(id) from #{ origin_name }")
       limit ? limit.to_i : nil
     end
-
-  private
 
     def conditions
       @migration.conditions ? "#{@migration.conditions} and" : "where"
@@ -82,19 +88,6 @@ module Lhm
       if @start && @limit && @start > @limit
         error("impossible chunk options (limit must be greater than start)")
       end
-    end
-
-    def execute
-      up_to do |lowest, highest|
-        affected_rows = @connection.update(copy(lowest, highest))
-
-        if @throttler && affected_rows > 0
-          @throttler.run
-        end
-
-        print "."
-      end
-      print "\n"
     end
   end
 end
