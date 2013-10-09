@@ -11,6 +11,7 @@ if defined?(DataMapper)
     before do
       data_mapper.expect :is_a?, true, [DataMapper::Adapters::AbstractAdapter]
       data_mapper.expect :options, options
+      data_mapper.expect :options, options
     end
 
     after do
