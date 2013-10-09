@@ -6,3 +6,6 @@ pkg/*
 .rvmrc
 .ruby-version
 .ruby-gemset
+bin/rake
+spec/integration/database.yml
+Gemfile
