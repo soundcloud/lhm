@@ -37,11 +37,16 @@ Follow the manual instructions if you want more control over this process.
 
     bin/lhm-spec-grants.sh
 
-## run specs
+# run specs
 
-To run specs in slave mode, set the SLAVE=1 when running tests:
+Setup the dependency gems
 
-    MASTER_SLAVE=1 rake specs
+    export BUNDLE_GEMFILE=gemfiles/ar-3.2_mysql2.gemfile
+    bundle install
+
+To run specs in slave mode, set the MASTER_SLAVE=1 when running tests:
+
+    MASTER_SLAVE=1 bundle exec rake specs
 
 # connecting
 
