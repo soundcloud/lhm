@@ -64,8 +64,23 @@ module Lhm
       limit ? limit.to_i : nil
     end
 
+    #XXX this is extremely brittle and doesn't work when filter contains more
+    #than one SQL clause, e.g. "where ... group by foo". Before making any
+    #more changes here, please consider either:
+    #
+    #1. Letting users only specify part of defined clauses (i.e. don't allow
+    #`filter` on Migrator to accept both WHERE and INNER JOIN
+    #2. Changing query building so that it uses structured data rather than
+    #strings until the last possible moment.
     def conditions
-      @migration.conditions ? "#{@migration.conditions} and" : "where"
+      if @migration.conditions
+        @migration.conditions.
+          sub(/\)\Z/, "").
+          #put any where conditions in parens
+          sub(/where\s(\w.*)\Z/, "where (\\1)") + " and"
+      else
+        "where"
+      end
     end
 
     def destination_name
