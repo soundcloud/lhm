@@ -21,9 +21,12 @@ describe Lhm::Chunker do
     def @throttler.run
       #noop
     end
+    def @throttler.stride
+      1 
+    end
     @chunker = Lhm::Chunker.new(@migration, @connection, :throttler => @throttler,
-                                :start     => 1,
-                                :limit     => 10)
+                                                         :start     => 1,
+                                                         :limit     => 10)
   end
 
   describe "#run" do
@@ -75,6 +78,39 @@ describe Lhm::Chunker do
       end
       @connection.expect(:update, 2) do |stmt|
         stmt.first =~ /between 9 and 10/
+      end
+
+      @chunker.run
+      @connection.verify
+    end
+
+    it "separates filter conditions from chunking conditions" do
+      @chunker = Lhm::Chunker.new(@migration, @connection, :throttler => @throttler,
+                                                           :start     => 1,
+                                                           :limit     => 2)
+      @connection.expect(:update, 1) do |stmt|
+        stmt.first =~ /where \(foo.created_at > '2013-07-10' or foo.baz = 'quux'\) and foo/
+      end
+
+      def @migration.conditions
+        "where foo.created_at > '2013-07-10' or foo.baz = 'quux'"
+      end
+
+      @chunker.run
+      @connection.verify
+    end
+
+    it "doesn't mess with inner join filters" do
+      @chunker = Lhm::Chunker.new(@migration, @connection, :throttler => @throttler,
+                                                           :start     => 1,
+                                                           :limit     => 2)
+      @connection.expect(:update, 1) do |stmt|
+        puts stmt
+        stmt.first =~ /inner join bar on foo.id = bar.foo_id and/
+      end
+
+      def @migration.conditions
+        "inner join bar on foo.id = bar.foo_id"
       end
 
       @chunker.run
