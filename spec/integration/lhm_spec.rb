@@ -205,6 +205,25 @@ describe Lhm do
       end
     end
 
+    it "works when mysql reserved words are used" do
+      table_create(:lines)
+
+      Lhm.change_table(:lines) do |t|
+        t.add_column('by', 'varchar(10)')
+        t.remove_column('lines')
+        t.add_index('by')
+        t.add_unique_index('between')
+        t.remove_index('by')
+      end
+
+      slave do
+        table_read(:lines).columns.must_include 'by'
+        table_read(:lines).columns.wont_include 'lines'
+        index_on_columns?(:lines, ['between'], :unique).must_equal true
+        index_on_columns?(:lines, ['by']).must_equal false
+      end
+    end
+
     describe "parallel" do
       it "should perserve inserts during migration" do
         50.times { |n| execute("insert into users set reference = '#{ n }'") }

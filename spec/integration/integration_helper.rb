@@ -145,7 +145,7 @@ module IntegrationHelper
     non_unique = type == :non_unique ? 1 : 0
 
     !!select_one(%Q<
-      show indexes in #{ table_name }
+      show indexes in `#{ table_name }`
      where key_name = '#{ key_name }'
        and non_unique = #{ non_unique }
     >)

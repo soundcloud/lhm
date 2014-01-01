@@ -55,12 +55,12 @@ module Lhm
     end
 
     def select_start
-      start = connection.select_value("select min(id) from #{ origin_name }")
+      start = connection.select_value("select min(id) from `#{ origin_name }`")
       start ? start.to_i : nil
     end
 
     def select_limit
-      limit = connection.select_value("select max(id) from #{ origin_name }")
+      limit = connection.select_value("select max(id) from `#{ origin_name }`")
       limit ? limit.to_i : nil
     end
 
