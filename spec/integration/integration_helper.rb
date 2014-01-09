@@ -131,7 +131,7 @@ module IntegrationHelper
   end
 
   def count_all(table)
-    query = "select count(*) from #{ table }"
+    query = "select count(*) from `#{ table }`"
     select_value(query).to_i
   end
 
