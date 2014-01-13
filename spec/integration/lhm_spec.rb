@@ -207,6 +207,8 @@ describe Lhm do
 
     it "works when mysql reserved words are used" do
       table_create(:lines)
+      execute("insert into `lines` set id = 1, `between` = 'foo'")
+      execute("insert into `lines` set id = 2, `between` = 'bar'")
 
       Lhm.change_table(:lines) do |t|
         t.add_column('by', 'varchar(10)')
@@ -221,6 +223,7 @@ describe Lhm do
         table_read(:lines).columns.wont_include 'lines'
         index_on_columns?(:lines, ['between'], :unique).must_equal true
         index_on_columns?(:lines, ['by']).must_equal false
+        count_all(:lines).must_equal(2)
       end
     end
 

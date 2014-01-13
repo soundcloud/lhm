@@ -22,7 +22,7 @@ describe Lhm::Chunker do
       #noop
     end
     def @throttler.stride
-      1 
+      1
     end
     @chunker = Lhm::Chunker.new(@migration, @connection, :throttler => @throttler,
                                                          :start     => 1,
@@ -89,7 +89,7 @@ describe Lhm::Chunker do
                                                            :start     => 1,
                                                            :limit     => 2)
       @connection.expect(:update, 1) do |stmt|
-        stmt.first =~ /where \(foo.created_at > '2013-07-10' or foo.baz = 'quux'\) and foo/
+        stmt.first =~ /where \(foo.created_at > '2013-07-10' or foo.baz = 'quux'\) and `foo`/
       end
 
       def @migration.conditions

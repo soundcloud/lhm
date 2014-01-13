@@ -51,7 +51,7 @@ module Lhm
     def copy(lowest, highest)
       "insert ignore into `#{ destination_name }` (#{ columns }) " +
       "select #{ select_columns } from `#{ origin_name }` " +
-      "#{ conditions } #{ origin_name }.`id` between #{ lowest } and #{ highest }"
+      "#{ conditions } `#{ origin_name }`.`id` between #{ lowest } and #{ highest }"
     end
 
     def select_start
@@ -96,7 +96,7 @@ module Lhm
     end
 
     def select_columns
-      @select_columns ||= @migration.intersection.typed(origin_name)
+      @select_columns ||= @migration.intersection.typed("`#{origin_name}`")
     end
 
     def validate
