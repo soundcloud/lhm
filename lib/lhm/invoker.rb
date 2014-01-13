@@ -24,6 +24,8 @@ module Lhm
     end
 
     def run(options = {})
+      Lhm.logger.info "Starting LHM run on table=#{@migrator.name}"
+
       if !options.include?(:atomic_switch)
         if supports_atomic_switch?
           options[:atomic_switch] = true
@@ -44,6 +46,10 @@ module Lhm
           LockedSwitcher.new(migration, @connection).run
         end
       end
+
+    rescue => e
+      Lhm.logger.error "LHM run failed with exception=#{e.class} message=#{e.message}"
+      raise
     end
   end
 end

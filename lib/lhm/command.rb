@@ -7,6 +7,7 @@ module Lhm
 
   module Command
     def run(&block)
+      Lhm.logger.info "Starting run of class=#{self.class}"
       validate
 
       if(block_given?)
@@ -16,7 +17,8 @@ module Lhm
       else
         execute
       end
-    rescue
+    rescue => e
+      Lhm.logger.error "Error in class=#{self.class}, reverting. exception=#{e.class} message=#{e.message}"
       revert
       raise
     end
