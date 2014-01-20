@@ -147,6 +147,14 @@ module IntegrationHelper
     >)
   end
 
+  def with_per_thread_lhm_connection
+    pool = ActiveRecord::Base.establish_connection(adapter: 'mysql2', database: 'lhm')
+    pool.with_connection do |conn|
+      lhm_connection = Lhm::Connection.new(conn)
+      yield  lhm_connection
+    end
+  end
+
   #
   # Environment
   #

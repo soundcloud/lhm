@@ -10,7 +10,15 @@ require 'lhm/locked_switcher'
 describe Lhm::LockedSwitcher do
   include IntegrationHelper
 
-  before(:each) { connect_master! }
+  before(:each) do
+    connect_master!
+    @old_logger = Lhm.logger
+    Lhm.logger = Logger.new('/dev/null')
+  end
+
+  after(:each) do
+    Lhm.logger = @old_logger
+  end
 
   describe 'switching' do
     before(:each) do

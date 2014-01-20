@@ -21,3 +21,10 @@ end
 logger = Logger.new STDOUT
 logger.level = Logger::WARN
 Lhm.logger = logger
+
+def without_verbose(&block)
+  old_verbose, $VERBOSE = $VERBOSE, nil
+  yield
+ensure
+  $VERBOSE = old_verbose
+end

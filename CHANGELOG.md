@@ -1,7 +1,8 @@
 # 3.0.0
 
-* #63 - Sets the LHM's session lock wait timeout variables (Camilo)
-* #75 - Remove DataMapper and ActiveRecord 2.x support (Camilo)
+* #93 - Makes the atomic switcher retry on metadata locks (@camilo)
+* #63 - Sets the LHM's session lock wait timeout variables (@camilo)
+* #75 - Remove DataMapper and ActiveRecord 2.x support (@camilo)
 
 # 2.2.0 (Jan 16, 2015)
 
