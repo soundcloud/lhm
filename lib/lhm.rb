@@ -49,7 +49,7 @@ module Lhm
   end
 
   def self.adapter
-    @@adapter ||=
+    @@adapter =
       begin
         raise 'Please call Lhm.setup' unless defined?(ActiveRecord)
         ActiveRecord::Base.connection
