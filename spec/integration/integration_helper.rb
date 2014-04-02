@@ -1,7 +1,9 @@
 # Copyright (c) 2011 - 2013, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
 # Schmidt
 
+require 'yaml'
 require File.expand_path(File.dirname(__FILE__)) + "/../bootstrap"
+$password = YAML.load_file(File.expand_path(File.dirname(__FILE__)) + "/database.yml")["password"] rescue nil
 
 begin
   require 'active_record'
@@ -42,11 +44,12 @@ module IntegrationHelper
         :host     => '127.0.0.1',
         :database => 'lhm',
         :username => 'root',
-        :port     => port
+        :port     => port,
+        :password => $password
       )
       adapter = ActiveRecord::Base.connection
     elsif defined?(DataMapper)
-      adapter = DataMapper.setup(:default, "mysql://root@localhost:#{port}/lhm")
+      adapter = DataMapper.setup(:default, "mysql://root:#{$password}@localhost:#{port}/lhm")
     end
 
     Lhm.setup(adapter)

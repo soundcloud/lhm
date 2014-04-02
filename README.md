@@ -200,6 +200,18 @@ Lhm.cleanup(true)
 
 ## Contributing
 
+First, get set up for local development:
+
+    git clone git://github.com/soundcloud/lhm.git
+    cd lhm
+    gem install bundler #if needed
+
+Pick a Gemfile for your needs from the gemfiles directory with BUNDLE_GEMFILE
+
+    BUNDLE_GEMFILE=path/to/gemfile bundle
+    echo "password: PASSWORD_FOR_ROOT_MYSQL_USER" >> spec/integration/database.yml
+    BUNDLE_GEMFILE=path/to/gemfile bundle exec rake
+
 We'll check out your contribution if you:
 
   * Provide a comprehensive suite of tests for your fork.
