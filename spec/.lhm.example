@@ -1,4 +1,4 @@
 mysqldir=/usr/local/mysql
-basedir=/opt/lhm-cluster
+basedir=~/lhm-cluster
 master_port=3306
 slave_port=3307
