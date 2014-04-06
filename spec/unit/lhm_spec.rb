@@ -1,7 +1,7 @@
+# Copyright (c) 2011 - 2013, SoundCloud Ltd.
+
 require File.expand_path(File.dirname(__FILE__)) + '/unit_helper'
-
 require 'lhm'
-
 
 describe Lhm do
 
@@ -26,6 +26,5 @@ describe Lhm do
       Lhm.logger.instance_eval{ @logdev }.dev.must_be_kind_of File
       Lhm.logger.instance_eval{ @logdev }.dev.path.must_equal 'omg.ponies'
     end
-
   end
 end
