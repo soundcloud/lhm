@@ -40,6 +40,8 @@ module Lhm
     private
 
     def normalize_options(options)
+      Lhm.logger.info "Starting LHM run on table=#{@migrator.name}"
+
       if !options.include?(:atomic_switch)
         if supports_atomic_switch?
           options[:atomic_switch] = true
@@ -59,6 +61,10 @@ module Lhm
       else
         options[:throttler] = Lhm.throttler
       end
+
+    rescue => e
+      Lhm.logger.error "LHM run failed with exception=#{e.class} message=#{e.message}"
+      raise
     end
   end
 end

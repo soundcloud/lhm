@@ -6,6 +6,7 @@ require 'lhm/invoker'
 require 'lhm/connection'
 require 'lhm/throttler'
 require 'lhm/version'
+require 'logger'
 
 # Large hadron migrator - online schema change tool
 #
@@ -20,6 +21,8 @@ require 'lhm/version'
 module Lhm
   extend Throttler
   extend self
+
+  DEFAULT_LOGGER_OPTIONS =  { level: Logger::INFO, file: STDOUT }
 
   # Alters a table with the changes described in the block
   #
@@ -82,6 +85,20 @@ module Lhm
       begin
         raise 'Please call Lhm.setup' unless defined?(ActiveRecord)
         ActiveRecord::Base.connection
+      end
+  end
+
+  def self.logger=(new_logger)
+    @@logger = new_logger
+  end
+
+  def self.logger
+    @@logger ||=
+      begin
+        logger = Logger.new(DEFAULT_LOGGER_OPTIONS[:file])
+        logger.level = DEFAULT_LOGGER_OPTIONS[:level]
+        logger.formatter = nil
+        logger
       end
   end
 
