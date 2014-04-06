@@ -9,3 +9,4 @@ pkg/*
 bin/rake
 spec/integration/database.yml
 Gemfile
+gemfiles/vendor
