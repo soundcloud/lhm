@@ -3,8 +3,6 @@
 
 require File.expand_path(File.dirname(__FILE__)) + '/integration_helper'
 
-require 'lhm'
-
 describe Lhm, "cleanup" do
   include IntegrationHelper
   before(:each) { connect_master! }

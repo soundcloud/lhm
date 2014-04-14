@@ -3,8 +3,6 @@
 
 require File.expand_path(File.dirname(__FILE__)) + '/integration_helper'
 
-require 'lhm'
-
 describe Lhm do
   include IntegrationHelper
 
