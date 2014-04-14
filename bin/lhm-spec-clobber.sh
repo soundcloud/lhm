@@ -12,8 +12,7 @@ lhmkill() {
 }
 
 echo stopping other running mysql instance
-launchctl remove com.mysql.mysqld || { echo launchctl did not remove mysqld; }
-"$mysqldir"/bin/mysqladmin shutdown || { echo mysqladmin did not shut down anything; }
+ls -lrt -d -1 ~/Library/LaunchAgents/* |  grep 'mysql.plist' | xargs launchctl unload -w
 
 lhmkill
 
