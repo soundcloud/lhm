@@ -19,8 +19,6 @@ end
 require 'lhm/table'
 require 'lhm/sql_helper'
 require 'lhm/connection'
-require 'lhm'
-
 
 module IntegrationHelper
   #

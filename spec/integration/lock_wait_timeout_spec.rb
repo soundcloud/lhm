@@ -1,18 +1,17 @@
 require File.expand_path(File.dirname(__FILE__)) + '/integration_helper'
-
 require 'lhm'
 
 describe Lhm do
   include IntegrationHelper
 
-  before(:each) do 
-    connect_master! 
+  before(:each) do
+    connect_master!
     table_create(:users)
   end
 
   it "set_session_lock_wait_timeouts should set the sessions lock wait timeouts to less than the global values by a delta" do
-    connection = Lhm.connection
-    connection.execute("SET SESSION innodb_lock_wait_timeout=1") 
+    connection = Lhm.send(:connection)
+    connection.execute("SET SESSION innodb_lock_wait_timeout=1")
     connection.execute("SET SESSION lock_wait_timeout=1")
 
     global_innodb_lock_wait_timeout = connection.execute("SHOW GLOBAL VARIABLES LIKE 'innodb_lock_wait_timeout'").first.last.to_i
