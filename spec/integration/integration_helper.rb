@@ -1,21 +1,9 @@
 # Copyright (c) 2011 - 2013, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
 # Schmidt
-
+require 'test_helper'
 require 'yaml'
-require File.expand_path(File.dirname(__FILE__)) + "/../bootstrap"
 $password = YAML.load_file(File.expand_path(File.dirname(__FILE__)) + "/database.yml")["password"] rescue nil
 
-begin
-  require 'active_record'
-  begin
-    require 'mysql2'
-  rescue LoadError
-    require 'mysql'
-  end
-rescue LoadError
-  require 'dm-core'
-  require 'dm-mysql-adapter'
-end
 require 'lhm/table'
 require 'lhm/sql_helper'
 require 'lhm/connection'
