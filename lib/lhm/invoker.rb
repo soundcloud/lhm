@@ -15,7 +15,6 @@ module Lhm
   # and replaced by destination.
   class Invoker
     include SqlHelper
-    LOCK_WAIT_TIMEOUT_DELTA = -2
 
     attr_reader :migrator, :connection
 
@@ -24,17 +23,8 @@ module Lhm
       @migrator = Migrator.new(origin, connection)
     end
 
-    def set_session_lock_wait_timeouts
-      global_innodb_lock_wait_timeout = @connection.execute("SHOW GLOBAL VARIABLES LIKE 'innodb_lock_wait_timeout'").first.last.to_i
-      global_lock_wait_timeout = @connection.execute("SHOW GLOBAL VARIABLES LIKE 'lock_wait_timeout'").first.last.to_i
-
-      @connection.execute("SET SESSION innodb_lock_wait_timeout=#{global_innodb_lock_wait_timeout + LOCK_WAIT_TIMEOUT_DELTA}")
-      @connection.execute("SET SESSION lock_wait_timeout=#{global_lock_wait_timeout + LOCK_WAIT_TIMEOUT_DELTA}")
-    end
-
     def run(options = {})
       normalize_options(options)
-      set_session_lock_wait_timeouts
       migration = @migrator.run
 
       Entangler.new(migration, @connection).run do
