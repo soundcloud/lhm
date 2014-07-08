@@ -1,3 +1,3 @@
 #!/bin/sh
 
-source ~/.lhm
+source $HOME/.lhm
