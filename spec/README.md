@@ -1,47 +1,54 @@
-Preparing for master slave integration tests
---------------------------------------------
+# Preparing for master slave integration tests
 
-# configuration
+## Configuration
 
 create ~/.lhm:
 
     mysqldir=/usr/local/mysql
-    basedir=/opt/lhm-cluster
+    basedir=~/lhm-cluster
     master_port=3306
     slave_port=3307
 
 mysqldir specifies the location of your mysql install. basedir is the
 directory master and slave databases will get installed into.
 
-# setup
+## Automatic setup
+
+### Run
+
+    bin/lhm-spec-clobber.sh
 
 You can set the integration specs up to run against a master slave setup by
-running the included `bin/lhm-spec-clobber.sh` script. this deletes the configured
-lhm master slave setup and reinstalls and configures a master slave setup.
+running the included that. This deletes the configured lhm master slave setup and reinstalls and configures a master slave setup.
 
 Follow the manual instructions if you want more control over this process.
 
-# manual setup
+## Manual setup
 
-## set up instances
+### set up instances
 
     bin/lhm-spec-setup-cluster.sh
 
-## start instances
+### start instances
 
     basedir=/opt/lhm-luster
     mysqld --defaults-file="$basedir/master/my.cnf"
     mysqld --defaults-file="$basedir/slave/my.cnf"
 
-## run the grants
+### run the grants
 
     bin/lhm-spec-grants.sh
 
 ## run specs
 
-To run specs in slave mode, set the SLAVE=1 when running tests:
+Setup the dependency gems
 
-    MASTER_SLAVE=1 rake specs
+    export BUNDLE_GEMFILE=gemfiles/ar-3.2_mysql2.gemfile
+    bundle install
+
+To run specs in slave mode, set the MASTER_SLAVE=1 when running tests:
+
+    MASTER_SLAVE=1 bundle exec rake specs
 
 # connecting
 

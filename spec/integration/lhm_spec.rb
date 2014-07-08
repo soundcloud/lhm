@@ -3,8 +3,6 @@
 
 require File.expand_path(File.dirname(__FILE__)) + '/integration_helper'
 
-require 'lhm'
-
 describe Lhm do
   include IntegrationHelper
 
@@ -253,7 +251,28 @@ describe Lhm do
         result = result['fnord'] if result.respond_to?(:has_key?)
         result.must_equal('Superfriends')
       end
+    end
 
+    it "works when mysql reserved words are used" do
+      table_create(:lines)
+      execute("insert into `lines` set id = 1, `between` = 'foo'")
+      execute("insert into `lines` set id = 2, `between` = 'bar'")
+
+      Lhm.change_table(:lines) do |t|
+        t.add_column('by', 'varchar(10)')
+        t.remove_column('lines')
+        t.add_index('by')
+        t.add_unique_index('between')
+        t.remove_index('by')
+      end
+
+      slave do
+        table_read(:lines).columns.must_include 'by'
+        table_read(:lines).columns.wont_include 'lines'
+        index_on_columns?(:lines, ['between'], :unique).must_equal true
+        index_on_columns?(:lines, ['by']).must_equal false
+        count_all(:lines).must_equal(2)
+      end
     end
 
     describe "parallel" do

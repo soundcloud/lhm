@@ -8,12 +8,13 @@ source ~/.lhm
 lhmkill() {
   echo killing lhm-cluster
   ps -ef | sed -n "/[m]ysqld.*lhm-cluster/p" | awk '{ print $2 }' | xargs kill
+  echo running homebrew mysql instance
+  launchctl load -w ~/Library/LaunchAgents/homebrew.mxcl.mysql.plist
   sleep 2
 }
 
-echo stopping other running mysql instance
-launchctl remove com.mysql.mysqld || { echo launchctl did not remove mysqld; }
-"$mysqldir"/bin/mysqladmin shutdown || { echo mysqladmin did not shut down anything; }
+echo stopping homebrew running mysql instance
+ls -lrt -d -1 ~/Library/LaunchAgents/* |  grep 'mysql.plist' | xargs launchctl unload -w
 
 lhmkill
 

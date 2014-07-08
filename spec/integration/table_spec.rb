@@ -2,8 +2,6 @@
 # Schmidt
 
 require File.expand_path(File.dirname(__FILE__)) + '/integration_helper'
-
-require 'lhm'
 require 'lhm/table'
 
 describe Lhm::Table do

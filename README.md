@@ -182,22 +182,30 @@ during the run will happen on the new table as well.
 ## Cleaning up after an interrupted Lhm run
 
 If an Lhm migration is interrupted, it may leave behind the temporary tables
-used in the migration. If the migration is re-started, the unexpected presence
-of these tables will cause an error. In this case, `Lhm.cleanup` can be used
-to drop any orphaned Lhm temporary tables.
+and/or triggers used in the migration. If the migration is re-started, the
+unexpected presence of these tables will cause an error.
 
-To see what Lhm tables are found:
+In this case, `Lhm.cleanup` can be used to drop any orphaned Lhm temporary tables or triggers.
+
+To see what Lhm tables/triggers are found:
 
 ```ruby
 Lhm.cleanup
 ```
 
-To remove any Lhm tables found:
+To remove any Lhm tables/triggers found:
 ```ruby
 Lhm.cleanup(true)
 ```
 
 ## Contributing
+
+First, get set up for local development:
+
+    git clone git://github.com/soundcloud/lhm.git
+    cd lhm
+
+To run the tests, follow the instructions on [spec/README](https://github.com/soundcloud/lhm/blob/master/spec/README.md).
 
 We'll check out your contribution if you:
 
@@ -223,4 +231,4 @@ The license is included as LICENSE in this directory.
 [2]: https://github.com/freels/table_migrator
 [3]: http://www.percona.com/doc/percona-toolkit/2.1/pt-online-schema-change.html
 [4]: https://travis-ci.org/soundcloud/lhm
-[5]: https://travis-ci.org/soundcloud/lhm.png?branch=master
+[5]: https://travis-ci.org/soundcloud/lhm.svg?branch=master

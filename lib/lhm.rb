@@ -4,7 +4,9 @@
 require 'lhm/table'
 require 'lhm/invoker'
 require 'lhm/connection'
+require 'lhm/throttler'
 require 'lhm/version'
+require 'logger'
 
 # Large hadron migrator - online schema change tool
 #
@@ -17,6 +19,10 @@ require 'lhm/version'
 #   end
 #
 module Lhm
+  extend Throttler
+  extend self
+
+  DEFAULT_LOGGER_OPTIONS =  { level: Logger::INFO, file: STDOUT }
 
   # Alters a table with the changes described in the block
   #
@@ -37,7 +43,7 @@ module Lhm
   # @yield [Migrator] Yielded Migrator object records the changes
   # @return [Boolean] Returns true if the migration finishes
   # @raise [Error] Raises Lhm::Error in case of a error and aborts the migration
-  def self.change_table(table_name, options = {}, &block)
+  def change_table(table_name, options = {}, &block)
     origin = Table.parse(table_name, connection)
     invoker = Invoker.new(origin, connection)
     block.call(invoker.migrator)
@@ -45,28 +51,36 @@ module Lhm
     true
   end
 
-  def self.cleanup(run = false)
-    lhm_tables = connection.select_values("show tables").select do |name|
-      name =~ /^lhm(a|n)_/
-    end
-    return true if lhm_tables.empty?
+  def cleanup(run = false)
+    lhm_tables = connection.select_values("show tables").select { |name| name =~ /^lhm(a|n)_/ }
+    lhm_triggers = connection.select_values("show triggers").collect do |trigger|
+      trigger.respond_to?(:trigger) ? trigger.trigger : trigger
+    end.select { |name| name =~ /^lhmt/ }
+
     if run
-      lhm_tables.each do |table|
-        connection.execute("drop table #{table}")
+      lhm_triggers.each do |trigger|
+        connection.execute("drop trigger if exists #{trigger}")
       end
+      lhm_tables.each do |table|
+        connection.execute("drop table if exists #{table}")
+      end
+      true
+    elsif lhm_tables.empty? && lhm_triggers.empty?
+      puts "Everything is clean. Nothing to do."
       true
     else
       puts "Existing LHM backup tables: #{lhm_tables.join(", ")}."
+      puts "Existing LHM triggers: #{lhm_triggers.join(", ")}."
       puts "Run Lhm.cleanup(true) to drop them all."
       false
     end
   end
 
-  def self.setup(adapter)
+  def setup(adapter)
     @@adapter = adapter
   end
 
-  def self.adapter
+  def adapter
     @@adapter ||=
       begin
         raise 'Please call Lhm.setup' unless defined?(ActiveRecord)
@@ -74,9 +88,24 @@ module Lhm
       end
   end
 
+  def self.logger=(new_logger)
+    @@logger = new_logger
+  end
+
+  def self.logger
+    @@logger ||=
+      begin
+        logger = Logger.new(DEFAULT_LOGGER_OPTIONS[:file])
+        logger.level = DEFAULT_LOGGER_OPTIONS[:level]
+        logger.formatter = nil
+        logger
+      end
+  end
+
   protected
 
-  def self.connection
+  def connection
     Connection.new(adapter)
   end
+
 end

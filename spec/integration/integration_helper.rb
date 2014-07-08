@@ -1,19 +1,9 @@
 # Copyright (c) 2011 - 2013, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
 # Schmidt
+require 'test_helper'
+require 'yaml'
+$password = YAML.load_file(File.expand_path(File.dirname(__FILE__)) + "/database.yml")["password"] rescue nil
 
-require File.expand_path(File.dirname(__FILE__)) + "/../bootstrap"
-
-begin
-  require 'active_record'
-  begin
-    require 'mysql2'
-  rescue LoadError
-    require 'mysql'
-  end
-rescue LoadError
-  require 'dm-core'
-  require 'dm-mysql-adapter'
-end
 require 'lhm/table'
 require 'lhm/sql_helper'
 require 'lhm/connection'
@@ -42,11 +32,12 @@ module IntegrationHelper
         :host     => '127.0.0.1',
         :database => 'lhm',
         :username => 'root',
-        :port     => port
+        :port     => port,
+        :password => $password
       )
       adapter = ActiveRecord::Base.connection
     elsif defined?(DataMapper)
-      adapter = DataMapper.setup(:default, "mysql://root@localhost:#{port}/lhm")
+      adapter = DataMapper.setup(:default, "mysql://root:#{$password}@localhost:#{port}/lhm")
     end
 
     Lhm.setup(adapter)
@@ -131,7 +122,7 @@ module IntegrationHelper
   end
 
   def count_all(table)
-    query = "select count(*) from #{ table }"
+    query = "select count(*) from `#{ table }`"
     select_value(query).to_i
   end
 
@@ -145,7 +136,7 @@ module IntegrationHelper
     non_unique = type == :non_unique ? 1 : 0
 
     !!select_one(%Q<
-      show indexes in #{ table_name }
+      show indexes in `#{ table_name }`
      where key_name = '#{ key_name }'
        and non_unique = #{ non_unique }
     >)
@@ -162,7 +153,7 @@ module IntegrationHelper
   #
   # Misc
   #
-  
+
   def capture_stdout
     out = StringIO.new
     $stdout = out
@@ -170,5 +161,22 @@ module IntegrationHelper
     return out.string
   ensure
     $stdout = ::STDOUT
+  end
+
+  def simulate_failed_migration
+    Lhm::Entangler.class_eval do
+      alias_method :old_after, :after
+      def after
+        true
+      end
+    end
+
+    yield
+  ensure
+    Lhm::Entangler.class_eval do
+      undef_method :after
+      alias_method :after, :old_after
+      undef_method :old_after
+    end
   end
 end

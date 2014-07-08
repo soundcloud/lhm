@@ -24,16 +24,7 @@ module Lhm
     end
 
     def run(options = {})
-      if !options.include?(:atomic_switch)
-        if supports_atomic_switch?
-          options[:atomic_switch] = true
-        else
-          raise Error.new(
-            "Using mysql #{version_string}. You must explicitly set " +
-            "options[:atomic_switch] (re SqlHelper#supports_atomic_switch?)")
-        end
-      end
-
+      normalize_options(options)
       migration = @migrator.run
 
       Entangler.new(migration, @connection).run do
@@ -44,6 +35,36 @@ module Lhm
           LockedSwitcher.new(migration, @connection).run
         end
       end
+    end
+
+    private
+
+    def normalize_options(options)
+      Lhm.logger.info "Starting LHM run on table=#{@migrator.name}"
+
+      if !options.include?(:atomic_switch)
+        if supports_atomic_switch?
+          options[:atomic_switch] = true
+        else
+          raise Error.new(
+            "Using mysql #{version_string}. You must explicitly set " +
+            "options[:atomic_switch] (re SqlHelper#supports_atomic_switch?)")
+        end
+      end
+
+      if options[:throttler]
+        options[:throttler] = Throttler::Factory.create_throttler(*options[:throttler])
+      elsif options[:throttle] || options[:stride]
+        # we still support the throttle and stride as a Fixnum input
+        warn "throttle option will no longer accept a Fixnum in the next versions."
+        options[:throttler] = Throttler::LegacyTime.new(options[:throttle], options[:stride])
+      else
+        options[:throttler] = Lhm.throttler
+      end
+
+    rescue => e
+      Lhm.logger.error "LHM run failed with exception=#{e.class} message=#{e.message}"
+      raise
     end
   end
 end
