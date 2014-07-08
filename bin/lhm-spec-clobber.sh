@@ -3,7 +3,7 @@
 set -e
 set -u
 
-source ~/.lhm
+source `dirname $0`/lhm-config.sh
 
 lhmkill() {
   echo killing lhm-cluster
