@@ -104,6 +104,10 @@ module IntegrationHelper
     table_read(fixture_name)
   end
 
+  def table_rename(from_name, to_name)
+    execute "rename table `#{ from_name }` to `#{ to_name }`"
+  end
+
   def table_read(fixture_name)
     Lhm::Table.parse(fixture_name, @connection)
   end

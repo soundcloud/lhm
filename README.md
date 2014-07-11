@@ -198,6 +198,18 @@ To remove any Lhm tables/triggers found:
 Lhm.cleanup(true)
 ```
 
+Optionally only remove tables up to a specific Time, if you want to retain previous migrations.
+
+Rails:
+```ruby
+Lhm.cleanup(true, until: 1.day.ago)
+```
+
+Ruby:
+```ruby
+Lhm.cleanup(true, until: Time.now - 86400)
+```
+
 ## Contributing
 
 First, get set up for local development:

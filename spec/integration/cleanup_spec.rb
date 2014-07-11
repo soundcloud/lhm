@@ -30,6 +30,30 @@ describe Lhm, "cleanup" do
       output.must_match(/lhma_[0-9_]*_users/)
     end
 
+    it "should show temporary tables within range" do
+      table = OpenStruct.new(:name => 'users')
+      table_name = Lhm::Migration.new(table, nil, nil, Time.now - 172800).archive_name
+      table_rename(:users, table_name)
+
+      output = capture_stdout do
+        Lhm.cleanup false, {:until => Time.now - 86400}
+      end
+      output.must_include("Existing LHM backup tables")
+      output.must_match(/lhma_[0-9_]*_users/)
+    end
+
+    it "should exclude temporary tables outside range" do
+      table = OpenStruct.new(:name => 'users')
+      table_name = Lhm::Migration.new(table, nil, nil, Time.now).archive_name
+      table_rename(:users, table_name)
+
+      output = capture_stdout do
+        Lhm.cleanup false, {:until => Time.now - 172800}
+      end
+      output.must_include("Existing LHM backup tables")
+      output.wont_match(/lhma_[0-9_]*_users/)
+    end
+
     it "should show temporary triggers" do
       output = capture_stdout do
         Lhm.cleanup
