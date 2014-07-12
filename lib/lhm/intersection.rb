@@ -40,7 +40,7 @@ module Lhm
     private
 
       def qualified(name, type)
-        "#{ type }.`#{ name }`"
+        "`#{ type }`.`#{ name }`"
       end
 
       def tick(name)
