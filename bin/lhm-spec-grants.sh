@@ -12,7 +12,7 @@ echo "grant replication slave on *.* to 'slave'@'localhost'" | master
 
 # set up slave
 
-echo "change master to master_user = 'slave', master_password = 'slave', master_port = 3306, master_host = 'localhost'" | slave
+echo "change master to master_user = 'slave', master_password = 'slave', master_port = $master_port, master_host = 'localhost'" | slave
 echo "start slave" | slave
 echo "show slave status \G" | slave
 
