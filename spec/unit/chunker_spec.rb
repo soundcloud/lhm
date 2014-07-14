@@ -84,6 +84,19 @@ describe Lhm::Chunker do
       @connection.verify
     end
 
+    it 'correctly copies single record tables' do
+      @chunker = Lhm::Chunker.new(@migration, @connection, :throttler => @throttler,
+                                                           :start     => 1,
+                                                           :limit     => 1)
+
+      @connection.expect(:update, 1) do |stmt|
+        stmt.first =~ /between 1 and 1/
+      end
+
+      @chunker.run
+      @connection.verify
+    end
+
     it "separates filter conditions from chunking conditions" do
       @chunker = Lhm::Chunker.new(@migration, @connection, :throttler => @throttler,
                                                            :start     => 1,
