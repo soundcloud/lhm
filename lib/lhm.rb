@@ -51,8 +51,21 @@ module Lhm
     true
   end
 
-  def cleanup(run = false)
+  # Cleanup tables and triggers
+  #
+  # @param [Boolean] run execute now or just display information
+  # @param [Hash] options Optional options to alter cleanup behaviour
+  # @option options [Time] :until
+  #   Filter to only remove tables up to specified time (defaults to: nil)
+  def cleanup(run = false, options = {})
     lhm_tables = connection.select_values("show tables").select { |name| name =~ /^lhm(a|n)_/ }
+    if options[:until]
+      lhm_tables.select!{ |table|
+        table_date_time = Time.strptime(table, "lhma_%Y_%m_%d_%H_%M_%S")
+        table_date_time <= options[:until]
+      }
+    end
+
     lhm_triggers = connection.select_values("show triggers").collect do |trigger|
       trigger.respond_to?(:trigger) ? trigger.trigger : trigger
     end.select { |name| name =~ /^lhmt/ }
