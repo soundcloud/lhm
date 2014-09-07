@@ -2,7 +2,10 @@
 # Schmidt
 require 'test_helper'
 require 'yaml'
-require 'active_support'
+begin
+  require 'active_support'
+rescue LoadError
+end
 $password = YAML.load_file(File.expand_path(File.dirname(__FILE__)) + "/database.yml")["password"] rescue nil
 
 require 'lhm/table'
