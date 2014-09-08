@@ -44,6 +44,38 @@ module Lhm
     true
   end
 
+  def self.cleanup(run = false, options = {})
+    lhm_tables = connection.select_values("show tables").select { |name| name =~ /^lhm(a|n)_/ }
+    if options[:until]
+      lhm_tables.select!{ |table|
+        table_date_time = Time.strptime(table, "lhma_%Y_%m_%d_%H_%M_%S")
+        table_date_time <= options[:until]
+      }
+    end
+
+    lhm_triggers = connection.select_values("show triggers").collect do |trigger|
+      trigger.respond_to?(:trigger) ? trigger.trigger : trigger
+    end.select { |name| name =~ /^lhmt/ }
+
+    if run
+      lhm_triggers.each do |trigger|
+        connection.execute("drop trigger if exists #{trigger}")
+      end
+      lhm_tables.each do |table|
+        connection.execute("drop table if exists #{table}")
+      end
+      true
+    elsif lhm_tables.empty? && lhm_triggers.empty?
+      puts "Everything is clean. Nothing to do."
+      true
+    else
+      puts "Existing LHM backup tables: #{lhm_tables.join(", ")}."
+      puts "Existing LHM triggers: #{lhm_triggers.join(", ")}."
+      puts "Run Lhm.cleanup(true) to drop them all."
+      false
+    end
+  end
+
   def self.setup(adapter)
     @@adapter = adapter
   end
@@ -54,5 +86,11 @@ module Lhm
         raise 'Please call Lhm.setup' unless defined?(ActiveRecord)
         ActiveRecord::Base.connection
       end
+  end
+
+  protected
+
+  def self.connection
+    Connection.new(adapter)
   end
 end
