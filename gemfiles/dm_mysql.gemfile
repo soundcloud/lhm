@@ -1,5 +1,0 @@
-source "https://rubygems.org"
-
-gem 'dm-core'
-gem 'dm-mysql-adapter'
-gemspec :path=>"../"

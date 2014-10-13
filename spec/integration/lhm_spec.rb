@@ -220,8 +220,6 @@ describe Lhm do
           :column_default => nil
         })
 
-        # DM & AR versions of select_one return different structures. The
-        # real test is whether the data was copied
         result = select_one('SELECT login from users')
         result = result['login'] if result.respond_to?(:has_key?)
         result.must_equal('a user')
@@ -245,8 +243,6 @@ describe Lhm do
           :column_default => 'Superfriends'
         })
 
-        # DM & AR versions of select_one return different structures. The
-        # real test is whether the data was copied
         result = select_one('SELECT `fnord` from users')
         result = result['fnord'] if result.respond_to?(:has_key?)
         result.must_equal('Superfriends')

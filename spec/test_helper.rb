@@ -11,16 +11,11 @@ $project = Pathname.new(File.dirname(__FILE__) + '/..').cleanpath
 $spec = $project.join("spec")
 $fixtures = $spec.join("fixtures")
 
+require 'active_record'
 begin
-  require 'active_record'
-  begin
-    require 'mysql2'
-  rescue LoadError
-    require 'mysql'
-  end
+  require 'mysql2'
 rescue LoadError
-  require 'dm-core'
-  require 'dm-mysql-adapter'
+  require 'mysql'
 end
 
 logger = Logger.new STDOUT
