@@ -31,7 +31,7 @@ describe Lhm::Entangler do
         create trigger `lhmt_ins_origin`
         after insert on `origin` for each row
         replace into `destination` (`info`, `tags`) /* large hadron migration */
-        values (NEW.`info`, NEW.`tags`)
+        values (`NEW`.`info`, `NEW`.`tags`)
       }
 
       @entangler.entangle.must_include strip(ddl)
@@ -42,7 +42,7 @@ describe Lhm::Entangler do
         create trigger `lhmt_upd_origin`
         after update on `origin` for each row
         replace into `destination` (`info`, `tags`) /* large hadron migration */
-        values (NEW.`info`, NEW.`tags`)
+        values (`NEW`.`info`, `NEW`.`tags`)
       }
 
       @entangler.entangle.must_include strip(ddl)

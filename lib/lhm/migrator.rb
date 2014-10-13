@@ -13,13 +13,14 @@ module Lhm
     include Command
     include SqlHelper
 
-    attr_reader :name, :statements, :connection, :conditions
+    attr_reader :name, :statements, :connection, :conditions, :renames
 
     def initialize(table, connection = nil)
       @connection = connection
       @origin = table
       @name = table.destination_name
       @statements = []
+      @renames = {}
     end
 
     # Alter a table with a custom statement
@@ -67,6 +68,28 @@ module Lhm
     # @param [String] definition Valid SQL column definition
     def change_column(name, definition)
       ddl("alter table `%s` modify column `%s` %s" % [@name, name, definition])
+    end
+
+
+    # Rename an existing column.
+    #
+    # @example
+    #
+    #   Lhm.change_table(:users) do |m|
+    #     m.rename_column(:login, :username)
+    #   end
+    #
+    # @param [String] old Name of the column to change
+    # @param [String] nu New name to use for the column
+    def rename_column(old, nu)
+      col = @origin.columns[old.to_s]
+
+      definition = col[:type]
+      definition += " NOT NULL" unless col[:is_nullable]
+      definition += " DEFAULT #{@connection.quote_value(col[:column_default])}" if col[:column_default]
+
+      ddl("alter table `%s` change column `%s` `%s` %s" % [@name, old, nu, definition])
+      @renames[old.to_s] = nu.to_s
     end
 
     # Remove a column from a table
@@ -179,7 +202,7 @@ module Lhm
     def execute
       destination_create
       @connection.sql(@statements)
-      Migration.new(@origin, destination_read, conditions)
+      Migration.new(@origin, destination_read, conditions, renames)
     end
 
     def destination_create

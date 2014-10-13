@@ -77,6 +77,14 @@ module Lhm
              and table_name = '#{ table_name }'
         })
       end
+
+      def quote_value(value)
+        quoter.quote_value(value)
+      end
+
+      def quoter
+        @quoter ||= Object.new.tap { |o| o.extend(DataObjects::Quoting) }
+      end
     end
 
     class ActiveRecordConnection
@@ -137,6 +145,10 @@ module Lhm
 
       def table_exists?(table_name)
         @adapter.table_exists?(table_name)
+      end
+
+      def quote_value(value)
+        @adapter.quote(value)
       end
     end
   end

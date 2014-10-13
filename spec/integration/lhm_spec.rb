@@ -203,6 +203,56 @@ describe Lhm do
       end
     end
 
+    it 'should rename a column' do
+      table_create(:users)
+
+      execute("INSERT INTO users (username) VALUES ('a user')")
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
+        t.rename_column(:username, :login)
+      end
+
+      slave do
+        table_data = table_read(:users)
+        table_data.columns["username"].must_equal(nil)
+        table_read(:users).columns["login"].must_equal({
+          :type => "varchar(255)",
+          :is_nullable => "YES",
+          :column_default => nil
+        })
+
+        # DM & AR versions of select_one return different structures. The
+        # real test is whether the data was copied
+        result = select_one('SELECT login from users')
+        result = result['login'] if result.respond_to?(:has_key?)
+        result.must_equal('a user')
+      end
+    end
+
+    it 'should rename a column with a default' do
+      table_create(:users)
+
+      execute("INSERT INTO users (username) VALUES ('a user')")
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
+        t.rename_column(:group, :fnord)
+      end
+
+      slave do
+        table_data = table_read(:users)
+        table_data.columns["group"].must_equal(nil)
+        table_read(:users).columns["fnord"].must_equal({
+          :type => "varchar(255)",
+          :is_nullable => "YES",
+          :column_default => 'Superfriends'
+        })
+
+        # DM & AR versions of select_one return different structures. The
+        # real test is whether the data was copied
+        result = select_one('SELECT `fnord` from users')
+        result = result['fnord'] if result.respond_to?(:has_key?)
+        result.must_equal('Superfriends')
+      end
+    end
+
     it "works when mysql reserved words are used" do
       table_create(:lines)
       execute("insert into `lines` set id = 1, `between` = 'foo'")
