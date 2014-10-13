@@ -40,8 +40,6 @@ module IntegrationHelper
         :password => $password
       )
       adapter = ActiveRecord::Base.connection
-    elsif defined?(DataMapper)
-      adapter = DataMapper.setup(:default, "mysql://root:#{$password}@localhost:#{port}/lhm")
     end
 
     Lhm.setup(adapter)

@@ -15,7 +15,7 @@ if defined?(ActiveRecord)
       active_record.verify
     end
 
-    it 'creates an ActiveRecord connection when the DM classes are not there' do
+    it 'creates an ActiveRecord connection' do
       connection.must_be_instance_of(Lhm::Connection::ActiveRecordConnection)
     end
 
