@@ -81,6 +81,8 @@ describe Lhm do
 
     it "should copy even 1 row" do
       execute("insert into users set reference = '1'")
+      select_value("select id from users").must_equal(1)
+      select_value("select reference from users LIMIT 1").must_equal(1)
 
       Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.add_column(:logins, "INT(12) DEFAULT '0'")
@@ -88,6 +90,13 @@ describe Lhm do
 
       slave do
         count_all(:users).must_equal(1)
+        table_read(:users).columns["logins"].must_equal({
+          :type => "int(12)",
+          :is_nullable => "YES",
+          :column_default => "0"
+        })
+        select_value("select id from users LIMIT 1").must_equal(1)
+        select_value("select reference from users LIMIT 1").must_equal(1)
       end
     end
 
