@@ -79,6 +79,18 @@ describe Lhm do
       end
     end
 
+    it "should copy even 1 row" do
+      execute("insert into users set reference = '1'")
+
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
+        t.add_column(:logins, "INT(12) DEFAULT '0'")
+      end
+
+      slave do
+        count_all(:users).must_equal(1)
+      end
+    end
+
     it "should remove a column" do
       Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.remove_column(:comment)
