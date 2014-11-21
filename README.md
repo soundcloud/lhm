@@ -139,6 +139,23 @@ end
 **Note:** Lhm won't delete the old, leftover table. This is on purpose, in order
 to prevent accidental data loss.
 
+## Throttler
+
+Lhm is using a throttle mecanism to read data in your original table.
+
+By default, 40000 rows are read each 0.1 second.
+
+If you want to change that behiavour, you can pass an instance of a throttler with the `throttler` option.
+
+In this example, 1000 rows will be read with a 10 seconds delay between each processing:
+```ruby
+my_throttler = Lhm::Throttler::Time.new(stride: 1000, delay: 10)
+
+Lhm.change_table :users, throttler: my_throttler  do |m|
+  #
+end
+```
+
 ## Table rename strategies
 
 There are two different table rename strategies available: LockedSwitcher and
