@@ -165,8 +165,8 @@ module Lhm
       ddl("drop index `%s` on `%s`" % [index_name, @name])
     end
 
-    def add_trigger(name, time, event, definition)
-      ddl("create trigger `%s` %s %s on `%s` %s" % [name, time, event, @name, definition])
+    def add_trigger(name, timing, event, definition)
+      ddl("create trigger `%s` %s %s on `%s` %s" % [name, timing, event, @name, definition])
     end
 
     def remove_trigger(name)
