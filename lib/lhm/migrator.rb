@@ -165,6 +165,14 @@ module Lhm
       ddl("drop index `%s` on `%s`" % [index_name, @name])
     end
 
+    def add_trigger(name, type, definition)
+      ddl("create trigger `%s` %s on `%s` %s" % [name, type, @name, definition])
+    end
+
+    def remove_trigger(name)
+      ddl("drop trigger `#{name}`")
+    end
+
     # Filter the data that is copied into the new table by the provided SQL.
     # This SQL will be inserted into the copy directly after the "from"
     # statement - so be sure to use inner/outer join syntax and not cross joins.

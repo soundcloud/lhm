@@ -131,4 +131,22 @@ describe Lhm::Migrator do
         must_equal("alter table `lhmn_alt` add column `last` VARCHAR(64)")
     end
   end
+
+  describe "trigger changes" do
+    it "should add a trigger" do
+      @creator.add_trigger :trigger_name, "before insert", "FOR EACH ROW SET NEW.grokked_at = NEW.created_at;"
+
+      @creator.statements.must_equal([
+        "create trigger `trigger_name` before insert on `lhmn_alt` FOR EACH ROW SET NEW.grokked_at = NEW.created_at;"
+      ])
+    end
+
+    it "should remove a trigger" do
+      @creator.remove_trigger(:trigger_name)
+
+      @creator.statements.must_equal([
+        "drop trigger `trigger_name`"
+      ])
+    end
+  end
 end
