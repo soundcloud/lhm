@@ -165,12 +165,34 @@ module Lhm
       ddl("drop index `%s` on `%s`" % [index_name, @name])
     end
 
-    def add_trigger(name, timing, event, definition)
-      ddl("create trigger `%s` %s %s on `%s` %s" % [name, timing, event, @name, definition])
+    # Add an index to a table
+    #
+    # @example
+    #
+    #   Lhm.change_table(:users) do |m|
+    #     m.add_trigger(:new_trigger, :before, :insert, "SET NEW.created_at = NULL;")
+    #   end
+    #
+    # @param [String, Symbol] name
+    # @param [Symbol] timing
+    # @param [Symbol] event
+    # @param [String] body
+    def add_trigger(name, timing, event, body)
+      ddl("create trigger `%s` %s %s on `%s` for each row %s" % [name, timing, event, @name, body])
     end
 
-    def remove_trigger(name)
-      ddl("drop trigger `#{name}`")
+    # Remove a trigger from the database
+    #
+    # @example
+    #
+    #   Lhm.change_table(:users) do |m|
+    #     m.remove_trigger(:trigger_x)
+    #   end
+    #
+    # @param [String, Symbol] trigger_name
+    #   The name of the trigger to remove
+    def remove_trigger(trigger_name)
+      ddl("drop trigger `#{trigger_name}`")
     end
 
     # Filter the data that is copied into the new table by the provided SQL.

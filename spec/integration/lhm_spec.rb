@@ -161,7 +161,7 @@ describe Lhm do
 
     it "should add a trigger" do
       Lhm.change_table(:users, :atomic_switch => false) do |t|
-        t.add_trigger :trigger_name, :before, :insert, "FOR EACH ROW SET NEW.created_at = NULL;"
+        t.add_trigger :trigger_name, :before, :insert, "SET NEW.created_at = NULL;"
       end
       trigger?(
         :trigger_name,

@@ -134,10 +134,10 @@ describe Lhm::Migrator do
 
   describe "trigger changes" do
     it "should add a trigger" do
-      @creator.add_trigger :trigger_name, :before, :insert, "FOR EACH ROW SET NEW.grokked_at = NEW.created_at;"
+      @creator.add_trigger :trigger_name, :before, :insert, "SET NEW.grokked_at = NEW.created_at;"
 
       @creator.statements.must_equal([
-        "create trigger `trigger_name` before insert on `lhmn_alt` FOR EACH ROW SET NEW.grokked_at = NEW.created_at;"
+        "create trigger `trigger_name` before insert on `lhmn_alt` for each row SET NEW.grokked_at = NEW.created_at;"
       ])
     end
 
