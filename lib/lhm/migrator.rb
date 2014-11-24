@@ -168,32 +168,30 @@ module Lhm
     # Add a trigger to a table
     #
     # @example
-    #
     #   Lhm.change_table(:users) do |m|
     #     m.add_trigger(:new_trigger, :before, :insert, "SET NEW.created_at = NULL;")
     #   end
     #
-    # @param [String, Symbol] name
-    #   The name of the trigger to create
-    # @param [Symbol] timing
-    #   The trigger action timing. Must be one of :before or :after to indicate
-    #   that the trigger activates before or after each row to be modified.
-    # @param [Symbol] event
-    #   Indicates the kind of operation that activates the trigger. These
-    #   trigger_event values are permitted:
-    #    * :insert : The trigger activates whenever a new row is inserted into
-    #                the table; for example, through INSERT, LOAD DATA, and REPLACE
-    #                statements.
-    #    * :update : The trigger activates whenever a row is modified; for example,
-    #                through UPDATE statements.
-    #    * :delete : The trigger activates whenever a row is deleted from the
-    #                table; for example, through DELETE and REPLACE statements.
-    #                DROP TABLE and TRUNCATE TABLE statements on the table do
-    #                not activate this trigger, because they do not use DELETE.
-    #                Dropping a partition does not activate DELETE triggers,
-    #                either.
-    # @param [String] body
-    #   The statement to execute when the trigger activates.
+    # @param [String, Symbol] name The name of the trigger to create
+    #
+    # @param [Symbol] timing  The trigger action timing. Must be one of :before
+    #   or :after to indicate that the trigger activates before or after each row
+    #   to be modified.
+    #
+    # @param [Symbol] event Indicates the kind of operation that activates the
+    #   trigger. These trigger_event values are permitted:
+    #
+    #   :insert - The trigger activates whenever a new row is inserted into the
+    #   table; for example, through INSERT, LOAD DATA, and REPLACE statements.
+    #
+    #   :update - The trigger activates whenever a row is modified; for example,
+    #   through UPDATE statements.
+    #
+    #   :delete - The trigger activates whenever a row is deleted from the table;
+    #   for example, through DELETE and REPLACE statements.
+    #
+    # @param [String] body The statement to execute when the trigger activates.
+    #
     def add_trigger(name, timing, event, body)
       unless [ :before, :after ].include? timing
         raise ArgumentError.new("Trigger timing must be one of :before, or :after. Received '#{timing}'")
@@ -207,13 +205,12 @@ module Lhm
     # Remove a trigger from the database
     #
     # @example
-    #
     #   Lhm.change_table(:users) do |m|
     #     m.remove_trigger(:trigger_x)
     #   end
     #
-    # @param [String, Symbol] trigger_name
-    #   The name of the trigger to remove
+    # @param [String, Symbol] trigger_name The name of the trigger to remove
+    #
     def remove_trigger(trigger_name)
       ddl("drop trigger `#{trigger_name}`")
     end
