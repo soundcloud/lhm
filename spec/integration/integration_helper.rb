@@ -160,8 +160,7 @@ module IntegrationHelper
     sql << "and `Event` = '#{ options[:event] }' " if options[:event]
     sql << "and `Timing` = '#{ options[:timing] }' " if options[:timing]
     sql << "and `Statement` = '#{ options[:statement] }' " if options[:statement]
-    p result = select_one(sql)
-    !!result
+    !!select_one(sql)
   end
 
   #

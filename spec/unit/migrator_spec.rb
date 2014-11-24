@@ -141,6 +141,14 @@ describe Lhm::Migrator do
       ])
     end
 
+    it "should raise argument error on invalid timing" do
+      -> { @creator.add_trigger :name, :invalid_timing, :insert, "SET NEW.created_at = NULL;" }.must_raise ArgumentError
+    end
+
+    it "should raise argument error on invalid event" do
+      -> { @creator.add_trigger :name, :before, :invalid_event, "SET NEW.created_at = NULL;" }.must_raise ArgumentError
+    end
+
     it "should remove a trigger" do
       @creator.remove_trigger(:trigger_name)
 

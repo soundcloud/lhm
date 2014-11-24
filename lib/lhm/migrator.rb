@@ -165,7 +165,7 @@ module Lhm
       ddl("drop index `%s` on `%s`" % [index_name, @name])
     end
 
-    # Add an index to a table
+    # Add a trigger to a table
     #
     # @example
     #
@@ -174,10 +174,33 @@ module Lhm
     #   end
     #
     # @param [String, Symbol] name
+    #   The name of the trigger to create
     # @param [Symbol] timing
+    #   The trigger action timing. Must be one of :before or :after to indicate
+    #   that the trigger activates before or after each row to be modified.
     # @param [Symbol] event
+    #   Indicates the kind of operation that activates the trigger. These
+    #   trigger_event values are permitted:
+    #    * :insert : The trigger activates whenever a new row is inserted into
+    #                the table; for example, through INSERT, LOAD DATA, and REPLACE
+    #                statements.
+    #    * :update : The trigger activates whenever a row is modified; for example,
+    #                through UPDATE statements.
+    #    * :delete : The trigger activates whenever a row is deleted from the
+    #                table; for example, through DELETE and REPLACE statements.
+    #                DROP TABLE and TRUNCATE TABLE statements on the table do
+    #                not activate this trigger, because they do not use DELETE.
+    #                Dropping a partition does not activate DELETE triggers,
+    #                either.
     # @param [String] body
+    #   The statement to execute when the trigger activates.
     def add_trigger(name, timing, event, body)
+      unless [ :before, :after ].include? timing
+        raise ArgumentError.new("Trigger timing must be one of :before, or :after. Received '#{timing}'")
+      end
+      unless [ :insert, :update, :delete ].include? event
+        raise ArgumentError.new("Trigger event must be one of :insert, :update, or :delete. Received '#{event}'")
+      end
       ddl("create trigger `%s` %s %s on `%s` for each row %s" % [name, timing, event, @name, body])
     end
 
