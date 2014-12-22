@@ -1,3 +1,12 @@
+# 2.2.0
+
+* Adding the ability to rename columns (erikogan)
+* Allow for optional time filter on .cleanup (joelr)
+
+# 2.1.0
+
+# 2.0.0
+
 # 1.3.0 (May 28, 2013)
 
 * Add Lhm.cleanup method for removing copy tables, thanks @bogdan
