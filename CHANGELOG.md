@@ -1,5 +1,6 @@
 # 2.2.0
 
+* Require index names to be strings or symbols (Thibaut)
 * Adding the ability to rename columns (erikogan)
 * Allow for optional time filter on .cleanup (joelr)
 

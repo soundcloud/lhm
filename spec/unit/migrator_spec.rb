@@ -47,6 +47,12 @@ describe Lhm::Migrator do
       ])
     end
 
+    it "should raise an error when the index name is not a string or symbol" do
+      assert_raises ArgumentError do
+        @creator.add_index([:a, :b], :name => :custom_index_name)
+      end
+    end
+
     it "should add a unique index" do
       @creator.add_unique_index(["a(5)", :b])
 
@@ -61,6 +67,12 @@ describe Lhm::Migrator do
       @creator.statements.must_equal([
         "create unique index `custom_index_name` on `lhmn_alt` (`a`, `b`)"
       ])
+    end
+
+    it "should raise an error when the unique index name is not a string or symbol" do
+      assert_raises ArgumentError do
+        @creator.add_unique_index([:a, :b], :name => :custom_index_name)
+      end
     end
 
     it "should remove an index" do
