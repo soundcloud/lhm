@@ -214,10 +214,17 @@ module Lhm
     end
 
     def index_ddl(cols, unique = nil, index_name = nil)
+      assert_valid_idx_name(index_name)
       type = unique ? "unique index" : "index"
       index_name ||= idx_name(@origin.name, cols)
       parts = [type, index_name, @name, idx_spec(cols)]
       "create %s `%s` on `%s` (%s)" % parts
+    end
+
+    def assert_valid_idx_name(index_name)
+      if index_name && !(index_name.is_a?(String) || index_name.is_a?(Symbol))
+        raise ArgumentError, "index_name must be a string or symbol"
+      end
     end
   end
 end
