@@ -59,10 +59,7 @@ module Lhm
       end
 
       def destination_create(origin)
-        original    = %{CREATE TABLE "#{ origin.name }"}
-        replacement = %{CREATE TABLE "#{ origin.destination_name }"}
-
-        sql(origin.ddl.gsub(original, replacement))
+        sql(origin.destination_ddl)
       end
 
       def execute(sql)
@@ -133,10 +130,7 @@ module Lhm
       end
 
       def destination_create(origin)
-        original    = %{CREATE TABLE `#{ origin.name }`}
-        replacement = %{CREATE TABLE `#{ origin.destination_name }`}
-
-        sql(origin.ddl.gsub(original, replacement))
+        sql(origin.destination_ddl)
       end
 
       def execute(sql)

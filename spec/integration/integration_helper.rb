@@ -120,6 +120,16 @@ module IntegrationHelper
     connection.table_exists?(table.name)
   end
 
+
+  def hash_slice(hash, keys)
+    if hash.respond_to?(:slice)
+      hash.slice(*keys)
+    else
+      check = {}
+      keys.each {|k| check[k] = hash[k]}
+      check
+    end
+  end
   #
   # Database Helpers
   #
