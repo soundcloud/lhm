@@ -55,8 +55,8 @@ running the migrations.
 
 ## Limitations
 
-Lhm requires a monotonically increasing numeric Primary Key on the table, due to how
-the Chunker works.
+Due to the Chunker implementation, Lhm requires that the table to migrate has a
+a monotonically increasing numeric key column called `id`.
 
 ## Installation
 

@@ -15,8 +15,10 @@ module Lhm
       @ddl = ddl
     end
 
-    def satisfies_primary_key?
-      @pk == 'id'
+    def satisfies_id_autoincrement_requirement?
+      !!((id = columns['id']) &&
+        id[:extra] == 'auto_increment' &&
+        id[:type] =~ /int\(\d+\)/)
     end
 
     def destination_name
@@ -49,10 +51,13 @@ module Lhm
             column_type    = struct_key(defn, 'COLUMN_TYPE')
             is_nullable    = struct_key(defn, 'IS_NULLABLE')
             column_default = struct_key(defn, 'COLUMN_DEFAULT')
+            extra          = struct_key(defn, 'EXTRA')
+
             table.columns[defn[column_name]] = {
               :type => defn[column_type],
               :is_nullable => defn[is_nullable],
-              :column_default => defn[column_default]
+              :column_default => defn[column_default],
+              :extra => defn[extra]
             }
           end
 
