@@ -248,3 +248,9 @@ Style/UnneededPercentQ:
 # Cop supports --auto-correct.
 Style/WordArray:
   MinSize: 2
+
+# Offense count: 2
+# Cop supports --auto-correct.
+# Configuration parameters: AllowSafeAssignment.
+Style/ParenthesesAroundCondition:
+  Enabled: false
