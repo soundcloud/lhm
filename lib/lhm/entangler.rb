@@ -41,7 +41,7 @@ module Lhm
         create trigger `#{ trigger(:ins) }`
         after insert on `#{ @origin.name }` for each row
         replace into `#{ @destination.name }` (#{ @intersection.destination.joined }) #{ SqlHelper.annotation }
-        values (#{ @intersection.origin.typed("NEW") })
+        values (#{ @intersection.origin.typed('NEW') })
       }
     end
 
@@ -50,7 +50,7 @@ module Lhm
         create trigger `#{ trigger(:upd) }`
         after update on `#{ @origin.name }` for each row
         replace into `#{ @destination.name }` (#{ @intersection.destination.joined }) #{ SqlHelper.annotation }
-        values (#{ @intersection.origin.typed("NEW") })
+        values (#{ @intersection.origin.typed('NEW') })
       }
     end
 

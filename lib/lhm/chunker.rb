@@ -76,11 +76,11 @@ module Lhm
     def conditions
       if @migration.conditions
         @migration.conditions.
-          sub(/\)\Z/, "").
+          sub(/\)\Z/, '').
           #put any where conditions in parens
-          sub(/where\s(\w.*)\Z/, "where (\\1)") + " and"
+          sub(/where\s(\w.*)\Z/, 'where (\\1)') + ' and'
       else
-        "where"
+        'where'
       end
     end
 
@@ -102,7 +102,7 @@ module Lhm
 
     def validate
       if @start && @limit && @start > @limit
-        error("impossible chunk options (limit must be greater than start)")
+        error('impossible chunk options (limit must be greater than start)')
       end
     end
   end

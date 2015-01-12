@@ -53,7 +53,7 @@ module Lhm
     # @param [String] name Name of the column to add
     # @param [String] definition Valid SQL column definition
     def add_column(name, definition)
-      ddl("alter table `%s` add column `%s` %s" % [@name, name, definition])
+      ddl('alter table `%s` add column `%s` %s' % [@name, name, definition])
     end
 
     # Change an existing column to a new definition
@@ -67,7 +67,7 @@ module Lhm
     # @param [String] name Name of the column to change
     # @param [String] definition Valid SQL column definition
     def change_column(name, definition)
-      ddl("alter table `%s` modify column `%s` %s" % [@name, name, definition])
+      ddl('alter table `%s` modify column `%s` %s' % [@name, name, definition])
     end
 
 
@@ -85,10 +85,10 @@ module Lhm
       col = @origin.columns[old.to_s]
 
       definition = col[:type]
-      definition += " NOT NULL" unless col[:is_nullable]
+      definition += ' NOT NULL' unless col[:is_nullable]
       definition += " DEFAULT #{@connection.quote_value(col[:column_default])}" if col[:column_default]
 
-      ddl("alter table `%s` change column `%s` `%s` %s" % [@name, old, nu, definition])
+      ddl('alter table `%s` change column `%s` `%s` %s' % [@name, old, nu, definition])
       @renames[old.to_s] = nu.to_s
     end
 
@@ -102,7 +102,7 @@ module Lhm
     #
     # @param [String] name Name of the column to delete
     def remove_column(name)
-      ddl("alter table `%s` drop `%s`" % [@name, name])
+      ddl('alter table `%s` drop `%s`' % [@name, name])
     end
 
     # Add an index to a table
@@ -162,7 +162,7 @@ module Lhm
       from_origin = @origin.indices.find {|name, cols| cols.map(&:to_sym) == columns}
       index_name ||= from_origin[0] unless from_origin.nil?
       index_name ||= idx_name(@origin.name, columns)
-      ddl("drop index `%s` on `%s`" % [index_name, @name])
+      ddl('drop index `%s` on `%s`' % [index_name, @name])
     end
 
     # Filter the data that is copied into the new table by the provided SQL.
@@ -189,7 +189,7 @@ module Lhm
       end
 
       unless @origin.satisfies_primary_key?
-        error("origin does not satisfy primary key requirements")
+        error('origin does not satisfy primary key requirements')
       end
 
       dest = @origin.destination_name
@@ -215,15 +215,15 @@ module Lhm
 
     def index_ddl(cols, unique = nil, index_name = nil)
       assert_valid_idx_name(index_name)
-      type = unique ? "unique index" : "index"
+      type = unique ? 'unique index' : 'index'
       index_name ||= idx_name(@origin.name, cols)
       parts = [type, index_name, @name, idx_spec(cols)]
-      "create %s `%s` on `%s` (%s)" % parts
+      'create %s `%s` on `%s` (%s)' % parts
     end
 
     def assert_valid_idx_name(index_name)
       if index_name && !(index_name.is_a?(String) || index_name.is_a?(Symbol))
-        raise ArgumentError, "index_name must be a string or symbol"
+        raise ArgumentError, 'index_name must be a string or symbol'
       end
     end
   end

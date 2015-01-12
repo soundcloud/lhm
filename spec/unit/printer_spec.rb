@@ -5,13 +5,13 @@ require 'lhm/printer'
 describe Lhm::Printer do
   include UnitHelper
 
-  describe "percentage printer" do
+  describe 'percentage printer' do
 
     before(:each) do
       @printer = Lhm::Printer::Percentage.new
     end
 
-    it "prints the percentage" do
+    it 'prints the percentage' do
       mock = MiniTest::Mock.new
       10.times do |i|
         mock.expect(:write, :return_value) do |message|
@@ -25,7 +25,7 @@ describe Lhm::Printer do
       mock.verify
     end
 
-    it "always print a bigger message" do
+    it 'always print a bigger message' do
       @length = 0
       mock = MiniTest::Mock.new
       3.times do |i|
@@ -45,7 +45,7 @@ describe Lhm::Printer do
       mock.verify
     end
 
-    it "prints the end message" do
+    it 'prints the end message' do
       mock = MiniTest::Mock.new
       mock.expect(:write, :return_value, [String])
       mock.expect(:write, :return_value, ["\n"])
@@ -57,16 +57,16 @@ describe Lhm::Printer do
     end
   end
 
-  describe "dot printer" do
+  describe 'dot printer' do
 
     before(:each) do
       @printer = Lhm::Printer::Dot.new
     end
 
-    it "prints the dots" do
+    it 'prints the dots' do
       mock  = MiniTest::Mock.new
       10.times do
-        mock.expect(:write, :return_value, ["."])
+        mock.expect(:write, :return_value, ['.'])
       end
 
       @printer.instance_variable_set(:@output, mock)
