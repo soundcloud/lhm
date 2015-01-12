@@ -28,7 +28,7 @@ module Lhm
       end
 
       def end
-        write("100% complete")
+        write('100% complete')
         @output.write "\n"
       end
 
@@ -39,13 +39,13 @@ module Lhm
           extra = 0
         end
 
-        @output.write "\r#{message}" + (" " * extra)
+        @output.write "\r#{message}" + (' ' * extra)
       end
     end
 
     class Dot < Base
       def notify(lowest = nil, highest = nil)
-        @output.write "."
+        @output.write '.'
       end
 
       def end

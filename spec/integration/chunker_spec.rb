@@ -10,14 +10,14 @@ describe Lhm::Chunker do
 
   before(:each) { connect_master! }
 
-  describe "copying" do
+  describe 'copying' do
     before(:each) do
       @origin = table_create(:origin)
       @destination = table_create(:destination)
       @migration = Lhm::Migration.new(@origin, @destination)
     end
 
-    it "should copy 23 rows from origin to destination" do
+    it 'should copy 23 rows from origin to destination' do
       23.times { |n| execute("insert into origin set id = '#{ n * n + 23 }'") }
 
       printer = MiniTest::Mock.new

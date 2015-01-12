@@ -8,26 +8,26 @@ require 'lhm/table'
 describe Lhm::Table do
   include UnitHelper
 
-  describe "names" do
-    it "should name destination" do
-      @table = Lhm::Table.new("users")
-      @table.destination_name.must_equal "lhmn_users"
+  describe 'names' do
+    it 'should name destination' do
+      @table = Lhm::Table.new('users')
+      @table.destination_name.must_equal 'lhmn_users'
     end
   end
 
-  describe "constraints" do
-    it "should be satisfied with a single column primary key called id" do
-      @table = Lhm::Table.new("table", "id")
+  describe 'constraints' do
+    it 'should be satisfied with a single column primary key called id' do
+      @table = Lhm::Table.new('table', 'id')
       @table.satisfies_primary_key?.must_equal true
     end
 
-    it "should not be satisfied with a primary key unless called id" do
-      @table = Lhm::Table.new("table", "uuid")
+    it 'should not be satisfied with a primary key unless called id' do
+      @table = Lhm::Table.new('table', 'uuid')
       @table.satisfies_primary_key?.must_equal false
     end
 
-    it "should not be satisfied with multicolumn primary key" do
-      @table = Lhm::Table.new("table", ["id", "secondary"])
+    it 'should not be satisfied with multicolumn primary key' do
+      @table = Lhm::Table.new('table', ['id', 'secondary'])
       @table.satisfies_primary_key?.must_equal false
     end
   end

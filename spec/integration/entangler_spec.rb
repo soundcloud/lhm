@@ -12,25 +12,25 @@ describe Lhm::Entangler do
 
   before(:each) { connect_master! }
 
-  describe "entanglement" do
+  describe 'entanglement' do
     before(:each) do
-      @origin = table_create("origin")
-      @destination = table_create("destination")
+      @origin = table_create('origin')
+      @destination = table_create('destination')
       @migration = Lhm::Migration.new(@origin, @destination)
       @entangler = Lhm::Entangler.new(@migration, connection)
     end
 
-    it "should replay inserts from origin into destination" do
+    it 'should replay inserts from origin into destination' do
       @entangler.run do |entangler|
         execute("insert into origin (common) values ('inserted')")
       end
 
       slave do
-        count(:destination, "common", "inserted").must_equal(1)
+        count(:destination, 'common', 'inserted').must_equal(1)
       end
     end
 
-    it "should replay deletes from origin into destination" do
+    it 'should replay deletes from origin into destination' do
       execute("insert into origin (common) values ('inserted')")
 
       @entangler.run do |entangler|
@@ -38,28 +38,28 @@ describe Lhm::Entangler do
       end
 
       slave do
-        count(:destination, "common", "inserted").must_equal(0)
+        count(:destination, 'common', 'inserted').must_equal(0)
       end
     end
 
-    it "should replay updates from origin into destination" do
+    it 'should replay updates from origin into destination' do
       @entangler.run do |entangler|
         execute("insert into origin (common) values ('inserted')")
         execute("update origin set common = 'updated'")
       end
 
       slave do
-        count(:destination, "common", "updated").must_equal(1)
+        count(:destination, 'common', 'updated').must_equal(1)
       end
     end
 
-    it "should remove entanglement" do
+    it 'should remove entanglement' do
       @entangler.run {}
 
       execute("insert into origin (common) values ('inserted')")
 
       slave do
-        count(:destination, "common", "inserted").must_equal(0)
+        count(:destination, 'common', 'inserted').must_equal(0)
       end
     end
   end

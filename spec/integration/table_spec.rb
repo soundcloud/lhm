@@ -8,38 +8,38 @@ describe Lhm::Table do
   include IntegrationHelper
 
   describe Lhm::Table::Parser do
-    describe "create table parsing" do
+    describe 'create table parsing' do
       before(:each) do
         connect_master!
         @table = table_create(:users)
       end
 
-      it "should parse table name in show create table" do
-        @table.name.must_equal("users")
+      it 'should parse table name in show create table' do
+        @table.name.must_equal('users')
       end
 
-      it "should parse primary key" do
-        @table.pk.must_equal("id")
+      it 'should parse primary key' do
+        @table.pk.must_equal('id')
       end
 
-      it "should parse column type in show create table" do
-        @table.columns["username"][:type].must_equal("varchar(255)")
+      it 'should parse column type in show create table' do
+        @table.columns['username'][:type].must_equal('varchar(255)')
       end
 
-      it "should parse column metadata" do
-        @table.columns["username"][:column_default].must_equal nil
+      it 'should parse column metadata' do
+        @table.columns['username'][:column_default].must_equal nil
       end
 
-      it "should parse indices" do
+      it 'should parse indices' do
         @table.
-          indices["index_users_on_username_and_created_at"].
-          must_equal(["username", "created_at"])
+          indices['index_users_on_username_and_created_at'].
+          must_equal(['username', 'created_at'])
       end
 
-      it "should parse index" do
+      it 'should parse index' do
         @table.
-          indices["index_users_on_reference"].
-          must_equal(["reference"])
+          indices['index_users_on_reference'].
+          must_equal(['reference'])
       end
     end
   end
