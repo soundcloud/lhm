@@ -71,7 +71,7 @@ module Lhm
                struct.members
              end
 
-      keys.find {|k| k.to_s.downcase == key.to_s.downcase }
+      keys.find { |k| k.to_s.downcase == key.to_s.downcase }
     end
   end
 end

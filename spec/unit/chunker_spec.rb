@@ -19,7 +19,7 @@ describe Lhm::Chunker do
     # This is a poor man's stub
     @throttler = Object.new
     def @throttler.run
-      #noop
+      # noop
     end
     def @throttler.stride
       1
@@ -56,7 +56,7 @@ describe Lhm::Chunker do
     end
 
     it 'handles stride changes during execution' do
-      #roll our own stubbing
+      # roll our own stubbing
       def @throttler.stride
         @run_count ||= 0
         @run_count = @run_count + 1

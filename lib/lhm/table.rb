@@ -87,7 +87,7 @@ module Lhm
             column_name = struct_key(row, 'COLUMN_NAME')
             [row[key_name], row[column_name]]
           end.
-          inject(Hash.new { |h, k| h[k] = []}) do |memo, (idx, column)|
+          inject(Hash.new { |h, k| h[k] = [] }) do |memo, (idx, column)|
             memo[idx] << column
             memo
           end
