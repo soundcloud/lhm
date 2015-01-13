@@ -47,7 +47,7 @@ module Lhm
           options[:atomic_switch] = true
         else
           raise Error.new(
-            "Using mysql #{version_string}. You must explicitly set " +
+            "Using mysql #{version_string}. You must explicitly set " \
             'options[:atomic_switch] (re SqlHelper#supports_atomic_switch?)')
         end
       end

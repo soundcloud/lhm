@@ -1,6 +1,5 @@
 module Lhm
   module Printer
-
     class Output
       def write(message)
         print message
@@ -8,14 +7,12 @@ module Lhm
     end
 
     class Base
-
       def initialize
         @output = Output.new
       end
     end
 
     class Percentage < Base
-
       def initialize
         super
         @max_length = 0
@@ -33,6 +30,7 @@ module Lhm
       end
 
       private
+
       def write(message)
         if (extra = @max_length - message.length) < 0
           @max_length = message.length

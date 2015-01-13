@@ -6,7 +6,6 @@ require 'optparse'
 
 module Lhm
   class KillQueue
-
     def initialize
       @port = 3306
       @grace = 10
@@ -22,11 +21,11 @@ module Lhm
         opts.on('-y', '--confirm') { |v| @confirm = true }
       end.parse!
 
-      unless(@hostname && @username && @password && @database)
+      unless (@hostname && @username && @password && @database)
         abort usage
       end
 
-      unless([:kill, :master, :slave].include?(@mode))
+      unless ([:kill, :master, :slave].include?(@mode))
         abort 'specify -m kill OR -m master OR -m slave'
       end
 
@@ -73,7 +72,7 @@ module Lhm
       sleep(@grace + @tiny)
 
       [list_non_lhm].flatten.each do |process|
-        if(select?(process))
+        if (select?(process))
           kill_process(process)
           sleep(@tiny)
         end
@@ -115,10 +114,10 @@ module Lhm
     def kill_process(process_id)
       puts "killing #{ select_statement(process_id) }"
 
-      if(@confirm)
+      if (@confirm)
         print "confirm ('y' to confirm): "
 
-        if(gets.strip != 'y')
+        if (gets.strip != 'y')
           puts 'skipped.'
           return
         end

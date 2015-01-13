@@ -86,7 +86,6 @@ module IntegrationHelper
       connect_master!
     end
 
-
     yield block
 
     if master_slave_mode?

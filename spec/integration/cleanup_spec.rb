@@ -36,7 +36,7 @@ describe Lhm, 'cleanup' do
       table_rename(:users, table_name)
 
       output = capture_stdout do
-        Lhm.cleanup false, {:until => Time.now - 86400}
+        Lhm.cleanup false, { :until => Time.now - 86400 }
       end
       output.must_include('Existing LHM backup tables')
       output.must_match(/lhma_[0-9_]*_users/)
@@ -48,7 +48,7 @@ describe Lhm, 'cleanup' do
       table_rename(:users, table_name)
 
       output = capture_stdout do
-        Lhm.cleanup false, {:until => Time.now - 172800}
+        Lhm.cleanup false, { :until => Time.now - 172800 }
       end
       output.must_include('Existing LHM backup tables')
       output.wont_match(/lhma_[0-9_]*_users/)

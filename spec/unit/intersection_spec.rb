@@ -40,12 +40,12 @@ describe Lhm::Intersection do
     destination = Lhm::Table.new('destination')
     destination.columns['new_name'] = varchar
 
-    intersection = Lhm::Intersection.new(origin, destination, {'old_name' => 'new_name'})
+    intersection = Lhm::Intersection.new(origin, destination, { 'old_name' => 'new_name' })
     intersection.origin.must_equal(['old_name'])
     intersection.destination.must_equal(['new_name'])
   end
 
   def varchar
-    { :metadata => 'VARCHAR(255)'}
+    { :metadata => 'VARCHAR(255)' }
   end
 end

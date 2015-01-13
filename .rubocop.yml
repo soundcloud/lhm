@@ -122,21 +122,6 @@ Style/DoubleNegation:
 Style/EachWithObject:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/EmptyLines:
-  Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/EmptyLinesAroundAccessModifier:
-  Enabled: false
-
-# Offense count: 5
-# Cop supports --auto-correct.
-Style/EmptyLinesAroundBody:
-  Enabled: false
-
 # Offense count: 1
 # Configuration parameters: Exclude.
 Style/FileName:
@@ -182,16 +167,6 @@ Style/IndentationConsistency:
 # Offense count: 1
 # Cop supports --auto-correct.
 Style/IndentationWidth:
-  Enabled: false
-
-# Offense count: 10
-# Cop supports --auto-correct.
-Style/LeadingCommentSpace:
-  Enabled: false
-
-# Offense count: 5
-# Cop supports --auto-correct.
-Style/LineEndConcatenation:
   Enabled: false
 
 # Offense count: 2
@@ -248,28 +223,10 @@ Style/SelfAssignment:
 Style/SignalException:
   Enabled: false
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/SpaceAfterControlKeyword:
-  Enabled: false
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/SpaceBeforeBlockBraces:
-  Enabled: false
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, EnforcedStyleForEmptyBraces, SpaceBeforeBlockParameters.
-Style/SpaceInsideBlockBraces:
-  Enabled: false
-
-# Offense count: 7
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces, SupportedStyles.
 Style/SpaceInsideHashLiteralBraces:
-  Enabled: false
+  SupportedStyles: space
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -291,3 +248,9 @@ Style/UnneededPercentQ:
 # Cop supports --auto-correct.
 Style/WordArray:
   MinSize: 2
+
+# Offense count: 2
+# Cop supports --auto-correct.
+# Configuration parameters: AllowSafeAssignment.
+Style/ParenthesesAroundCondition:
+  Enabled: false
