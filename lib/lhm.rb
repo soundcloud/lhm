@@ -60,10 +60,10 @@ module Lhm
   def cleanup(run = false, options = {})
     lhm_tables = connection.select_values('show tables').select { |name| name =~ /^lhm(a|n)_/ }
     if options[:until]
-      lhm_tables.select! { |table|
+      lhm_tables.select! do |table|
         table_date_time = Time.strptime(table, 'lhma_%Y_%m_%d_%H_%M_%S')
         table_date_time <= options[:until]
-      }
+      end
     end
 
     lhm_triggers = connection.select_values('show triggers').collect do |trigger|
@@ -96,7 +96,7 @@ module Lhm
   def adapter
     @@adapter ||=
       begin
-        raise 'Please call Lhm.setup' unless defined?(ActiveRecord)
+        fail 'Please call Lhm.setup' unless defined?(ActiveRecord)
         ActiveRecord::Base.connection
       end
   end

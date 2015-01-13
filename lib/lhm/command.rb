@@ -23,7 +23,7 @@ module Lhm
       raise
     end
 
-  private
+    private
 
     def validate
     end
@@ -32,7 +32,7 @@ module Lhm
     end
 
     def execute
-      raise NotImplementedError.new(self.class.name)
+      fail NotImplementedError.new(self.class.name)
     end
 
     def before
@@ -42,7 +42,7 @@ module Lhm
     end
 
     def error(msg)
-      raise Error.new(msg)
+      fail Error.new(msg)
     end
   end
 end

@@ -180,7 +180,7 @@ module Lhm
       @conditions = sql
     end
 
-  private
+    private
 
     def validate
       unless @connection.table_exists?(@origin.name)
@@ -222,7 +222,7 @@ module Lhm
 
     def assert_valid_idx_name(index_name)
       if index_name && !(index_name.is_a?(String) || index_name.is_a?(Symbol))
-        raise ArgumentError, 'index_name must be a string or symbol'
+        fail ArgumentError, 'index_name must be a string or symbol'
       end
     end
   end

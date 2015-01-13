@@ -120,11 +120,11 @@ describe Lhm::Migrator do
 
   describe 'direct changes' do
     it 'should accept a ddl statement' do
-     ddl = @creator.ddl('alter table `%s` add column `f` tinyint(1)' % @creator.name)
+      ddl = @creator.ddl('alter table `%s` add column `f` tinyint(1)' % @creator.name)
 
-     @creator.statements.must_equal([
-       'alter table `lhmn_alt` add column `f` tinyint(1)'
-     ])
+      @creator.statements.must_equal([
+        'alter table `lhmn_alt` add column `f` tinyint(1)'
+      ])
     end
   end
 

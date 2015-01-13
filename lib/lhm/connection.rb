@@ -8,7 +8,7 @@ module Lhm
       elsif defined?(ActiveRecord)
         ActiveRecordConnection.new(adapter)
       else
-        raise 'Neither DataMapper nor ActiveRecord found.'
+        fail 'Neither DataMapper nor ActiveRecord found.'
       end
     end
 

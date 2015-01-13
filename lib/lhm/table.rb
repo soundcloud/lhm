@@ -62,7 +62,7 @@ module Lhm
         end
       end
 
-    private
+      private
 
       def read_information_schema
         @connection.select_all %Q{

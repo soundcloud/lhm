@@ -39,7 +39,7 @@ module Lhm
       @printer.end
     end
 
-  private
+    private
 
     def bottom
       @next_to_insert

@@ -32,7 +32,7 @@ describe Lhm::Chunker do
         count_all(@destination.name).must_equal(23)
       end
 
-     printer.verify
+      printer.verify
     end
   end
 end

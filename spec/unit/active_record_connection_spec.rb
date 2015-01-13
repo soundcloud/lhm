@@ -27,8 +27,8 @@ if defined?(ActiveRecord)
       table_name = 'my_table'
 
       active_record.expect :execute,
-        [['returned sql']],
-        ["show create table `#{table_name}`"]
+                           [['returned sql']],
+                           ["show create table `#{table_name}`"]
 
       connection.show_create(table_name)
     end
