@@ -198,7 +198,7 @@ module Lhm
       unless [ :insert, :update, :delete ].include? event
         raise ArgumentError.new("Trigger event must be one of :insert, :update, or :delete. Received '#{event}'")
       end
-      ddl("create trigger `%s` %s %s on `%s` for each row %s" % [name, timing, event, @name, body])
+      ddl('create trigger `%s` %s %s on `%s` for each row %s' % [name, timing, event, @name, body])
     end
 
     # Remove a trigger from the database
