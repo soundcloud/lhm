@@ -1,10 +1,10 @@
-# 2.2.0 (not released)
+# 2.2.0 (Jan 16, 2015)
 
 * #84 - Require index names to be strings or symbols (Thibaut)
 * #39 - Adding the ability to rename columns (erikogan)
 * #67 - Allow for optional time filter on .cleanup (joelr)
 
-# 2.1.0
+# 2.1.0 (July 31, 2014)
 
 * #48 - Add percentage output for migrations (@arthurnn)
 * #60 - Quote table names (@spickermann)
@@ -15,7 +15,7 @@
 * #51 - Ensure Lhm.cleanup removes temporary triggers (@edmundsalvacion)
 * #46 - Allow custom throttler (@arthurnn)
 
-# 2.0.0
+# 2.0.0 (July 10, 2013)
 
 * #44 - Conditional migrations (@durran)
 
