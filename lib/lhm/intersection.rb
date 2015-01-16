@@ -30,11 +30,11 @@ module Lhm
       end
 
       def joined
-        escaped.join(", ")
+        escaped.join(', ')
       end
 
       def typed(type)
-        self.map { |name| qualified(name, type)  }.join(", ")
+        self.map { |name| qualified(name, type)  }.join(', ')
       end
 
     private

@@ -7,7 +7,7 @@ module Lhm
   class Table
     attr_reader :name, :columns, :indices, :pk, :ddl
 
-    def initialize(name, pk = "id", ddl = nil)
+    def initialize(name, pk = 'id', ddl = nil)
       @name = name
       @columns = {}
       @indices = {}
@@ -16,7 +16,7 @@ module Lhm
     end
 
     def satisfies_primary_key?
-      @pk == "id"
+      @pk == 'id'
     end
 
     def destination_name
@@ -45,10 +45,10 @@ module Lhm
 
         Table.new(@table_name, extract_primary_key(schema), ddl).tap do |table|
           schema.each do |defn|
-            column_name    = struct_key(defn, "COLUMN_NAME")
-            column_type    = struct_key(defn, "COLUMN_TYPE")
-            is_nullable    = struct_key(defn, "IS_NULLABLE")
-            column_default = struct_key(defn, "COLUMN_DEFAULT")
+            column_name    = struct_key(defn, 'COLUMN_NAME')
+            column_type    = struct_key(defn, 'COLUMN_TYPE')
+            is_nullable    = struct_key(defn, 'IS_NULLABLE')
+            column_default = struct_key(defn, 'COLUMN_DEFAULT')
             table.columns[defn[column_name]] = {
               :type => defn[column_type],
               :is_nullable => defn[is_nullable],
@@ -83,11 +83,11 @@ module Lhm
       def extract_indices(indices)
         indices.
           map do |row|
-            key_name = struct_key(row, "Key_name")
-            column_name = struct_key(row, "COLUMN_NAME")
+            key_name = struct_key(row, 'Key_name')
+            column_name = struct_key(row, 'COLUMN_NAME')
             [row[key_name], row[column_name]]
           end.
-          inject(Hash.new { |h, k| h[k] = []}) do |memo, (idx, column)|
+          inject(Hash.new { |h, k| h[k] = [] }) do |memo, (idx, column)|
             memo[idx] << column
             memo
           end
@@ -95,12 +95,12 @@ module Lhm
 
       def extract_primary_key(schema)
         cols = schema.select do |defn|
-          column_key = struct_key(defn, "COLUMN_KEY")
-          defn[column_key] == "PRI"
+          column_key = struct_key(defn, 'COLUMN_KEY')
+          defn[column_key] == 'PRI'
         end
 
         keys = cols.map do |defn|
-          column_name = struct_key(defn, "COLUMN_NAME")
+          column_name = struct_key(defn, 'COLUMN_NAME')
           defn[column_name]
         end
 

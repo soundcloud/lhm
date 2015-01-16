@@ -47,8 +47,8 @@ module Lhm
           options[:atomic_switch] = true
         else
           raise Error.new(
-            "Using mysql #{version_string}. You must explicitly set " +
-            "options[:atomic_switch] (re SqlHelper#supports_atomic_switch?)")
+            "Using mysql #{version_string}. You must explicitly set " \
+            'options[:atomic_switch] (re SqlHelper#supports_atomic_switch?)')
         end
       end
 
@@ -56,7 +56,7 @@ module Lhm
         options[:throttler] = Throttler::Factory.create_throttler(*options[:throttler])
       elsif options[:throttle] || options[:stride]
         # we still support the throttle and stride as a Fixnum input
-        warn "throttle option will no longer accept a Fixnum in the next versions."
+        warn 'throttle option will no longer accept a Fixnum in the next versions.'
         options[:throttler] = Throttler::LegacyTime.new(options[:throttle], options[:stride])
       else
         options[:throttler] = Lhm.throttler

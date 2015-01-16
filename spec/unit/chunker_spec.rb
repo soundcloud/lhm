@@ -12,14 +12,14 @@ describe Lhm::Chunker do
   include UnitHelper
 
   before(:each) do
-    @origin = Lhm::Table.new("foo")
-    @destination = Lhm::Table.new("bar")
+    @origin = Lhm::Table.new('foo')
+    @destination = Lhm::Table.new('bar')
     @migration = Lhm::Migration.new(@origin, @destination)
     @connection = MiniTest::Mock.new
     # This is a poor man's stub
     @throttler = Object.new
     def @throttler.run
-      #noop
+      # noop
     end
     def @throttler.stride
       1
@@ -29,8 +29,8 @@ describe Lhm::Chunker do
                                                          :limit     => 10)
   end
 
-  describe "#run" do
-    it "chunks the result set according to the stride size" do
+  describe '#run' do
+    it 'chunks the result set according to the stride size' do
       def @throttler.stride
         2
       end
@@ -55,8 +55,8 @@ describe Lhm::Chunker do
       @connection.verify
     end
 
-    it "handles stride changes during execution" do
-      #roll our own stubbing
+    it 'handles stride changes during execution' do
+      # roll our own stubbing
       def @throttler.stride
         @run_count ||= 0
         @run_count = @run_count + 1
@@ -97,7 +97,7 @@ describe Lhm::Chunker do
       @connection.verify
     end
 
-    it "separates filter conditions from chunking conditions" do
+    it 'separates filter conditions from chunking conditions' do
       @chunker = Lhm::Chunker.new(@migration, @connection, :throttler => @throttler,
                                                            :start     => 1,
                                                            :limit     => 2)
@@ -123,7 +123,7 @@ describe Lhm::Chunker do
       end
 
       def @migration.conditions
-        "inner join bar on foo.id = bar.foo_id"
+        'inner join bar on foo.id = bar.foo_id'
       end
 
       @chunker.run

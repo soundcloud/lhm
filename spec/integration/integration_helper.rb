@@ -6,7 +6,7 @@ begin
   require 'active_support'
 rescue LoadError
 end
-$password = YAML.load_file(File.expand_path(File.dirname(__FILE__)) + "/database.yml")["password"] rescue nil
+$password = YAML.load_file(File.expand_path(File.dirname(__FILE__)) + '/database.yml')['password'] rescue nil
 
 require 'lhm/table'
 require 'lhm/sql_helper'
@@ -85,7 +85,6 @@ module IntegrationHelper
     elsif
       connect_master!
     end
-
 
     yield block
 
@@ -168,7 +167,7 @@ module IntegrationHelper
   #
 
   def master_slave_mode?
-    !!ENV["MASTER_SLAVE"]
+    !!ENV['MASTER_SLAVE']
   end
 
   #

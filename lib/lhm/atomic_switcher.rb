@@ -29,7 +29,7 @@ module Lhm
 
     def atomic_switch
       [
-        "rename table `#{ @origin.name }` to `#{ @migration.archive_name }`, " +
+        "rename table `#{ @origin.name }` to `#{ @migration.archive_name }`, " \
         "`#{ @destination.name }` to `#{ @origin.name }`"
       ]
     end
@@ -42,6 +42,7 @@ module Lhm
     end
 
   private
+
     def execute
       @connection.sql(statements)
     end

@@ -38,17 +38,17 @@ module Lhm
         "lock table `#{ @origin.name }` write, `#{ @destination.name }` write",
         "alter table `#{ @origin.name }` rename `#{ @migration.archive_name }`",
         "alter table `#{ @destination.name }` rename `#{ @origin.name }`",
-        "commit",
-        "unlock tables"
+        'commit',
+        'unlock tables'
       ]
     end
 
     def uncommitted(&block)
       [
-        "set @lhm_auto_commit = @@session.autocommit",
-        "set session autocommit = 0",
+        'set @lhm_auto_commit = @@session.autocommit',
+        'set session autocommit = 0',
         yield,
-        "set session autocommit = @lhm_auto_commit"
+        'set session autocommit = @lhm_auto_commit'
       ].flatten
     end
 
@@ -62,7 +62,7 @@ module Lhm
   private
 
     def revert
-      @connection.sql("unlock tables")
+      @connection.sql('unlock tables')
     end
 
     def execute

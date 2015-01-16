@@ -4,12 +4,12 @@
 require 'minitest/autorun'
 require 'minitest/spec'
 require 'minitest/mock'
-require "pathname"
-require "lhm"
+require 'pathname'
+require 'lhm'
 
 $project = Pathname.new(File.dirname(__FILE__) + '/..').cleanpath
-$spec = $project.join("spec")
-$fixtures = $spec.join("fixtures")
+$spec = $project.join('spec')
+$fixtures = $spec.join('fixtures')
 
 begin
   require 'active_record'
