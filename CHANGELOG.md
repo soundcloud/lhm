@@ -1,12 +1,23 @@
-# 2.2.0
+# 2.2.0 (not released)
 
-* Require index names to be strings or symbols (Thibaut)
-* Adding the ability to rename columns (erikogan)
-* Allow for optional time filter on .cleanup (joelr)
+* #84 - Require index names to be strings or symbols (Thibaut)
+* #39 - Adding the ability to rename columns (erikogan)
+* #67 - Allow for optional time filter on .cleanup (joelr)
 
 # 2.1.0
 
+* #48 - Add percentage output for migrations (@arthurnn)
+* #60 - Quote table names (@spickermann)
+* #59 - Escape table name in select_limit and select_start methods (@stevehodgkiss)
+* #57 - Ensure chunking 'where' clause handled separately (@rentalcustard)
+* #54 - Chunker handle stride changes (@rentalcustard)
+* #52 - Implement ability to control timeout and stride from Throttler (@edmundsalvacion)
+* #51 - Ensure Lhm.cleanup removes temporary triggers (@edmundsalvacion)
+* #46 - Allow custom throttler (@arthurnn)
+
 # 2.0.0
+
+* #44 - Conditional migrations (@durran)
 
 # 1.3.0 (May 28, 2013)
 
