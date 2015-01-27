@@ -43,7 +43,7 @@ module Lhm
       ]
     end
 
-    def uncommitted(&block)
+    def uncommitted
       [
         'set @lhm_auto_commit = @@session.autocommit',
         'set session autocommit = 0',

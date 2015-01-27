@@ -21,7 +21,7 @@ describe Lhm::Entangler do
     end
 
     it 'should replay inserts from origin into destination' do
-      @entangler.run do |entangler|
+      @entangler.run do
         execute("insert into origin (common) values ('inserted')")
       end
 
@@ -33,7 +33,7 @@ describe Lhm::Entangler do
     it 'should replay deletes from origin into destination' do
       execute("insert into origin (common) values ('inserted')")
 
-      @entangler.run do |entangler|
+      @entangler.run do
         execute("delete from origin where common = 'inserted'")
       end
 
@@ -43,7 +43,7 @@ describe Lhm::Entangler do
     end
 
     it 'should replay updates from origin into destination' do
-      @entangler.run do |entangler|
+      @entangler.run do
         execute("insert into origin (common) values ('inserted')")
         execute("update origin set common = 'updated'")
       end
