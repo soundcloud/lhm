@@ -24,7 +24,7 @@ module Lhm
         when Class
           type.new(options)
         else
-          fail ArgumentError, 'type argument must be a Symbol, String or Class'
+          raise ArgumentError, 'type argument must be a Symbol, String or Class'
         end
       end
     end

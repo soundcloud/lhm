@@ -96,7 +96,7 @@ module Lhm
   def adapter
     @@adapter ||=
       begin
-        fail 'Please call Lhm.setup' unless defined?(ActiveRecord)
+        raise 'Please call Lhm.setup' unless defined?(ActiveRecord)
         ActiveRecord::Base.connection
       end
   end

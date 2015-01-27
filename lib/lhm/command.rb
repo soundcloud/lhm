@@ -32,7 +32,7 @@ module Lhm
     end
 
     def execute
-      fail NotImplementedError.new(self.class.name)
+      raise NotImplementedError.new(self.class.name)
     end
 
     def before
@@ -42,7 +42,7 @@ module Lhm
     end
 
     def error(msg)
-      fail Error.new(msg)
+      raise Error.new(msg)
     end
   end
 end
