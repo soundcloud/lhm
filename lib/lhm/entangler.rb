@@ -89,7 +89,7 @@ module Lhm
       after
     end
 
-  private
+    private
 
     def strip(sql)
       sql.strip.gsub(/\n */, "\n")

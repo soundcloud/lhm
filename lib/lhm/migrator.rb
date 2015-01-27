@@ -180,7 +180,7 @@ module Lhm
       @conditions = sql
     end
 
-  private
+    private
 
     def validate
       unless @connection.table_exists?(@origin.name)

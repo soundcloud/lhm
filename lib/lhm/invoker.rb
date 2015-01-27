@@ -42,7 +42,7 @@ module Lhm
     def normalize_options(options)
       Lhm.logger.info "Starting LHM run on table=#{@migrator.name}"
 
-      if !options.include?(:atomic_switch)
+      unless options.include?(:atomic_switch)
         if supports_atomic_switch?
           options[:atomic_switch] = true
         else

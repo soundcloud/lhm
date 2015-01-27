@@ -59,7 +59,7 @@ module Lhm
       end
     end
 
-  private
+    private
 
     def revert
       @connection.sql('unlock tables')

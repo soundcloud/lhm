@@ -37,8 +37,8 @@ if defined?(DataMapper)
       table_name = 'my_table'
 
       data_mapper.expect :select,
-        [{ :sql => 'returned sql' }],
-        ["show create table `#{table_name}`"]
+                         [{ :sql => 'returned sql' }],
+                         ["show create table `#{table_name}`"]
 
       connection.show_create(table_name)
     end

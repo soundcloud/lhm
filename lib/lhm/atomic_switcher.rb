@@ -41,7 +41,7 @@ module Lhm
       end
     end
 
-  private
+    private
 
     def execute
       @connection.sql(statements)
