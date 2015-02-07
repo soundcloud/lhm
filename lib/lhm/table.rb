@@ -11,12 +11,12 @@ module Lhm
       @name = name
       @columns = {}
       @indices = {}
-      @pk = "id"
+      @pk = pk
       @ddl = ddl
     end
 
     def satisfies_primary_key?
-      @pk == "id"
+      @pk == "id" or integer_type?(@pk) # type should be integer
     end
 
     def destination_name
@@ -25,6 +25,11 @@ module Lhm
 
     def self.parse(table_name, connection)
       Parser.new(table_name, connection).parse
+    end
+
+    def integer_type?(column_name)
+      type = @columns[column_name][:type]  if @columns[column_name]
+      type ? !!type.match(/int\(\d+\)|integer/) : false
     end
 
     class Parser

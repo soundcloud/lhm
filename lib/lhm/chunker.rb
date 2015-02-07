@@ -44,16 +44,16 @@ module Lhm
     def copy(lowest, highest)
       "insert ignore into `#{ destination_name }` (#{ columns }) " +
       "select #{ columns } from `#{ origin_name }` " +
-      "where `id` between #{ lowest } and #{ highest }"
+      "where `#{ origin_primary_key }` between #{ lowest } and #{ highest }"
     end
 
     def select_start
-      start = connection.select_value("select min(id) from #{ origin_name }")
+      start = connection.select_value("select min(#{origin_primary_key}) from #{ origin_name }")
       start ? start.to_i : nil
     end
 
     def select_limit
-      limit = connection.select_value("select max(id) from #{ origin_name }")
+      limit = connection.select_value("select max(#{origin_primary_key}) from #{ origin_name }")
       limit ? limit.to_i : nil
     end
 
@@ -69,6 +69,10 @@ module Lhm
 
     def origin_name
       @migration.origin.name
+    end
+
+    def origin_primary_key
+      @migration.origin.pk
     end
 
     def columns
