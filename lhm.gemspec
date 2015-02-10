@@ -19,6 +19,6 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
   s.executables   = ['lhm-kill-queue']
 
-  s.add_development_dependency 'minitest', '~> 5.0.8'
+  s.add_development_dependency 'minitest', '~> 5.1'
   s.add_development_dependency 'rake'
 end
