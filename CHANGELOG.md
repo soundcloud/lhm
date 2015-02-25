@@ -1,3 +1,7 @@
+# 3.0.0
+
+* #75 - Remove DataMapper and ActiveRecord 2.x support (Camilo)
+
 # 2.2.0 (Jan 16, 2015)
 
 * #84 - Require index names to be strings or symbols (Thibaut)
