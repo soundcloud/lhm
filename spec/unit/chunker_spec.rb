@@ -36,19 +36,24 @@ describe Lhm::Chunker do
       end
 
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 1 and 2/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 1 and 2/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 3 and 4/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 3 and 4/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 5 and 6/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 5 and 6/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 7 and 8/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 7 and 8/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 9 and 10/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 9 and 10/
       end
 
       @chunker.run
@@ -68,16 +73,20 @@ describe Lhm::Chunker do
       end
 
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 1 and 2/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 1 and 2/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 3 and 5/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 3 and 5/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 6 and 8/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 6 and 8/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 9 and 10/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 9 and 10/
       end
 
       @chunker.run
@@ -90,7 +99,8 @@ describe Lhm::Chunker do
                                                            :limit     => 1)
 
       @connection.expect(:update, 1) do |stmt|
-        stmt.first =~ /between 1 and 1/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 1 and 1/
       end
 
       @chunker.run
@@ -102,7 +112,8 @@ describe Lhm::Chunker do
                                                            :start     => 1,
                                                            :limit     => 2)
       @connection.expect(:update, 1) do |stmt|
-        stmt.first =~ /where \(foo.created_at > '2013-07-10' or foo.baz = 'quux'\) and `foo`/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /where \(foo.created_at > '2013-07-10' or foo.baz = 'quux'\) and `foo`/
       end
 
       def @migration.conditions
@@ -118,8 +129,8 @@ describe Lhm::Chunker do
                                                            :start     => 1,
                                                            :limit     => 2)
       @connection.expect(:update, 1) do |stmt|
-        puts stmt
-        stmt.first =~ /inner join bar on foo.id = bar.foo_id and/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /inner join bar on foo.id = bar.foo_id and/
       end
 
       def @migration.conditions
