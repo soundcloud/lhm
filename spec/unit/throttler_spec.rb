@@ -12,7 +12,7 @@ describe Lhm::Throttler do
   end
 
   describe '#setup_throttler' do
-    describe 'when passing a key' do
+    describe 'when passing a time_throttler key' do
       before do
         @mock.setup_throttler(:time_throttler, :delay => 2)
       end
@@ -25,8 +25,22 @@ describe Lhm::Throttler do
         @mock.throttler.timeout_seconds.must_equal 2
       end
     end
+    
+    describe 'when passing a slave_lag_throttler key' do
+      before do
+        @mock.setup_throttler(:slave_lag_throttler, :allowed_lag => 20, :connection => Class.new)
+      end
 
-    describe 'when passing an instance' do
+      it 'instantiates the slave_lag throttle' do
+        @mock.throttler.class.must_equal Lhm::Throttler::SlaveLag
+      end
+
+      it 'returns 20 seconds as allowed_lag' do
+        @mock.throttler.allowed_lag.must_equal 20
+      end
+    end
+
+    describe 'when passing a time_throttler instance' do
 
       before do
         @instance = Class.new(Lhm::Throttler::Time) do
@@ -47,11 +61,43 @@ describe Lhm::Throttler do
       end
     end
 
-    describe 'when passing a class' do
+    describe 'when passing a slave_lag_throttler instance' do
+
+      before do
+        @instance = Lhm::Throttler::SlaveLag.new(:connection => Class.new)
+        def @instance.timeout_seconds
+          0
+        end
+
+        @mock.setup_throttler(@instance)
+      end
+
+      it 'returns the instace given' do
+        @mock.throttler.must_equal @instance
+      end
+
+      it 'returns 0 seconds as time' do
+        @mock.throttler.timeout_seconds.must_equal 0
+      end
+    end
+
+    describe 'when passing a time_throttler class' do
 
       before do
         @klass = Class.new(Lhm::Throttler::Time)
         @mock.setup_throttler(@klass)
+      end
+
+      it 'has the same class as given' do
+        @mock.throttler.class.must_equal @klass
+      end
+    end
+
+    describe 'when passing a slave_lag_throttler class' do
+
+      before do
+        @klass = Class.new(Lhm::Throttler::SlaveLag)
+        @mock.setup_throttler(@klass, :connection => Class.new)
       end
 
       it 'has the same class as given' do
