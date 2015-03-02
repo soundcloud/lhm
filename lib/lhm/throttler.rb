@@ -1,8 +1,9 @@
 require 'lhm/throttler/time'
+require 'lhm/throttler/slave_lag'
 
 module Lhm
   module Throttler
-    CLASSES = { :time_throttler => Throttler::Time }
+    CLASSES = { :time_throttler => Throttler::Time, :slave_lag_throttler => Throttler::SlaveLag }
 
     def throttler
       @throttler ||= Throttler::Time.new

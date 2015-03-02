@@ -63,7 +63,7 @@ module Lhm
       end
 
       if options[:throttler]
-        options[:throttler] = Throttler::Factory.create_throttler(*options[:throttler])
+        options[:throttler] = Throttler::Factory.create_throttler(*options[:throttler].merge({:connection => @connection}))
       elsif options[:throttle] || options[:stride]
         # we still support the throttle and stride as a Fixnum input
         warn 'throttle option will no longer accept a Fixnum in the next versions.'
