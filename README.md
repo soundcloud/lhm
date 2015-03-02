@@ -145,7 +145,7 @@ Lhm is using a throttle mecanism to read data in your original table.
 
 By default, 40000 rows are read each 0.1 second.
 
-If you want to change that behiavour, you can pass an instance of a throttler with the `throttler` option.
+If you want to change that behaviour, you can pass an instance of a throttler with the `throttler` option.
 
 In this example, 1000 rows will be read with a 10 seconds delay between each processing:
 ```ruby
