@@ -2,19 +2,9 @@ language: ruby
 before_script:
   - "mysql -e 'create database lhm;'"
 rvm:
-  - 1.9.3
   - 2.0.0
   - 2.1
 sudo: false
-matrix:
-  fast_finish: true
-  exclude:
-  - rvm: 1.9.3
-    gemfile: gemfiles/ar-4.0_mysql2.gemfile
-  - rvm: 1.9.3
-    gemfile: gemfiles/ar-4.1_mysql2.gemfile
-  - rvm: 1.9.3
-    gemfile: gemfiles/ar-4.2_mysql2.gemfile
 gemfile:
   - gemfiles/ar-3.2_mysql.gemfile
   - gemfiles/ar-3.2_mysql2.gemfile
