@@ -43,11 +43,10 @@ the [twitter solution][2], it does not require the presence of an indexed
 ## Requirements
 
 Lhm currently only works with MySQL databases and requires an established
-ActiveRecord or DataMapper connection.
+ActiveRecord connection.
 
-It is compatible and [continuously tested][4] with MRI 1.9.x, 2.0.x, 2.1.x,
-ActiveRecord 2.3.x and 3.x (mysql and mysql2 adapters), as well as DataMapper
-1.2 (dm-mysql-adapter).
+It is compatible and [continuously tested][4] with MRI 2.0.x, 2.1.x,
+ActiveRecord 3.2.x and 4.x (mysql and mysql2 adapters).
 
 Lhm also works with dm-master-slave-adapter, it'll bind to the master before
 running the migrations.
