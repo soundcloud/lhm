@@ -28,11 +28,10 @@ describe Lhm::AtomicSwitcher do
 
        locking_thread = Thread.new do 
          with_per_thread_lhm_connection do |conn|
-
            conn.sql('BEGIN')
            conn.sql("DELETE from #{@destination.name}")
-           mutex.synchronize { sleep(1); cond.signal }
-           sleep(10)
+           mutex.synchronize { cond.signal }
+           sleep(10)  # make sure to stop here and lock the other thread out
            conn.sql('ROLLBACK')
          end
        end
@@ -64,8 +63,8 @@ describe Lhm::AtomicSwitcher do
 
            conn.sql('BEGIN')
            conn.sql("DELETE from #{@destination.name}")
-           mutex.synchronize { sleep(1); cond.signal }
-           sleep(100)
+           mutex.synchronize { cond.signal }
+           sleep(100) # Sleep for log so LHM gives up
            conn.sql('ROLLBACK')
          end
        end
