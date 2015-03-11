@@ -158,7 +158,7 @@ module Lhm
     #   Optional name of the index to be removed
     def remove_index(columns, index_name = nil)
       columns = [columns].flatten.map(&:to_sym)
-      from_origin = @origin.indices.find { |name, cols| cols.map(&:to_sym) == columns }
+      from_origin = @origin.indices.find { |_, cols| cols.map(&:to_sym) == columns }
       index_name ||= from_origin[0] unless from_origin.nil?
       index_name ||= idx_name(@origin.name, columns)
       ddl('drop index `%s` on `%s`' % [index_name, @name])

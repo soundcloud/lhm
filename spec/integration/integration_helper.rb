@@ -2,10 +2,7 @@
 # Schmidt
 require 'test_helper'
 require 'yaml'
-begin
-  require 'active_support'
-rescue LoadError
-end
+require 'active_support'
 $password = YAML.load_file(File.expand_path(File.dirname(__FILE__)) + '/database.yml')['password'] rescue nil
 
 require 'lhm/table'
@@ -80,7 +77,7 @@ module IntegrationHelper
       # check the master binlog position and wait for the slave to catch up
       # to that position.
       sleep 1
-    elsif
+    else
       connect_master!
     end
 

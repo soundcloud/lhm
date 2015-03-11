@@ -29,7 +29,7 @@ describe Lhm::Printer do
     it 'always print a bigger message' do
       @length = 0
       mock = MiniTest::Mock.new
-      3.times do |i|
+      3.times do
         mock.expect(:write, :return_value) do |message|
           message = message.first if message.is_a?(Array)
           assert message.length >= @length
