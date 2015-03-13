@@ -14,79 +14,68 @@ describe Lhm::AtomicSwitcher do
 
   describe 'switching' do
     before(:each) do
+      Thread.abort_on_exception = true
       @origin      = table_create("origin")
       @destination = table_create("destination")
       @migration   = Lhm::Migration.new(@origin, @destination)
+      Lhm.logger = Logger.new('/dev/null')
       @connection.execute("SET GLOBAL innodb_lock_wait_timeout=3")
       @connection.execute("SET GLOBAL lock_wait_timeout=3")
     end
 
-   it "should retry on lock wait timeouts" do
-     without_verbose do
-       mutex = Mutex.new
-       cond = ConditionVariable.new
+    after(:each) do
+      Thread.abort_on_exception = false
+    end
 
-       locking_thread = Thread.new do 
-         with_per_thread_lhm_connection do |conn|
-           conn.sql('BEGIN')
-           conn.sql("DELETE from #{@destination.name}")
-           mutex.synchronize { cond.signal }
-           sleep(10)  # make sure to stop here and lock the other thread out
-           conn.sql('ROLLBACK')
-         end
-       end
+   it "should retry on lock wait timeouts" do
+     skip "This spec only works with mysql2" unless defined? Mysql2
+
+     without_verbose do
+       queue = Queue.new
+
+       locking_thread = start_locking_thread(10, queue)
 
        switching_thread = Thread.new do
-         with_per_thread_lhm_connection do |conn|
-           switcher = Lhm::AtomicSwitcher.new(@migration, conn)
+         pool = ActiveRecord::Base.establish_connection(adapter: 'mysql2', database: 'lhm')
+         pool.with_connection do |conn|
+           switcher = Lhm::AtomicSwitcher.new(@migration, Lhm::Connection.new(conn))
            switcher.retry_sleep_time = 0.2
-           mutex.synchronize do
-             cond.wait(mutex)
-             switcher.run
-           end
+           queue.pop
+           switcher.run
            Thread.current[:retries] = switcher.retries
          end
        end
 
        switching_thread.join
+       locking_thread.join
        assert switching_thread[:retries] > 0, "The switcher did not retry"
      end
    end
 
    it "should give up on lock wait timeouts after MAX_RETRIES" do
+     skip "This spec only works with mysql2" unless defined? Mysql2
+
      without_verbose do
-       mutex = Mutex.new
-       cond = ConditionVariable.new
-
-       locking_thread = Thread.new do
-         with_per_thread_lhm_connection do |conn|
-
-           conn.sql('BEGIN')
-           conn.sql("DELETE from #{@destination.name}")
-           mutex.synchronize { cond.signal }
-           sleep(100) # Sleep for log so LHM gives up
-           conn.sql('ROLLBACK')
-         end
-       end
+       queue = Queue.new
+       locking_thread = start_locking_thread(10, queue)
 
        switching_thread = Thread.new do
-         with_per_thread_lhm_connection do |conn|
-           switcher = Lhm::AtomicSwitcher.new(@migration, conn)
+         pool = ActiveRecord::Base.establish_connection(adapter: 'mysql2', database: 'lhm')
+         pool.with_connection do |conn|
+           switcher = Lhm::AtomicSwitcher.new(@migration, Lhm::Connection.new(conn))
            switcher.max_retries = 2
            switcher.retry_sleep_time = 0
-           mutex.synchronize do
-             cond.wait(mutex)
-             begin
-               switcher.run
-             rescue ActiveRecord::StatementInvalid => error
-               Thread.current[:exception] = error
-
-             end
+           queue.pop
+           begin
+             switcher.run
+           rescue ActiveRecord::StatementInvalid => error
+             Thread.current[:exception] = error
            end
          end
        end
 
        switching_thread.join
+       locking_thread.join
        assert switching_thread[:exception].is_a?(ActiveRecord::StatementInvalid)
      end
    end

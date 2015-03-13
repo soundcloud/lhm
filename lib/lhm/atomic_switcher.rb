@@ -64,7 +64,7 @@ module Lhm
     end
 
     def should_retry_exception?(error)
-      error.message =~ /Lock wait timeout exceeded/
+      defined?(Mysql2) &&  error.message =~ /Lock wait timeout exceeded/
     end
   end
 end

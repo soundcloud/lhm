@@ -91,6 +91,19 @@ module IntegrationHelper
     end
   end
 
+  # Helps testing behaviour when another client locks the db
+  def start_locking_thread(lock_for, queue)
+    locking_thread = Thread.new do
+      conn = Mysql2::Client.new(host: 'localhost', database: 'lhm', user: 'root')
+      conn.query('BEGIN')
+      conn.query("DELETE from #{@destination.name}")
+      queue.push(true)
+      sleep(lock_for) # Sleep for log so LHM gives up
+      conn.query('ROLLBACK')
+    end
+  end
+
+
   #
   # Test Data
   #
@@ -145,14 +158,6 @@ module IntegrationHelper
      where key_name = '#{ key_name }'
        and non_unique = #{ non_unique }
     >)
-  end
-
-  def with_per_thread_lhm_connection
-    pool = ActiveRecord::Base.establish_connection(adapter: 'mysql2', database: 'lhm')
-    pool.with_connection do |conn|
-      lhm_connection = Lhm::Connection.new(conn)
-      yield  lhm_connection
-    end
   end
 
   #
