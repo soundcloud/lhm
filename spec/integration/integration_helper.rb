@@ -89,11 +89,11 @@ module IntegrationHelper
   end
 
   # Helps testing behaviour when another client locks the db
-  def start_locking_thread(lock_for, queue)
+  def start_locking_thread(lock_for, queue, locking_query)
     Thread.new do
       conn = Mysql2::Client.new(host: '127.0.0.1', database: 'lhm', user: 'root', port: 3306)
       conn.query('BEGIN')
-      conn.query("DELETE from #{@destination.name}")
+      conn.query(locking_query)
       queue.push(true)
       sleep(lock_for) # Sleep for log so LHM gives up
       conn.query('ROLLBACK')

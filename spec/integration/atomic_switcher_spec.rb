@@ -33,7 +33,7 @@ describe Lhm::AtomicSwitcher do
      without_verbose do
        queue = Queue.new
 
-       locking_thread = start_locking_thread(10, queue)
+       locking_thread = start_locking_thread(10, queue, "DELETE from #{@destination.name}")
 
        switching_thread = Thread.new do
          conn = ar_conn 3306
@@ -55,7 +55,7 @@ describe Lhm::AtomicSwitcher do
 
      without_verbose do
        queue = Queue.new
-       locking_thread = start_locking_thread(10, queue)
+       locking_thread = start_locking_thread(10, queue, "DELETE from #{@destination.name}")
 
        switching_thread = Thread.new do
          conn = ar_conn 3306
