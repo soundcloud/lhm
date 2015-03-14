@@ -36,14 +36,12 @@ describe Lhm::AtomicSwitcher do
        locking_thread = start_locking_thread(10, queue)
 
        switching_thread = Thread.new do
-         pool = ActiveRecord::Base.establish_connection(adapter: 'mysql2', database: 'lhm')
-         pool.with_connection do |conn|
-           switcher = Lhm::AtomicSwitcher.new(@migration, Lhm::Connection.new(conn))
-           switcher.retry_sleep_time = 0.2
-           queue.pop
-           switcher.run
-           Thread.current[:retries] = switcher.retries
-         end
+         conn = ar_conn 3306
+         switcher = Lhm::AtomicSwitcher.new(@migration, Lhm::Connection.new(conn))
+         switcher.retry_sleep_time = 0.2
+         queue.pop
+         switcher.run
+         Thread.current[:retries] = switcher.retries
        end
 
        switching_thread.join
@@ -60,17 +58,16 @@ describe Lhm::AtomicSwitcher do
        locking_thread = start_locking_thread(10, queue)
 
        switching_thread = Thread.new do
-         pool = ActiveRecord::Base.establish_connection(adapter: 'mysql2', database: 'lhm')
-         pool.with_connection do |conn|
-           switcher = Lhm::AtomicSwitcher.new(@migration, Lhm::Connection.new(conn))
-           switcher.max_retries = 2
-           switcher.retry_sleep_time = 0
-           queue.pop
-           begin
-             switcher.run
-           rescue ActiveRecord::StatementInvalid => error
-             Thread.current[:exception] = error
-           end
+         conn = ar_conn 3306
+
+         switcher = Lhm::AtomicSwitcher.new(@migration, Lhm::Connection.new(conn))
+         switcher.max_retries = 2
+         switcher.retry_sleep_time = 0
+         queue.pop
+         begin
+           switcher.run
+         rescue ActiveRecord::StatementInvalid => error
+           Thread.current[:exception] = error
          end
        end
 
@@ -82,7 +79,7 @@ describe Lhm::AtomicSwitcher do
 
     it "should raise on non lock wait timeout exceptions" do
       switcher = Lhm::AtomicSwitcher.new(@migration, connection)
-      switcher.send :define_singleton_method, :statements do 
+      switcher.send :define_singleton_method, :statements do
         ['SELECT', '*', 'FROM', 'nonexistent']
       end
       ->{ switcher.run }.must_raise(ActiveRecord::StatementInvalid)

@@ -26,25 +26,25 @@ module IntegrationHelper
   end
 
   def connect!(port)
-    adapter = nil
-    if defined?(ActiveRecord)
-      ActiveRecord::Base.establish_connection(
-        :adapter  => defined?(Mysql2) ? 'mysql2' : 'mysql',
-        :host     => '127.0.0.1',
-        :database => 'lhm',
-        :username => 'root',
-        :port     => port,
-        :password => $password
-      )
-      adapter = ActiveRecord::Base.connection
-    end
-
+    adapter = ar_conn port
     Lhm.setup(adapter)
     unless defined?(@@cleaned_up)
       Lhm.cleanup(true)
       @@cleaned_up  = true
     end
     @connection = Lhm::Connection.new(adapter)
+  end
+
+  def ar_conn(port)
+    ActiveRecord::Base.establish_connection(
+      :adapter  => defined?(Mysql2) ? 'mysql2' : 'mysql',
+      :host     => '127.0.0.1',
+      :database => 'lhm',
+      :username => 'root',
+      :port     => port,
+      :password => $password
+    )
+    ActiveRecord::Base.connection
   end
 
   def select_one(*args)
@@ -90,8 +90,8 @@ module IntegrationHelper
 
   # Helps testing behaviour when another client locks the db
   def start_locking_thread(lock_for, queue)
-    locking_thread = Thread.new do
-      conn = Mysql2::Client.new(host: 'localhost', database: 'lhm', user: 'root')
+    Thread.new do
+      conn = Mysql2::Client.new(host: '127.0.0.1', database: 'lhm', user: 'root', port: 3306)
       conn.query('BEGIN')
       conn.query("DELETE from #{@destination.name}")
       queue.push(true)
@@ -99,7 +99,6 @@ module IntegrationHelper
       conn.query('ROLLBACK')
     end
   end
-
 
   #
   # Test Data
