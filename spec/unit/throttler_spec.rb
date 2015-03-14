@@ -9,6 +9,11 @@ describe Lhm::Throttler do
     @mock = Class.new do
       extend Lhm::Throttler
     end
+
+    @conn = Class.new do
+      def execute
+      end
+    end
   end
 
   describe '#setup_throttler' do
@@ -28,7 +33,7 @@ describe Lhm::Throttler do
     
     describe 'when passing a slave_lag_throttler key' do
       before do
-        @mock.setup_throttler(:slave_lag_throttler, :allowed_lag => 20, :connection => Class.new)
+        @mock.setup_throttler(:slave_lag_throttler, :allowed_lag => 20, :connection => @conn.new)
       end
 
       it 'instantiates the slave_lag throttle' do
@@ -64,7 +69,7 @@ describe Lhm::Throttler do
     describe 'when passing a slave_lag_throttler instance' do
 
       before do
-        @instance = Lhm::Throttler::SlaveLag.new(:connection => Class.new)
+        @instance = Lhm::Throttler::SlaveLag.new(:connection => @conn.new)
         def @instance.timeout_seconds
           0
         end
@@ -97,7 +102,7 @@ describe Lhm::Throttler do
 
       before do
         @klass = Class.new(Lhm::Throttler::SlaveLag)
-        @mock.setup_throttler(@klass, :connection => Class.new)
+        @mock.setup_throttler(@klass, :connection => @conn.new)
       end
 
       it 'has the same class as given' do

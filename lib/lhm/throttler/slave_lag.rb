@@ -14,7 +14,7 @@ module Lhm
       attr_accessor :allowed_lag
 
       def initialize(options = {})
-        raise ArgumentError, "You must provide a valid :connection option when using the slave lag throttler" unless options[:connection]
+        raise ArgumentError, "You must provide a valid :connection option when using the slave lag throttler" unless options[:connection] && options[:connection].respond_to?(:execute)
 
         @timeout_seconds = DEFAULT_TIMEOUT
         @stride = options[:stride] || DEFAULT_STRIDE
@@ -59,15 +59,10 @@ module Lhm
       end  
   
       def max_current_slave_lag
-        lags = [0]
-        slave_hosts.each do |slave|
-          lags.concat(slave_lag(slave))
-        end
-        lags.max
+        slave_hosts.map { |slave| slave_lag(slave).max }.push(0).max
       end
 
       def slave_lag(slave)
-        lags = []
         adapter_method = defined?(Mysql2) ? 'mysql2_connection' : 'mysql_connection'
         config = { :host => slave,
                    :port => ActiveRecord::Base.connection_config[:port],
@@ -77,8 +72,7 @@ module Lhm
                  }
         conn = Lhm::Connection.new(ActiveRecord::Base.send(adapter_method, config))
         result = conn.execute(SQL_SELECT_MAX_SLAVE_LAG)
-        result.each(:as => :hash) {|row| lags.push( row["Seconds_Behind_Master"].to_i ) }
-        lags
+        result.each(:as => :hash).map {|row| row["Seconds_Behind_Master"].to_i }
       rescue Error
         raise Lhm::Error, "Unable to connect and/or query slave to determine slave lag. Migration aborting."
       end
