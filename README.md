@@ -48,10 +48,6 @@ ActiveRecord connection.
 It is compatible and [continuously tested][4] with MRI 2.0.x, 2.1.x,
 ActiveRecord 3.2.x and 4.x (mysql and mysql2 adapters).
 
-Lhm also works with dm-master-slave-adapter, it'll bind to the master before
-running the migrations.
-
-
 ## Limitations
 
 Lhm requires a monotonically increasing numeric Primary Key on the table, due to how
@@ -102,31 +98,6 @@ class MigrateUsers < ActiveRecord::Migration
   end
 
   def self.down
-    Lhm.change_table :users do |m|
-      m.remove_index  [:arbitrary_id, :created_at]
-      m.remove_column :arbitrary
-    end
-  end
-end
-```
-
-Using dm-migrations, you'd define all your migrations as follows, and then call
-`migrate_up!` or `migrate_down!` as normal.
-
-```ruby
-require 'dm-migrations/migration_runner'
-require 'lhm'
-
-migration 1, :migrate_users do
-  up do
-    Lhm.change_table :users do |m|
-      m.add_column :arbitrary, "INT(12)"
-      m.add_index  [:arbitrary_id, :created_at]
-      m.ddl("alter table %s add column flag tinyint(1)" % m.name)
-    end
-  end
-
-  down do
     Lhm.change_table :users do |m|
       m.remove_index  [:arbitrary_id, :created_at]
       m.remove_column :arbitrary
