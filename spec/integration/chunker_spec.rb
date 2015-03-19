@@ -63,13 +63,13 @@ describe Lhm::Chunker do
       throttler = Lhm::Throttler::SlaveLag.new(:stride => 10, :allowed_lag => 0, :connection => connection)
       def throttler.max_current_slave_lag
         1
-      end 
-      
+      end
+
       Lhm::Chunker.new(
         @migration, connection, { :throttler => throttler, :printer => printer }
       ).run
 
-      assert_equal(Lhm::Throttler::SlaveLag::DEFAULT_TIMEOUT * 2 * 2, throttler.timeout_seconds)      
+      assert_equal(Lhm::Throttler::SlaveLag::INITIAL_TIMEOUT * 2 * 2, throttler.timeout_seconds)
 
       slave do
         count_all(@destination.name).must_equal(5)
@@ -96,7 +96,7 @@ describe Lhm::Chunker do
         @migration, connection, { :throttler => throttler, :printer => printer }
       ).run
 
-      assert_equal(Lhm::Throttler::SlaveLag::DEFAULT_TIMEOUT, throttler.timeout_seconds)
+      assert_equal(Lhm::Throttler::SlaveLag::INITIAL_TIMEOUT, throttler.timeout_seconds)
       assert_equal(0, throttler.send(:max_current_slave_lag))
 
       slave do

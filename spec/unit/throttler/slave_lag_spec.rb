@@ -59,9 +59,9 @@ describe Lhm::Throttler::SlaveLag do
       end
 
       it 'does not decrease the timeout past the minimum on repeated runs' do
-        @throttler.timeout_seconds = Lhm::Throttler::SlaveLag::DEFAULT_TIMEOUT * 2 
-        assert_equal(Lhm::Throttler::SlaveLag::DEFAULT_TIMEOUT, @throttler.send(:throttle_seconds))
-        assert_equal(Lhm::Throttler::SlaveLag::DEFAULT_TIMEOUT, @throttler.send(:throttle_seconds))
+        @throttler.timeout_seconds = Lhm::Throttler::SlaveLag::INITIAL_TIMEOUT * 2 
+        assert_equal(Lhm::Throttler::SlaveLag::INITIAL_TIMEOUT, @throttler.send(:throttle_seconds))
+        assert_equal(Lhm::Throttler::SlaveLag::INITIAL_TIMEOUT, @throttler.send(:throttle_seconds))
       end
     end
   end

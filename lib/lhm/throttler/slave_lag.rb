@@ -3,11 +3,11 @@ module Lhm
     class SlaveLag 
       include Command
 
-      DEFAULT_TIMEOUT = 0.1
+      INITIAL_TIMEOUT = 0.1
       DEFAULT_STRIDE = 40_000
       DEFAULT_MAX_ALLOWED_LAG = 10
 
-      MAX_TIMEOUT = DEFAULT_TIMEOUT * 1024
+      MAX_TIMEOUT = INITIAL_TIMEOUT * 1024
 
       attr_accessor :timeout_seconds
       attr_accessor :stride
@@ -16,7 +16,7 @@ module Lhm
       def initialize(options = {})
         raise ArgumentError, "You must provide a valid :connection option when using the slave lag throttler" unless options[:connection] && options[:connection].respond_to?(:execute)
 
-        @timeout_seconds = DEFAULT_TIMEOUT
+        @timeout_seconds = INITIAL_TIMEOUT
         @stride = options[:stride] || DEFAULT_STRIDE
         @allowed_lag = options[:allowed_lag] || DEFAULT_MAX_ALLOWED_LAG
         @connection = options[:connection]
@@ -39,8 +39,8 @@ module Lhm
 
         if lag > @allowed_lag && @timeout_seconds < MAX_TIMEOUT
           Lhm.logger.info("Increasing timeout between strides from #{@timeout_seconds} to #{@timeout_seconds * 2} because #{lag} seconds of slave lag detected is greater than the maximum of #{@allowed_lag} seconds allowed.")
-          @timeout_seconds = @timeout_seconds * 2 
-        elsif lag <= @allowed_lag && @timeout_seconds > DEFAULT_TIMEOUT
+          @timeout_seconds = @timeout_seconds * 2
+        elsif lag <= @allowed_lag && @timeout_seconds > INITIAL_TIMEOUT
           Lhm.logger.info("Decreasing timeout between strides from #{@timeout_seconds} to #{@timeout_seconds / 2} because #{lag} seconds of slave lag detected is less than or equal to the #{@allowed_lag} seconds allowed.")
           @timeout_seconds = @timeout_seconds / 2
         else
@@ -49,9 +49,8 @@ module Lhm
       end
 
       def slave_hosts
-        slave_hosts = get_slaves
-        slaves = slave_hosts.map { |slave_host| slave_host.partition(":")[0] }
-        slaves.delete_if { |slave| slave == "localhost" || slave == "127.0.0.1" }
+        get_slaves.map { |slave_host| slave_host.partition(":")[0] }
+          .delete_if { |slave| slave == "localhost" || slave == "127.0.0.1" }
       end
 
       def get_slaves
