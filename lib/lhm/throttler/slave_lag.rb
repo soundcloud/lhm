@@ -1,6 +1,6 @@
 module Lhm
   module Throttler
-    class SlaveLag 
+    class SlaveLag
       include Command
 
       INITIAL_TIMEOUT = 0.1
@@ -62,18 +62,22 @@ module Lhm
       end
 
       def slave_lag(slave)
+        result = slave_connection(slave).execute(SQL_SELECT_MAX_SLAVE_LAG)
+        result.each(:as => :hash).map { |row| row["Seconds_Behind_Master"].to_i }
+      rescue Error => e
+        raise Lhm::Error, "Unable to connect and/or query slave to determine slave lag. Migration aborting because of: #{e}"
+      end
+
+      def slave_connection(slave)
         adapter_method = defined?(Mysql2) ? 'mysql2_connection' : 'mysql_connection'
+
         config = { :host => slave,
                    :port => ActiveRecord::Base.connection_config[:port],
                    :username => ActiveRecord::Base.connection_config[:username],
-                   :password => ActiveRecord::Base.connection_config[:password], 
-                   :database => ActiveRecord::Base.connection_config[:database]
-                 }
-        conn = Lhm::Connection.new(ActiveRecord::Base.send(adapter_method, config))
-        result = conn.execute(SQL_SELECT_MAX_SLAVE_LAG)
-        result.each(:as => :hash).map {|row| row["Seconds_Behind_Master"].to_i }
-      rescue Error
-        raise Lhm::Error, "Unable to connect and/or query slave to determine slave lag. Migration aborting."
+                   :password => ActiveRecord::Base.connection_config[:password],
+                   :database => ActiveRecord::Base.connection_config[:database] }
+
+        Lhm::Connection.new(ActiveRecord::Base.send(adapter_method, config))
       end
     end
   end
