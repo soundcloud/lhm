@@ -53,13 +53,13 @@ module Lhm
         slaves = slave_hosts.map { |slave_host| slave_host.partition(":")[0] }
         slaves.delete_if { |slave| slave == "localhost" || slave == "127.0.0.1" }
       end
-   
+
       def get_slaves
         @connection.execute(SQL_SELECT_SLAVE_HOSTS).map(&:first)
-      end  
-  
+      end
+
       def max_current_slave_lag
-        slave_hosts.map { |slave| slave_lag(slave).max }.push(0).max
+        slave_hosts.map { |slave| slave_lag(slave) }.flatten.push(0).max
       end
 
       def slave_lag(slave)

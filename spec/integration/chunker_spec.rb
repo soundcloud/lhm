@@ -86,21 +86,18 @@ describe Lhm::Chunker do
       printer.expect(:end, :return_value, [])
 
       throttler = Lhm::Throttler::SlaveLag.new(:stride => 10, :allowed_lag => 0, :connection => connection)
-      slaves = throttler.send(:get_slaves).map { |slave_host| slave_host.partition(":")[0] }
-      assert_equal(["localhost"], slaves)
 
       def throttler.slave_hosts
         ["127.0.0.1"]
       end
 
-      ActiveRecord::Base.connection_config[:port] = "3307"
 
       Lhm::Chunker.new(
         @migration, connection, { :throttler => throttler, :printer => printer }
       ).run
 
-      assert_equal(Lhm::Throttler::SlaveLag::DEFAULT_TIMEOUT, throttler.timeout_seconds)      
-      assert_equal(0, throttler.send(:max_current_slave_lag))      
+      assert_equal(Lhm::Throttler::SlaveLag::DEFAULT_TIMEOUT, throttler.timeout_seconds)
+      assert_equal(0, throttler.send(:max_current_slave_lag))
 
       slave do
         count_all(@destination.name).must_equal(5)
