@@ -5,12 +5,14 @@ require 'lhm/sql_helper'
 
 module Lhm
   class Table
-    attr_reader :name, :columns, :indices, :pk, :ddl
+    attr_reader :schema, :name, :columns, :indices, :constraints, :pk, :ddl
 
-    def initialize(name, pk = 'id', ddl = nil)
+    def initialize(name, schema = 'default', pk = 'id', ddl = nil)
       @name = name
+      @schema = schema
       @columns = {}
       @indices = {}
+      @constraints = {}
       @pk = pk
       @ddl = ddl
     end
@@ -26,6 +28,32 @@ module Lhm
 
     def self.parse(table_name, connection)
       Parser.new(table_name, connection).parse
+    end
+
+    def destination_ddl
+      original    = %r{CREATE TABLE ("|`)#{ name }\1}
+      repl = '\1'
+      replacement = %Q{CREATE TABLE #{ repl }#{ destination_name }#{ repl }}
+
+      dest = ddl
+      dest.gsub!(original, replacement)
+
+      foreign_keys = constraints.select { |col, c| !c[:referenced_column].nil? }
+
+      foreign_keys.keys.each_with_index do |key, i|
+        original = foreign_keys[key][:name]
+        replacement = replacement_constraint(original)
+        dest.gsub!(original, replacement)
+      end
+
+      dest
+    end
+
+    @@schema_constraints = {}
+
+    def self.schema_constraints(schema, value = nil)
+      @@schema_constraints[schema] = value if value
+      @@schema_constraints[schema]
     end
 
     class Parser
@@ -47,7 +75,7 @@ module Lhm
       def parse
         schema = read_information_schema
 
-        Table.new(@table_name, extract_primary_key(schema), ddl).tap do |table|
+        Table.new(@table_name, @schema_name, extract_primary_key(schema), ddl).tap do |table|
           schema.each do |defn|
             column_name    = struct_key(defn, 'COLUMN_NAME')
             column_type    = struct_key(defn, 'COLUMN_TYPE')
@@ -64,6 +92,15 @@ module Lhm
           extract_indices(read_indices).each do |idx, columns|
             table.indices[idx] = columns
           end
+
+          constraints = {}
+          extract_constraints(read_constraints(nil)).each do |data|
+            if data[:schema] == @schema_name && data[:table] == @table_name
+              table.constraints[data[:column]] = data
+            end
+            constraints[data[:name]] = data
+          end
+          Table.schema_constraints(@schema_name, constraints)
         end
       end
 
@@ -98,6 +135,47 @@ module Lhm
           end
       end
 
+      def read_constraints(table = @table_name)
+        query = %Q{
+          select *
+            from information_schema.key_column_usage
+           where table_schema = '#{ @schema_name }'
+             and referenced_column_name is not null
+        }
+        query += %Q{
+             and table_name = '#{ @table_name }'
+        } if table
+
+        @connection.select_all(query)
+      end
+
+      def extract_constraints(constraints)
+        columns = %w{
+          CONSTRAINT_NAME
+          TABLE_SCHEMA
+          TABLE_NAME
+          COLUMN_NAME
+          ORDINAL_POSITION
+          POSITION_IN_UNIQUE_CONSTRAINT
+          REFERENCED_TABLE_SCHEMA
+          REFERENCED_TABLE_NAME
+          REFERENCED_COLUMN_NAME
+        }
+
+        constraints.map do |row|
+          result = {}
+          columns.each do |c|
+            sym = c.dup
+            # The order of these substitutions is important
+            sym.gsub!(/CONSTRAINT_/, '')
+            sym.gsub!(/_NAME/, '')
+            sym.gsub!(/TABLE_/, '')
+            result[sym.downcase.to_sym] = row[struct_key(row, c)]
+          end
+          result
+        end
+      end
+
       def extract_primary_key(schema)
         cols = schema.select do |defn|
           column_key = struct_key(defn, 'COLUMN_KEY')
@@ -112,5 +190,12 @@ module Lhm
         keys.length == 1 ? keys.first : keys
       end
     end
+
+    private
+
+    def replacement_constraint(name)
+      (name =~ /_lhmn$/).nil? ? "#{name}_lhmn" : name.gsub(/_lhmn$/, '')
+    end
+
   end
 end
