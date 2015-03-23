@@ -6,7 +6,53 @@ require File.expand_path(File.dirname(__FILE__)) + '/integration_helper'
 describe Lhm do
   include IntegrationHelper
 
-  before(:each) { connect_master! }
+  before(:each) { connect_master!; Lhm.cleanup(true) }
+
+  describe 'auto increment column requirement' do
+    it 'should migrate the table when id is pk' do
+      table_create(:users)
+
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
+        t.add_column(:logins, "int(12) default '0'")
+      end
+
+      slave do
+        table_read(:users).columns['logins'].must_equal({
+          :type           => 'int(12)',
+          :is_nullable    => 'YES',
+          :column_default => '0',
+          :extra          => ''
+        })
+      end
+    end
+
+    it 'should migrate the table when id is not pk' do
+      table_create(:custom_primary_key)
+
+      Lhm.change_table(:custom_primary_key, :atomic_switch => false) do |t|
+        t.add_column(:logins, "int(12) default '0'")
+      end
+
+      slave do
+        table_read(:custom_primary_key).columns['logins'].must_equal({
+          :type           => 'int(12)',
+          :is_nullable    => 'YES',
+          :column_default => '0',
+          :extra          => ''
+        })
+      end
+    end
+
+    it 'should not migrate the id column is not auto increment' do
+      table_create(:wo_mon_inc_num)
+
+      assert_raises Lhm::Error do
+        Lhm.change_table(:wo_mon_inc_num, :atomic_switch => false) do |t|
+          t.add_column(:logins, "int(12) default '0'")
+        end
+      end
+    end
+  end
 
   describe 'changes' do
     before(:each) do
@@ -62,7 +108,8 @@ describe Lhm do
         table_read(:users).columns['logins'].must_equal({
           :type => 'int(12)',
           :is_nullable => 'YES',
-          :column_default => '0'
+          :column_default => '0',
+          :extra => ''
         })
       end
     end
@@ -168,7 +215,8 @@ describe Lhm do
         table_read(:users).columns['flag'].must_equal({
           :type => 'tinyint(1)',
           :is_nullable => 'YES',
-          :column_default => nil
+          :column_default => nil,
+          :extra => ''
         })
       end
     end
@@ -182,7 +230,8 @@ describe Lhm do
         table_read(:users).columns['comment'].must_equal({
           :type => 'varchar(20)',
           :is_nullable => 'NO',
-          :column_default => 'none'
+          :column_default => 'none',
+          :extra => ''
         })
       end
     end
@@ -198,7 +247,8 @@ describe Lhm do
         table_read(:small_table).columns['id'].must_equal({
           :type => 'int(5)',
           :is_nullable => 'NO',
-          :column_default => '0'
+          :column_default => '0',
+          :extra => ''
         })
       end
     end
@@ -217,7 +267,8 @@ describe Lhm do
         table_read(:users).columns['login'].must_equal({
           :type => 'varchar(255)',
           :is_nullable => 'YES',
-          :column_default => nil
+          :column_default => nil,
+          :extra => ''
         })
 
         result = select_one('SELECT login from users')
@@ -240,7 +291,8 @@ describe Lhm do
         table_read(:users).columns['fnord'].must_equal({
           :type => 'varchar(255)',
           :is_nullable => 'YES',
-          :column_default => 'Superfriends'
+          :column_default => 'Superfriends',
+          :extra => ''
         })
 
         result = select_one('SELECT `fnord` from users')

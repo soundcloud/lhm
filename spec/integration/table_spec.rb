@@ -7,6 +7,50 @@ require 'lhm/table'
 describe Lhm::Table do
   include IntegrationHelper
 
+  describe 'monotonically increasing numeric column requirement' do
+    describe 'when met' do
+      before(:each) do
+        connect_master!
+        @table = table_create(:custom_primary_key)
+      end
+
+      it 'should parse primary key' do
+        @table.pk.must_equal('pk')
+      end
+
+      it 'should parse indices' do
+        @table.
+          indices['index_custom_primary_key_on_id'].
+          must_equal(['id'])
+      end
+
+      it 'should parse columns' do
+        @table.
+          columns['id'][:extra].
+          must_equal('auto_increment')
+
+        @table.
+          columns['id'][:type].
+          must_match(/int\(\d+\)/)
+      end
+
+      it 'should return true for method that should be renamed' do
+        @table.satisfies_id_autoincrement_requirement?.must_equal true
+      end
+    end
+
+    describe 'when not met' do
+      before(:each) do
+        connect_master!
+      end
+
+      it 'should return false for method that should be renamed' do
+        @table = table_create(:wo_mon_inc_num)
+        @table.satisfies_id_autoincrement_requirement?.must_equal false
+      end
+    end
+  end
+
   describe Lhm::Table::Parser do
     describe 'create table parsing' do
       before(:each) do
