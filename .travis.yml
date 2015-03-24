@@ -6,8 +6,6 @@ rvm:
   - 2.1
 sudo: false
 gemfile:
-  - gemfiles/ar-3.2_mysql.gemfile
-  - gemfiles/ar-3.2_mysql2.gemfile
   - gemfiles/ar-4.0_mysql2.gemfile
   - gemfiles/ar-4.1_mysql2.gemfile
   - gemfiles/ar-4.2_mysql2.gemfile
