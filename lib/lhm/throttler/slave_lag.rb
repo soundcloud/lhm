@@ -62,8 +62,8 @@ module Lhm
       end
 
       def slave_lag(slave)
-        result = slave_connection(slave).execute(SQL_SELECT_MAX_SLAVE_LAG)
-        result.each(:as => :hash).map { |row| row["Seconds_Behind_Master"].to_i }
+        result = slave_connection(slave).exec_query(SQL_SELECT_MAX_SLAVE_LAG)
+        result.map { |row| row["Seconds_Behind_Master"].to_i }
       rescue Error => e
         raise Lhm::Error, "Unable to connect and/or query slave to determine slave lag. Migration aborting because of: #{e}"
       end
@@ -77,7 +77,7 @@ module Lhm
                    :password => ActiveRecord::Base.connection_config[:password],
                    :database => ActiveRecord::Base.connection_config[:database] }
 
-        Lhm::Connection.new(ActiveRecord::Base.send(adapter_method, config))
+        ActiveRecord::Base.send(adapter_method, config)
       end
     end
   end
