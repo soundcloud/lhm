@@ -1,5 +1,6 @@
 # 3.0.0
 
+* #92 - Fix check for table requirement before starting a lhm.(@hannestyden)
 * #93 - Makes the atomic switcher retry on metadata locks (@camilo)
 * #63 - Sets the LHM's session lock wait timeout variables (@camilo)
 * #75 - Remove DataMapper and ActiveRecord 2.x support (@camilo)
