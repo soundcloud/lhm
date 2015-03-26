@@ -1,5 +1,10 @@
 # 3.0.0
 
+* Drop support for throttle and stride options. Use `throttler`, instead:
+```
+Lhm.change_table :users, throttler: [:time_throttler, {stride: x}] do
+end
+```
 * #98 - Add slave lag throttler. (@camilo, @jasonhl)
 * #92 - Fix check for table requirement before starting a lhm.(@hannestyden)
 * #93 - Makes the atomic switcher retry on metadata locks (@camilo)

@@ -11,8 +11,8 @@ module Lhm
 
     attr_reader :connection
 
-    # Copy from origin to destination in chunks of size `stride`. Sleeps for
-    # `throttle` milliseconds between each stride.
+    # Copy from origin to destination in chunks of size `stride`.
+    # Use the `throttler` class to sleep between each stride.
     def initialize(migration, connection = nil, options = {})
       @migration = migration
       @connection = connection
