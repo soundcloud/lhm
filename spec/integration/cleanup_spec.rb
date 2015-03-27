@@ -32,7 +32,7 @@ describe Lhm, 'cleanup' do
 
     it 'should show temporary tables within range' do
       table = OpenStruct.new(:name => 'users')
-      table_name = Lhm::Migration.new(table, nil, nil, {}, Time.now - 172800).archive_name
+      table_name = Lhm::Migration.new(table, nil, nil, nil, Time.now - 172800).archive_name
       table_rename(:users, table_name)
 
       output = capture_stdout do
@@ -44,7 +44,7 @@ describe Lhm, 'cleanup' do
 
     it 'should exclude temporary tables outside range' do
       table = OpenStruct.new(:name => 'users')
-      table_name = Lhm::Migration.new(table, nil, nil, {}, Time.now).archive_name
+      table_name = Lhm::Migration.new(table, nil, nil, nil, Time.now).archive_name
       table_rename(:users, table_name)
 
       output = capture_stdout do

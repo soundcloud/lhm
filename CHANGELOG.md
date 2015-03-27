@@ -10,6 +10,7 @@ end
 * #93 - Makes the atomic switcher retry on metadata locks (@camilo)
 * #63 - Sets the LHM's session lock wait timeout variables (@camilo)
 * #75 - Remove DataMapper and ActiveRecord 2.x support (@camilo)
+* #73 - Allow configuration of the primary key used in migrations (@airhorns)
 
 # 2.2.0 (Jan 16, 2015)
 

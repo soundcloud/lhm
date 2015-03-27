@@ -11,9 +11,9 @@ describe Lhm::Entangler do
   include UnitHelper
 
   before(:each) do
-    @origin = Lhm::Table.new('origin')
-    @destination = Lhm::Table.new('destination')
-    @migration = Lhm::Migration.new(@origin, @destination)
+    @origin = Lhm::Table.new("origin")
+    @destination = Lhm::Table.new("destination")
+    @migration = Lhm::Migration.new(@origin, @destination, "id")
     @entangler = Lhm::Entangler.new(@migration)
   end
 

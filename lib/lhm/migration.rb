@@ -5,12 +5,13 @@ require 'lhm/intersection'
 
 module Lhm
   class Migration
-    attr_reader :origin, :destination, :conditions, :renames
+    attr_reader :origin, :destination, :conditions, :renames, :order_column
 
-    def initialize(origin, destination, conditions = nil, renames = {}, time = Time.now)
+    def initialize(origin, destination, order_column, conditions = nil, renames = {}, time = Time.now)
       @origin = origin
       @destination = destination
       @conditions = conditions
+      @order_column = order_column
       @start = time
       @renames = renames
     end

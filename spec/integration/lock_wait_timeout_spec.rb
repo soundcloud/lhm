@@ -16,7 +16,7 @@ describe Lhm do
     global_innodb_lock_wait_timeout = connection.execute("SHOW GLOBAL VARIABLES LIKE 'innodb_lock_wait_timeout'").first.last.to_i
     global_lock_wait_timeout = connection.execute("SHOW GLOBAL VARIABLES LIKE 'lock_wait_timeout'").first.last.to_i
 
-    invoker = Lhm::Invoker.new(Lhm::Table.parse(:users, connection), connection)
+    invoker = Lhm::Invoker.new(Lhm::Table.parse(:users, connection), connection, nil)
     invoker.set_session_lock_wait_timeouts
 
     session_innodb_lock_wait_timeout = connection.execute("SHOW SESSION VARIABLES LIKE 'innodb_lock_wait_timeout'").first.last.to_i

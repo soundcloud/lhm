@@ -12,9 +12,9 @@ describe Lhm::Chunker do
   include UnitHelper
 
   before(:each) do
-    @origin = Lhm::Table.new('foo')
-    @destination = Lhm::Table.new('bar')
-    @migration = Lhm::Migration.new(@origin, @destination)
+    @origin = Lhm::Table.new("foo")
+    @destination = Lhm::Table.new("bar")
+    @migration = Lhm::Migration.new(@origin, @destination, "id")
     @connection = MiniTest::Mock.new
     # This is a poor man's stub
     @throttler = Object.new
@@ -135,6 +135,27 @@ describe Lhm::Chunker do
 
       def @migration.conditions
         'inner join bar on foo.id = bar.foo_id'
+      end
+
+      @chunker.run
+      @connection.verify
+    end
+  end
+
+  describe "copy into with a different column to order by" do
+    before(:each) do
+      @migration   = Lhm::Migration.new(@origin, @destination, "weird_id")
+      @origin.columns["secret"] = { :metadata => "VARCHAR(255)"}
+      @destination.columns["secret"] = { :metadata => "VARCHAR(255)"}
+      @chunker = Lhm::Chunker.new(@migration, @connection, :throttler => @throttler,
+                                  :start     => 1,
+                                  :limit     => 2)
+    end
+
+    it "should copy the correct range and column" do
+      @connection.expect(:update, 1) do |stmt|
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /where `foo`.`weird_id` between 1 and 1/
       end
 
       @chunker.run

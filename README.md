@@ -35,10 +35,10 @@ without locking the table. In contrast to [OAK][0] and the
 [facebook tool][1], we only use a copy table and triggers.
 
 The Large Hadron is a test driven Ruby solution which can easily be dropped
-into an ActiveRecord or DataMapper migration. It presumes a single auto
-incremented numerical primary key called id as per the Rails convention. Unlike
-the [twitter solution][2], it does not require the presence of an indexed
-`updated_at` column.
+into an ActiveRecord or DataMapper migration. It presumes an auto incremented
+numerical primary key (such as id by Rails conventions). Unlike the [twitter
+solution][2], it does not require the presence of an indexed `updated_at`
+column.
 
 ## Requirements
 
@@ -51,7 +51,7 @@ ActiveRecord 3.2.x and 4.x (mysql and mysql2 adapters).
 ## Limitations
 
 Due to the Chunker implementation, Lhm requires that the table to migrate has a
-a monotonically increasing numeric key column called `id`.
+a monotonically increasing numeric column.
 
 ## Installation
 
