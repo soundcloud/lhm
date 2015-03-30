@@ -22,7 +22,7 @@ is great if you are using this engine, but only solves half the problem.
 At SoundCloud we started having migration pains quite a while ago, and after
 looking around for third party solutions, we decided to create our
 own. We called it Large Hadron Migrator, and it is a gem for online
-ActiveRecord and DataMapper migrations.
+ActiveRecord migrations.
 
 ![LHC](http://farm4.static.flickr.com/3093/2844971993_17f2ddf2a8_z.jpg)
 
@@ -35,7 +35,7 @@ without locking the table. In contrast to [OAK][0] and the
 [facebook tool][1], we only use a copy table and triggers.
 
 The Large Hadron is a test driven Ruby solution which can easily be dropped
-into an ActiveRecord or DataMapper migration. It presumes a single auto
+into an ActiveRecord migration. It presumes a single auto
 incremented numerical primary key called id as per the Rails convention. Unlike
 the [twitter solution][2], it does not require the presence of an indexed
 `updated_at` column.
@@ -70,9 +70,6 @@ ActiveRecord::Base.establish_connection(
   :host => '127.0.0.1',
   :database => 'lhm'
 )
-
-# or with DataMapper
-Lhm.setup(DataMapper.setup(:default, 'mysql://127.0.0.1/lhm'))
 
 # and migrate
 Lhm.change_table :users do |m|
