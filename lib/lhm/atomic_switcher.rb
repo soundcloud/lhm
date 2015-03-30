@@ -51,7 +51,9 @@ module Lhm
 
     def execute
       begin
-        @connection.sql(statements)
+        statements.each do |stmt|
+          @connection.execute(SqlHelper.tagged(stmt))
+        end
       rescue ActiveRecord::StatementInvalid => error
         if should_retry_exception?(error) && (@retries += 1) < @max_retries
           sleep(@retry_sleep_time)
@@ -64,7 +66,7 @@ module Lhm
     end
 
     def should_retry_exception?(error)
-      defined?(Mysql2) &&  error.message =~ /Lock wait timeout exceeded/
+      defined?(Mysql2) && error.message =~ /Lock wait timeout exceeded/
     end
   end
 end

@@ -39,7 +39,10 @@ module Lhm
       end
 
       def ddl
-        @connection.show_create(@table_name)
+        sql = "show create table `#{ @table_name }`"
+        specification = nil
+        @connection.execute(sql).each { |row| specification = row.last }
+        specification
       end
 
       def parse

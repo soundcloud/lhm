@@ -78,11 +78,15 @@ module Lhm
     end
 
     def before
-      @connection.sql(entangle)
+      entangle.each do |stmt|
+        @connection.execute(tagged(stmt))
+      end
     end
 
     def after
-      @connection.sql(untangle)
+      untangle.each do |stmt|
+        @connection.execute(tagged(stmt))
+      end
     end
 
     def revert

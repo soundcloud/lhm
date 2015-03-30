@@ -62,11 +62,13 @@ module Lhm
     private
 
     def revert
-      @connection.sql('unlock tables')
+      @connection.execute(tagged('unlock tables'))
     end
 
     def execute
-      @connection.sql(statements)
+      statements.each do |stmt|
+        @connection.execute(tagged(stmt))
+      end
     end
   end
 end

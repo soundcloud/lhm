@@ -26,11 +26,11 @@ module Lhm
       row[value]
     end
 
-    private
-
     def tagged(statement)
       "#{ statement } #{ SqlHelper.annotation }"
     end
+
+    private
 
     def column_definition(cols)
       Array(cols).map do |column|

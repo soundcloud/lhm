@@ -3,7 +3,6 @@
 
 require 'lhm/table'
 require 'lhm/invoker'
-require 'lhm/connection'
 require 'lhm/throttler'
 require 'lhm/version'
 require 'logger'
@@ -118,6 +117,6 @@ module Lhm
   protected
 
   def connection
-    Connection.new(adapter)
+    adapter
   end
 end

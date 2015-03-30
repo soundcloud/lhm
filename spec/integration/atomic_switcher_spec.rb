@@ -37,7 +37,7 @@ describe Lhm::AtomicSwitcher do
 
        switching_thread = Thread.new do
          conn = ar_conn 3306
-         switcher = Lhm::AtomicSwitcher.new(@migration, Lhm::Connection.new(conn))
+         switcher = Lhm::AtomicSwitcher.new(@migration, conn)
          switcher.retry_sleep_time = 0.2
          queue.pop
          switcher.run
@@ -60,7 +60,7 @@ describe Lhm::AtomicSwitcher do
        switching_thread = Thread.new do
          conn = ar_conn 3306
 
-         switcher = Lhm::AtomicSwitcher.new(@migration, Lhm::Connection.new(conn))
+         switcher = Lhm::AtomicSwitcher.new(@migration, conn)
          switcher.max_retries = 2
          switcher.retry_sleep_time = 0
          queue.pop
