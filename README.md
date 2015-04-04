@@ -108,7 +108,7 @@ to prevent accidental data loss.
 
 ## Throttler
 
-Lhm is using a throttle mecanism to read data in your original table.
+Lhm is using a throttle mechanism to read data in your original table.
 
 By default, 40000 rows are read each 0.1 second.
 
