@@ -17,11 +17,11 @@ module IntegrationHelper
   end
 
   def connect_master!
-    connect!(3306)
+    connect!(3307)
   end
 
   def connect_slave!
-    connect!(3307)
+    connect!(3308)
   end
 
   def connect!(port)
@@ -90,7 +90,7 @@ module IntegrationHelper
   # Helps testing behaviour when another client locks the db
   def start_locking_thread(lock_for, queue, locking_query)
     Thread.new do
-      conn = Mysql2::Client.new(host: '127.0.0.1', database: 'lhm', user: 'root', port: 3306)
+      conn = Mysql2::Client.new(host: '127.0.0.1', database: 'lhm', user: 'root', port: 3307)
       conn.query('BEGIN')
       conn.query(locking_query)
       queue.push(true)
