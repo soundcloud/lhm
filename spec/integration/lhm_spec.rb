@@ -323,6 +323,52 @@ describe Lhm do
       end
     end
 
+    describe 'checkpointing' do
+      it 'should save a checkpoint' do
+
+        23.times { |n| execute("insert into users set reference = '#{ n }'") }
+
+        Lhm.change_table(:users, :checkpoint => true) do |t|
+          t.add_column(:logins, "INT(12) DEFAULT '0'")
+        end
+
+        slave do
+          count_all(:users).must_equal(23)
+
+          result = select_one('SELECT value FROM lhm_checkpoint')
+          result['value'].must_equal(23)
+        end
+      end
+
+      it 'should continue from a checkpoint' do
+        23.times { |n| execute("insert into users set reference = '#{ n }'") }
+
+        Lhm.change_table(:users, :checkpoint => true, :null_switch => true, :limit => 10) do |t|
+          t.add_column(:logins, "INT(12) DEFAULT '0'")
+        end
+
+        #23.times { |n| execute("insert into users set reference = '#{ n + 23 }'") }
+
+        slave do
+          count_all(:lhmn_users).must_equal(10)
+
+          result = select_one('SELECT value FROM lhm_checkpoint')
+          result['value'].must_equal(10)
+        end
+
+        Lhm.change_table(:users, :checkpoint => true) do |t|
+          t.add_column(:logins, "INT(12) DEFAULT '0'")
+        end
+
+        slave do
+          count_all(:users).must_equal(23)
+
+          result = select_one('SELECT value FROM lhm_checkpoint')
+          result['value'].must_equal(23)
+        end
+      end
+    end
+
     describe 'parallel' do
       it 'should perserve inserts during migration' do
         50.times { |n| execute("insert into users set reference = '#{ n }'") }

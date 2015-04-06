@@ -3,6 +3,7 @@
 require 'lhm/command'
 require 'lhm/sql_helper'
 require 'lhm/printer'
+require 'lhm/checkpointer'
 
 module Lhm
   class Chunker
@@ -16,10 +17,16 @@ module Lhm
     def initialize(migration, connection = nil, options = {})
       @migration = migration
       @connection = connection
+      @checkpointer = options[:checkpointer]
       @throttler = options[:throttler]
-      @start = options[:start] || select_start
+      @start = select_start(options[:start])
       @limit = options[:limit] || select_limit
       @printer = options[:printer] || Printer::Percentage.new
+      @checkpoint = options[:checkpoint]
+
+      p 'MOO'
+      p @start
+      p @limit
     end
 
     def execute
@@ -28,6 +35,8 @@ module Lhm
       while @next_to_insert < @limit || (@next_to_insert == 1 && @start == 1)
         stride = @throttler.stride
         affected_rows = @connection.update(copy(bottom, top(stride)))
+
+        @checkpointer.checkpoint(top(stride)) if @checkpoint
 
         if @throttler && affected_rows > 0
           @throttler.run
@@ -55,9 +64,15 @@ module Lhm
       "#{ conditions } `#{ origin_name }`.`id` between #{ lowest } and #{ highest }"
     end
 
-    def select_start
-      start = connection.select_value("select min(id) from `#{ origin_name }`")
-      start ? start.to_i : nil
+    def select_start(start)
+      if @checkpoint
+        @checkpointer.start(connection)
+      else
+        start ||= begin
+          start = connection.select_value("select min(id) from `#{ origin_name }`")
+          start ? start.to_i : nil
+        end
+      end
     end
 
     def select_limit
