@@ -370,6 +370,33 @@ describe Lhm do
           count_all(:users).must_equal(40)
         end
       end
+
+      it 'should perserve inserts but not deletes during migration' do
+        50.times { |n| execute("insert into users set reference = '#{ n }'") }
+
+        insert = Thread.new do
+          10.times do |n|
+            connect_master!
+            execute("insert into users set reference = '#{ 100 + n }'")
+            execute("delete from users where reference = '#{ n + 1 }'")
+            sleep(0.17)
+          end
+        end
+
+        sleep 3
+
+        options = { :stride => 10, :throttle => 97, :atomic_switch => false} # , :triggers => [:insert] }
+        Lhm.change_table(:users, options) do |t|
+          t.add_column(:parallel, "INT(10) DEFAULT '0'")
+        end
+
+        insert.join
+
+        slave do
+          count_all(:users).must_equal(50)
+        end
+      end
+
     end
   end
 end

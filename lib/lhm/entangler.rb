@@ -13,27 +13,32 @@ module Lhm
 
     # Creates entanglement between two tables. All creates, updates and deletes
     # to origin will be repeated on the destination table.
-    def initialize(migration, connection = nil)
+    def initialize(migration, connection = nil, options = {})
       @intersection = migration.intersection
       @origin = migration.origin
       @destination = migration.destination
       @connection = connection
+      @triggers = options[:triggers] || [:delete, :insert, :update]
     end
 
     def entangle
-      [
-        create_delete_trigger,
-        create_insert_trigger,
-        create_update_trigger
-      ]
+      triggers = []
+
+      triggers << create_delete_trigger if @triggers.include?(:delete)
+      triggers << create_insert_trigger if @triggers.include?(:insert)
+      triggers << create_update_trigger if @triggers.include?(:update)
+
+      triggers
     end
 
     def untangle
-      [
-        "drop trigger if exists `#{ trigger(:del) }`",
-        "drop trigger if exists `#{ trigger(:ins) }`",
-        "drop trigger if exists `#{ trigger(:upd) }`"
-      ]
+      triggers = []
+
+      triggers << "drop trigger if exists `#{ trigger(:del) }`" if @triggers.include?(:delete)
+      triggers << "drop trigger if exists `#{ trigger(:ins) }`" if @triggers.include?(:insert)
+      triggers << "drop trigger if exists `#{ trigger(:upd) }`" if @triggers.include?(:update)
+
+      triggers
     end
 
     def create_insert_trigger
