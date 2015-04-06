@@ -59,6 +59,6 @@ CNF
 # build system tables
 
 (
-  $install_bin --datadir="$basedir/master/data"
-  $install_bin --datadir="$basedir/slave/data"
+  $install_bin --datadir="$basedir/master/data" --user=$USER
+  $install_bin --datadir="$basedir/slave/data" --user=$USER
 )
