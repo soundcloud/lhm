@@ -28,4 +28,5 @@ bin/lhm-spec-grants.sh
 # SIGTERM=15 SIGINT=2
 trap lhmkill 15 2
 
+echo ready to run tests
 wait
