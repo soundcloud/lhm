@@ -30,6 +30,7 @@ sleep 5
 echo running grants
 bin/lhm-spec-grants.sh
 
-trap lhmkill SIGTERM SIGINT
+# SIGTERM=15 SIGINT=2
+trap lhmkill 15 2
 
 wait
