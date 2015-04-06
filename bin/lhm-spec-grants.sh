@@ -1,9 +1,9 @@
 #!/bin/sh
 
-source `dirname $0`/lhm-config.sh
+. `dirname $0`/lhm-config.sh
 
-master() { "$mysqldir"/bin/mysql --protocol=TCP -P $master_port -uroot; }
-slave()  { "$mysqldir"/bin/mysql --protocol=TCP -P $slave_port -uroot; }
+master() { mysql --protocol=TCP -P $master_port -uroot; }
+slave()  { mysql --protocol=TCP -P $slave_port -uroot; }
 
 # set up master
 

@@ -6,8 +6,8 @@ create ~/.lhm:
 
     mysqldir=/usr/local/mysql
     basedir=~/lhm-cluster
-    master_port=3306
-    slave_port=3307
+    master_port=3307
+    slave_port=3308
 
 mysqldir specifies the location of your mysql install. basedir is the
 directory master and slave databases will get installed into.

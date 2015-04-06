@@ -1,7 +1,9 @@
 #!/bin/sh
 
 if [ -z ${LHM_TEST_CONFIG+x} ] ; then
-  source $HOME/.lhm
+  . $HOME/.lhm
 else
-  source $LHM_TEST_CONFIG
+  . $LHM_TEST_CONFIG
 fi
+
+export PATH="$PATH:$mysqldir/bin:$mysqldir/sbin"

@@ -7,7 +7,7 @@
 set -e
 set -u
 
-source `dirname $0`/lhm-config.sh
+. `dirname $0`/lhm-config.sh
 
 #
 # Main
@@ -59,8 +59,6 @@ CNF
 # build system tables
 
 (
-  cd "$mysqldir"
-  install_bin="$(echo ./*/mysql_install_db | tr " " "\\n" | head -1)"
-  $install_bin --datadir="$basedir/master/data"
-  $install_bin --datadir="$basedir/slave/data"
+  mysql_install_db --datadir="$basedir/master/data" --user=$USER
+  mysql_install_db --datadir="$basedir/slave/data" --user=$USER
 )

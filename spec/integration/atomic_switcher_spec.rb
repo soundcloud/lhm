@@ -36,7 +36,7 @@ describe Lhm::AtomicSwitcher do
        locking_thread = start_locking_thread(10, queue, "DELETE from #{@destination.name}")
 
        switching_thread = Thread.new do
-         conn = ar_conn 3306
+         conn = ar_conn 3307
          switcher = Lhm::AtomicSwitcher.new(@migration, conn)
          switcher.retry_sleep_time = 0.2
          queue.pop
@@ -58,7 +58,7 @@ describe Lhm::AtomicSwitcher do
        locking_thread = start_locking_thread(10, queue, "DELETE from #{@destination.name}")
 
        switching_thread = Thread.new do
-         conn = ar_conn 3306
+         conn = ar_conn 3307
 
          switcher = Lhm::AtomicSwitcher.new(@migration, conn)
          switcher.max_retries = 2
