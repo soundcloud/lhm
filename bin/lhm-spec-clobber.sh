@@ -23,8 +23,8 @@ echo setting up cluster
 bin/lhm-spec-setup-cluster.sh
 
 echo staring instances
-"$mysqldir"/bin/mysqld --defaults-file="$basedir/master/my.cnf" 2>&1 >$basedir/master/lhm.log &
-"$mysqldir"/bin/mysqld --defaults-file="$basedir/slave/my.cnf" 2>&1 >$basedir/slave/lhm.log &
+$mysqld_bin --defaults-file="$basedir/master/my.cnf" 2>&1 >$basedir/master/lhm.log &
+$mysqld_bin --defaults-file="$basedir/slave/my.cnf" 2>&1 >$basedir/slave/lhm.log &
 sleep 5
 
 echo running grants

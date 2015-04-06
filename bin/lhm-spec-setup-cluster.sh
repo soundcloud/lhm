@@ -59,8 +59,6 @@ CNF
 # build system tables
 
 (
-  cd "$mysqldir"
-  install_bin="$(echo ./*/mysql_install_db | tr " " "\\n" | head -1)"
   $install_bin --datadir="$basedir/master/data"
   $install_bin --datadir="$basedir/slave/data"
 )
