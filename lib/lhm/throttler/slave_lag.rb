@@ -80,20 +80,12 @@ module Lhm
 
       # This method fetch the Seconds_Behind_Master, when exec_query is no available, on AR 2.3.
       def fetch_slave_seconds(result)
-        case result.class.to_s
-        when "Mysql::Result"
-          keys = []
-          result.each_hash do |h|
-            keys << h["Seconds_Behind_Master"].to_i
-          end
-          keys
-        when "Mysql2::Result"
-          result.fields.each_with_index do |v, i|
-            if "Seconds_Behind_Master" == v
-              return result.to_a.map { |e| e[i] }
-            end
-          end
+        return 0 unless result.class.to_s == "Mysql::Result"
+        keys = []
+        result.each_hash do |h|
+          keys << h["Seconds_Behind_Master"].to_i
         end
+        keys
       end
 
     end
