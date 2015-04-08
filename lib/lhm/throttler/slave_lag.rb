@@ -70,13 +70,8 @@ module Lhm
 
       def slave_connection(slave)
         adapter_method = defined?(Mysql2) ? 'mysql2_connection' : 'mysql_connection'
-
-        config = { :host => slave,
-                   :port => ActiveRecord::Base.connection_config[:port],
-                   :username => ActiveRecord::Base.connection_config[:username],
-                   :password => ActiveRecord::Base.connection_config[:password],
-                   :database => ActiveRecord::Base.connection_config[:database] }
-
+        config = ActiveRecord::Base.connection_pool.spec.config.dup
+        config[:host] = slave
         ActiveRecord::Base.send(adapter_method, config)
       end
     end
