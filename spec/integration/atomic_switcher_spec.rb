@@ -82,7 +82,7 @@ describe Lhm::AtomicSwitcher do
       switcher.send :define_singleton_method, :statements do
         ['SELECT', '*', 'FROM', 'nonexistent']
       end
-      ->{ switcher.run }.must_raise(ActiveRecord::StatementInvalid)
+      -> { switcher.run }.must_raise(ActiveRecord::StatementInvalid)
     end
 
     it 'rename origin to archive' do

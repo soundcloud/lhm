@@ -9,7 +9,7 @@ describe Lhm::Throttler::SlaveLag do
     conn = Class.new do
       def execute
       end
-    end 
+    end
     @throttler = Lhm::Throttler::SlaveLag.new(:connection => conn.new)
   end
 
@@ -59,7 +59,7 @@ describe Lhm::Throttler::SlaveLag do
       end
 
       it 'does not decrease the timeout past the minimum on repeated runs' do
-        @throttler.timeout_seconds = Lhm::Throttler::SlaveLag::INITIAL_TIMEOUT * 2 
+        @throttler.timeout_seconds = Lhm::Throttler::SlaveLag::INITIAL_TIMEOUT * 2
         assert_equal(Lhm::Throttler::SlaveLag::INITIAL_TIMEOUT, @throttler.send(:throttle_seconds))
         assert_equal(Lhm::Throttler::SlaveLag::INITIAL_TIMEOUT, @throttler.send(:throttle_seconds))
       end
@@ -75,7 +75,7 @@ describe Lhm::Throttler::SlaveLag do
       end
 
       it 'returns no slave hosts' do
-        assert_equal([],@throttler.send(:slave_hosts)) 
+        assert_equal([], @throttler.send(:slave_hosts))
       end
     end
 
@@ -87,10 +87,10 @@ describe Lhm::Throttler::SlaveLag do
       end
 
       it 'returns no slave hosts' do
-        assert_equal([],@throttler.send(:slave_hosts)) 
+        assert_equal([], @throttler.send(:slave_hosts))
       end
     end
-    
+
     describe 'with only remote slaves' do
       before do
         def @throttler.get_slaves
@@ -99,7 +99,7 @@ describe Lhm::Throttler::SlaveLag do
       end
 
       it 'returns remote slave hosts' do
-        assert_equal(["server.example.com", "anotherserver.example.com"] ,@throttler.send(:slave_hosts)) 
+        assert_equal(["server.example.com", "anotherserver.example.com"], @throttler.send(:slave_hosts))
       end
     end
   end
