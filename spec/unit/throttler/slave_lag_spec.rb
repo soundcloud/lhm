@@ -82,7 +82,7 @@ describe Lhm::Throttler::SlaveLag do
     describe 'with only localhost slaves' do
       before do
         def @throttler.get_slaves
-          ["localhost:1234", "127.0.0.1:5678"]
+          ['localhost:1234', '127.0.0.1:5678']
         end
       end
 
@@ -94,12 +94,12 @@ describe Lhm::Throttler::SlaveLag do
     describe 'with only remote slaves' do
       before do
         def @throttler.get_slaves
-          ["server.example.com:1234", "anotherserver.example.com"]
+          ['server.example.com:1234', 'anotherserver.example.com']
         end
       end
 
       it 'returns remote slave hosts' do
-        assert_equal(["server.example.com", "anotherserver.example.com"], @throttler.send(:slave_hosts))
+        assert_equal(['server.example.com', 'anotherserver.example.com'], @throttler.send(:slave_hosts))
       end
     end
   end

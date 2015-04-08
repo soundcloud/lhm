@@ -88,7 +88,7 @@ describe Lhm::Chunker do
       throttler = Lhm::Throttler::SlaveLag.new(:stride => 10, :allowed_lag => 0, :connection => connection)
 
       def throttler.slave_hosts
-        ["127.0.0.1"]
+        ['127.0.0.1']
       end
 
       if master_slave_mode?

@@ -14,7 +14,7 @@ module Lhm
       attr_accessor :allowed_lag
 
       def initialize(options = {})
-        raise ArgumentError, "You must provide a valid :connection option when using the slave lag throttler" unless options[:connection] && options[:connection].respond_to?(:execute)
+        raise ArgumentError, 'You must provide a valid :connection option when using the slave lag throttler' unless options[:connection] && options[:connection].respond_to?(:execute)
 
         @timeout_seconds = INITIAL_TIMEOUT
         @stride = options[:stride] || DEFAULT_STRIDE
@@ -30,7 +30,7 @@ module Lhm
       private
 
       SQL_SELECT_SLAVE_HOSTS = "SELECT host FROM information_schema.processlist WHERE command='Binlog Dump'"
-      SQL_SELECT_MAX_SLAVE_LAG = "SHOW SLAVE STATUS"
+      SQL_SELECT_MAX_SLAVE_LAG = 'SHOW SLAVE STATUS'
 
       private_constant :SQL_SELECT_SLAVE_HOSTS, :SQL_SELECT_MAX_SLAVE_LAG
 
@@ -49,8 +49,8 @@ module Lhm
       end
 
       def slave_hosts
-        get_slaves.map { |slave_host| slave_host.partition(":")[0] }
-          .delete_if { |slave| slave == "localhost" || slave == "127.0.0.1" }
+        get_slaves.map { |slave_host| slave_host.partition(':')[0] }
+          .delete_if { |slave| slave == 'localhost' || slave == '127.0.0.1' }
       end
 
       def get_slaves
@@ -65,7 +65,7 @@ module Lhm
         conn = slave_connection(slave)
         if conn.respond_to?(:exec_query)
           result = conn.exec_query(SQL_SELECT_MAX_SLAVE_LAG)
-          result.map { |row| row["Seconds_Behind_Master"].to_i }
+          result.map { |row| row['Seconds_Behind_Master'].to_i }
         else
           result = conn.execute(SQL_SELECT_MAX_SLAVE_LAG)
           fetch_slave_seconds(result)
@@ -83,10 +83,10 @@ module Lhm
 
       # This method fetch the Seconds_Behind_Master, when exec_query is no available, on AR 2.3.
       def fetch_slave_seconds(result)
-        return 0 unless result.class.to_s == "Mysql::Result"
+        return 0 unless result.class.to_s == 'Mysql::Result'
         keys = []
         result.each_hash do |h|
-          keys << h["Seconds_Behind_Master"].to_i
+          keys << h['Seconds_Behind_Master'].to_i
         end
         keys
       end
