@@ -49,9 +49,12 @@ module Lhm
       end
 
       def slave_hosts
-        slaves = @connection.select_values(SQL_SELECT_SLAVE_HOSTS)
-        slaves.map { |slave_host| slave_host.partition(":")[0] }
+        get_slaves.map { |slave_host| slave_host.partition(":")[0] }
           .delete_if { |slave| slave == "localhost" || slave == "127.0.0.1" }
+      end
+
+      def get_slaves
+        @connection.select_values(SQL_SELECT_SLAVE_HOSTS)
       end
 
       def max_current_slave_lag
