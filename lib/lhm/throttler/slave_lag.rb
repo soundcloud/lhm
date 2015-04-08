@@ -62,8 +62,14 @@ module Lhm
       end
 
       def slave_lag(slave)
-        result = slave_connection(slave).exec_query(SQL_SELECT_MAX_SLAVE_LAG)
-        result.map { |row| row["Seconds_Behind_Master"].to_i }
+        conn = slave_connection(slave)
+        if conn.respond_to?(:exec_query)
+          result = conn.exec_query(SQL_SELECT_MAX_SLAVE_LAG)
+          result.map { |row| row["Seconds_Behind_Master"].to_i }
+        else
+          result = conn.execute(SQL_SELECT_MAX_SLAVE_LAG)
+          fetch_slave_seconds(result)
+        end
       rescue Error => e
         raise Lhm::Error, "Unable to connect and/or query slave to determine slave lag. Migration aborting because of: #{e}"
       end
@@ -74,6 +80,25 @@ module Lhm
         config[:host] = slave
         ActiveRecord::Base.send(adapter_method, config)
       end
+
+      # This method fetch the Seconds_Behind_Master, when exec_query is no available, on AR 2.3.
+      def fetch_slave_seconds(result)
+        case result.class.to_s
+        when "Mysql::Result"
+          keys = []
+          result.each_hash do |h|
+            keys << h["Seconds_Behind_Master"].to_i
+          end
+          keys
+        when "Mysql2::Result"
+          result.fields.each_with_index do |v, i|
+            if "Seconds_Behind_Master" == v
+              return result.to_a.map { |e| e[i] }
+            end
+          end
+        end
+      end
+
     end
   end
 end
