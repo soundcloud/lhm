@@ -11,7 +11,7 @@ module Lhm
       @name = name
       @columns = {}
       @indices = {}
-      @pk = pk
+      @pk = valid_primary_key(pk)
       @ddl = ddl
     end
 
@@ -30,6 +30,11 @@ module Lhm
     def integer_type?(column_name)
       type = @columns[column_name][:type]  if @columns[column_name]
       type ? !!type.match(/int\(\d+\)|integer/) : false
+    end
+
+    def valid_primary_key(pk)
+      pk = "id" if pk.is_a?(Array) && (pk.include?("id") || pk.empty?)
+      pk
     end
 
     class Parser
