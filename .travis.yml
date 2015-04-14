@@ -4,6 +4,7 @@ before_script:
 rvm:
   - 2.0.0
   - 2.1
+  - 2.2
 sudo: false
 gemfile:
   - gemfiles/ar-2.3_mysql.gemfile
