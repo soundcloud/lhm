@@ -88,12 +88,12 @@ module Lhm
     end
   end
 
-  def setup(adapter)
-    @@adapter = adapter
+  def setup(connection)
+    @@connection = connection
   end
 
-  def adapter
-    @@adapter ||=
+  def connection
+    @@connection ||=
       begin
         raise 'Please call Lhm.setup' unless defined?(ActiveRecord)
         ActiveRecord::Base.connection
@@ -112,11 +112,5 @@ module Lhm
         logger.formatter = nil
         logger
       end
-  end
-
-  protected
-
-  def connection
-    adapter
   end
 end
