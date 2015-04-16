@@ -43,7 +43,7 @@ describe Lhm::Chunker do
       printer.expect(:end, :return_value, [])
 
       Lhm::Chunker.new(
-        @migration, connection, { :throttler => Lhm::Throttler::SlaveLag.new(:stride => 100, :connection => connection), :printer => printer }
+        @migration, connection, { :throttler => Lhm::Throttler::SlaveLag.new(:stride => 100), :printer => printer }
       ).run
 
       slave do
@@ -60,7 +60,7 @@ describe Lhm::Chunker do
       15.times { printer.expect(:notify, :return_value, [Fixnum, Fixnum]) }
       printer.expect(:end, :return_value, [])
 
-      throttler = Lhm::Throttler::SlaveLag.new(:stride => 10, :allowed_lag => 0, :connection => connection)
+      throttler = Lhm::Throttler::SlaveLag.new(:stride => 10, :allowed_lag => 0)
       def throttler.max_current_slave_lag
         1
       end
@@ -85,7 +85,7 @@ describe Lhm::Chunker do
       15.times { printer.expect(:notify, :return_value, [Fixnum, Fixnum]) }
       printer.expect(:end, :return_value, [])
 
-      throttler = Lhm::Throttler::SlaveLag.new(:stride => 10, :allowed_lag => 0, :connection => connection)
+      throttler = Lhm::Throttler::SlaveLag.new(:stride => 10, :allowed_lag => 0)
 
       def throttler.slave_hosts
         ['127.0.0.1']

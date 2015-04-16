@@ -16,7 +16,9 @@ module Lhm
     def initialize(migration, connection = nil, options = {})
       @migration = migration
       @connection = connection
-      @throttler = options[:throttler]
+      if @throttler = options[:throttler]
+        @throttler.connection = @connection if @throttler.respond_to?(:connection=)
+      end
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
       @printer = options[:printer] || Printer::Percentage.new
