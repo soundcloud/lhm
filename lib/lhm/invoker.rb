@@ -25,11 +25,16 @@ module Lhm
     end
 
     def set_session_lock_wait_timeouts
-      global_innodb_lock_wait_timeout = @connection.select_one("SHOW GLOBAL VARIABLES LIKE 'innodb_lock_wait_timeout'")['Value'].to_i
-      global_lock_wait_timeout = @connection.select_one("SHOW GLOBAL VARIABLES LIKE 'lock_wait_timeout'")['Value'].to_i
+      global_innodb_lock_wait_timeout = @connection.select_one("SHOW GLOBAL VARIABLES LIKE 'innodb_lock_wait_timeout'")
+      global_lock_wait_timeout = @connection.select_one("SHOW GLOBAL VARIABLES LIKE 'lock_wait_timeout'")
 
-      @connection.execute("SET SESSION innodb_lock_wait_timeout=#{global_innodb_lock_wait_timeout + LOCK_WAIT_TIMEOUT_DELTA}")
-      @connection.execute("SET SESSION lock_wait_timeout=#{global_lock_wait_timeout + LOCK_WAIT_TIMEOUT_DELTA}")
+      if global_innodb_lock_wait_timeout
+        @connection.execute("SET SESSION innodb_lock_wait_timeout=#{global_innodb_lock_wait_timeout['Value'].to_i + LOCK_WAIT_TIMEOUT_DELTA}")
+      end
+
+      if global_lock_wait_timeout
+        @connection.execute("SET SESSION lock_wait_timeout=#{global_lock_wait_timeout['Value'].to_i + LOCK_WAIT_TIMEOUT_DELTA}")
+      end
     end
 
     def run(options = {})
