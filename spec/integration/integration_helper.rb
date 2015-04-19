@@ -113,6 +113,10 @@ module IntegrationHelper
     table_read(fixture_name)
   end
 
+  def table_drop(fixture_name)
+    execute "drop table if exists `#{ fixture_name }`"
+  end
+
   def table_rename(from_name, to_name)
     execute "rename table `#{ from_name }` to `#{ to_name }`"
   end

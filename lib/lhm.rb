@@ -39,13 +39,15 @@ module Lhm
   #   Use atomic switch to rename tables (defaults to: true)
   #   If using a version of mysql affected by atomic switch bug, LHM forces user
   #   to set this option (see SqlHelper#supports_atomic_switch?)
+  # @option options [Boolean] :checkpoint
+  #   Keep track of progress so that migration can be restarted
   # @yield [Migrator] Yielded Migrator object records the changes
   # @return [Boolean] Returns true if the migration finishes
   # @raise [Error] Raises Lhm::Error in case of a error and aborts the migration
   def change_table(table_name, options = {}, &block)
     origin = Table.parse(table_name, connection)
     invoker = Invoker.new(origin, connection)
-    block.call(invoker.migrator)
+    block.call(invoker.migrator) unless options[:checkpoint]
     invoker.run(options)
     true
   end
@@ -57,7 +59,7 @@ module Lhm
   # @option options [Time] :until
   #   Filter to only remove tables up to specified time (defaults to: nil)
   def cleanup(run = false, options = {})
-    lhm_tables = connection.select_values('show tables').select { |name| name =~ /^lhm(a|n)_/ }
+    lhm_tables = connection.select_values('show tables').select { |name| name =~ /^(lhm(a|n)_|lhm_checkpoint)/ }
     if options[:until]
       lhm_tables.select! do |table|
         table_date_time = Time.strptime(table, 'lhma_%Y_%m_%d_%H_%M_%S')

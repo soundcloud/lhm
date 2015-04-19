@@ -5,6 +5,7 @@ require 'lhm/chunker'
 require 'lhm/entangler'
 require 'lhm/atomic_switcher'
 require 'lhm/locked_switcher'
+require 'lhm/null_switcher'
 require 'lhm/migrator'
 
 module Lhm
@@ -42,10 +43,18 @@ module Lhm
       set_session_lock_wait_timeouts
       migration = @migrator.run
 
+      checkpointer = Checkpointer.new(@connection, options)
+      options[:checkpointer] = checkpointer
+
       Entangler.new(migration, @connection).run do
-        Chunker.new(migration, @connection, options).run
+        checkpointer.run do
+          Chunker.new(migration, @connection, options).run
+        end
+
         if options[:atomic_switch]
           AtomicSwitcher.new(migration, @connection).run
+        elsif options[:null_switch]
+          NullSwitcher.new.run
         else
           LockedSwitcher.new(migration, @connection).run
         end
@@ -57,7 +66,7 @@ module Lhm
     def normalize_options(options)
       Lhm.logger.info "Starting LHM run on table=#{@migrator.name}"
 
-      unless options.include?(:atomic_switch)
+      unless options.include?(:atomic_switch) || options.include?(:null_switch)
         if supports_atomic_switch?
           options[:atomic_switch] = true
         else
