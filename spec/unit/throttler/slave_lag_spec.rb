@@ -6,11 +6,7 @@ describe Lhm::Throttler::SlaveLag do
   include UnitHelper
 
   before :each do
-    conn = Class.new do
-      def execute
-      end
-    end
-    @throttler = Lhm::Throttler::SlaveLag.new(:connection => conn.new)
+    @throttler = Lhm::Throttler::SlaveLag.new
   end
 
   describe '#throttle_seconds' do

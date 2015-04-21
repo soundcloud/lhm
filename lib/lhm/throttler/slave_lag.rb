@@ -9,17 +9,12 @@ module Lhm
 
       MAX_TIMEOUT = INITIAL_TIMEOUT * 1024
 
-      attr_accessor :timeout_seconds
-      attr_accessor :stride
-      attr_accessor :allowed_lag
+      attr_accessor :timeout_seconds, :allowed_lag, :stride, :connection
 
       def initialize(options = {})
-        raise ArgumentError, 'You must provide a valid :connection option when using the slave lag throttler' unless options[:connection] && options[:connection].respond_to?(:execute)
-
         @timeout_seconds = INITIAL_TIMEOUT
         @stride = options[:stride] || DEFAULT_STRIDE
         @allowed_lag = options[:allowed_lag] || DEFAULT_MAX_ALLOWED_LAG
-        @connection = options[:connection]
         @slave_connections = {}
       end
 
