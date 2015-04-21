@@ -68,7 +68,7 @@ module Lhm
       end
 
       if options[:throttler]
-        options[:throttler] = Throttler::Factory.create_throttler(*options[:throttler].merge(connection: @connection))
+        options[:throttler] = Throttler::Factory.create_throttler(options[:throttler], connection: @connection)
       else
         options[:throttler] = Lhm.throttler
       end
