@@ -44,8 +44,10 @@ module Lhm
       end
 
       def slave_hosts
-        get_slaves.map { |slave_host| slave_host.partition(':')[0] }
+        slaves = get_slaves.map { |slave_host| slave_host.partition(':')[0] }
           .delete_if { |slave| slave == 'localhost' || slave == '127.0.0.1' }
+        Lhm.logger.info "Detected slaves: #{slaves.join(',')}"
+        slaves
       end
 
       def get_slaves
@@ -53,7 +55,9 @@ module Lhm
       end
 
       def max_current_slave_lag
-        slave_hosts.map { |slave| slave_lag(slave) }.flatten.push(0).max
+        max = slave_hosts.map { |slave| slave_lag(slave) }.flatten.push(0).max
+        Lhm.logger.info "Max current slave lag: #{max}"
+        max
       end
 
       def slave_lag(slave)
@@ -78,11 +82,13 @@ module Lhm
 
       # This method fetch the Seconds_Behind_Master, when exec_query is no available, on AR 2.3.
       def fetch_slave_seconds(result)
-        return 0 unless result.class.to_s == 'Mysql::Result'
-        keys = []
-        result.each_hash do |h|
-          keys << h['Seconds_Behind_Master'].to_i
+        unless result.is_a? Mysql::Result
+          Lhm.logger.info "Not a Mysql::Result from the slave assuming 0 lag"
+          return 0
         end
+
+        keys = []
+        result.each_hash { |h| keys << h['Seconds_Behind_Master'].to_i }
         keys
       end
 
