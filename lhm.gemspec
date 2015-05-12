@@ -8,6 +8,7 @@ require 'lhm/version'
 Gem::Specification.new do |s|
   s.name          = 'lhm'
   s.version       = Lhm::VERSION
+  s.licenses      = ['New BSD']
   s.platform      = Gem::Platform::RUBY
   s.authors       = ['SoundCloud', 'Rany Keddo', 'Tobias Bielohlawek', 'Tobias Schmidt']
   s.email         = %q{rany@soundcloud.com, tobi@soundcloud.com, ts@soundcloud.com}
