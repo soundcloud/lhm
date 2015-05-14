@@ -5,6 +5,7 @@
 Lhm.change_table :users, throttler: [:time_throttler, {stride: x}] do
 end
 ```
+* #114 - Update chunker requirements (@bjk-soundcloud)
 * #98 - Add slave lag throttler. (@camilo, @jasonhl)
 * #92 - Fix check for table requirement before starting a lhm.(@hannestyden)
 * #93 - Makes the atomic switcher retry on metadata locks (@camilo)

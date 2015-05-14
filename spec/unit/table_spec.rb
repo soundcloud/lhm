@@ -22,26 +22,20 @@ describe Lhm::Table do
 
     it 'should be satisfied with a single column primary key called id' do
       @table = Lhm::Table.new('table', 'id')
-      set_columns(@table, { 'id' => { :type => 'int(1)', :extra => 'auto_increment' } })
-      @table.satisfies_id_autoincrement_requirement?.must_equal true
+      set_columns(@table, { 'id' => { :type => 'int(1)' } })
+      @table.satisfies_id_column_requirement?.must_equal true
     end
 
     it 'should be satisfied with a primary key not called id, as long as there is still an id' do
       @table = Lhm::Table.new('table', 'uuid')
-      set_columns(@table, { 'id' => { :type => 'int(1)', :extra => 'auto_increment' } })
-      @table.satisfies_id_autoincrement_requirement?.must_equal true
+      set_columns(@table, { 'id' => { :type => 'int(1)' } })
+      @table.satisfies_id_column_requirement?.must_equal true
     end
 
     it 'should not be satisfied if id is not numeric' do
       @table = Lhm::Table.new('table', 'id')
       set_columns(@table, { 'id' => { :type => 'varchar(255)' } })
-      @table.satisfies_id_autoincrement_requirement?.must_equal false
-    end
-
-    it 'should not be satisfied if id is not auto increment' do
-      @table = Lhm::Table.new('table', 'id')
-      set_columns(@table, { 'id' => { :type => 'int(1)' } })
-      @table.satisfies_id_autoincrement_requirement?.must_equal false
+      @table.satisfies_id_column_requirement?.must_equal false
     end
   end
 end
