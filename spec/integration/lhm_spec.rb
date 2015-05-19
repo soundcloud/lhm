@@ -8,7 +8,7 @@ describe Lhm do
 
   before(:each) { connect_master!; Lhm.cleanup(true) }
 
-  describe 'auto increment column requirement' do
+  describe 'id column requirement' do
     it 'should migrate the table when id is pk' do
       table_create(:users)
 
@@ -21,7 +21,6 @@ describe Lhm do
           :type           => 'int(12)',
           :is_nullable    => 'YES',
           :column_default => '0',
-          :extra          => ''
         })
       end
     end
@@ -38,18 +37,7 @@ describe Lhm do
           :type           => 'int(12)',
           :is_nullable    => 'YES',
           :column_default => '0',
-          :extra          => ''
         })
-      end
-    end
-
-    it 'should not migrate the id column is not auto increment' do
-      table_create(:wo_mon_inc_num)
-
-      assert_raises Lhm::Error do
-        Lhm.change_table(:wo_mon_inc_num, :atomic_switch => false) do |t|
-          t.add_column(:logins, "int(12) default '0'")
-        end
       end
     end
   end
@@ -109,7 +97,6 @@ describe Lhm do
           :type => 'int(12)',
           :is_nullable => 'YES',
           :column_default => '0',
-          :extra => ''
         })
       end
     end
@@ -216,7 +203,6 @@ describe Lhm do
           :type => 'tinyint(1)',
           :is_nullable => 'YES',
           :column_default => nil,
-          :extra => ''
         })
       end
     end
@@ -231,7 +217,6 @@ describe Lhm do
           :type => 'varchar(20)',
           :is_nullable => 'NO',
           :column_default => 'none',
-          :extra => ''
         })
       end
     end
@@ -248,7 +233,6 @@ describe Lhm do
           :type => 'int(5)',
           :is_nullable => 'NO',
           :column_default => '0',
-          :extra => ''
         })
       end
     end
@@ -268,7 +252,6 @@ describe Lhm do
           :type => 'varchar(255)',
           :is_nullable => 'YES',
           :column_default => nil,
-          :extra => ''
         })
 
         result = select_one('SELECT login from users')
@@ -292,7 +275,6 @@ describe Lhm do
           :type => 'varchar(255)',
           :is_nullable => 'YES',
           :column_default => 'Superfriends',
-          :extra => ''
         })
 
         result = select_one('SELECT `fnord` from users')

@@ -7,7 +7,7 @@ require 'lhm/table'
 describe Lhm::Table do
   include IntegrationHelper
 
-  describe 'monotonically increasing numeric column requirement' do
+  describe 'id numeric column requirement' do
     describe 'when met' do
       before(:each) do
         connect_master!
@@ -26,16 +26,17 @@ describe Lhm::Table do
 
       it 'should parse columns' do
         @table.
-          columns['id'][:extra].
-          must_equal('auto_increment')
-
-        @table.
           columns['id'][:type].
-          must_match(/int\(\d+\)/)
+          must_match(/(bigint|int)\(\d+\)/)
       end
 
       it 'should return true for method that should be renamed' do
-        @table.satisfies_id_autoincrement_requirement?.must_equal true
+        @table.satisfies_id_column_requirement?.must_equal true
+      end
+
+      it 'should support bigint tables' do
+        @table = table_create(:bigint_table)
+        @table.satisfies_id_column_requirement?.must_equal true
       end
     end
 
@@ -44,9 +45,9 @@ describe Lhm::Table do
         connect_master!
       end
 
-      it 'should return false for method that should be renamed' do
-        @table = table_create(:wo_mon_inc_num)
-        @table.satisfies_id_autoincrement_requirement?.must_equal false
+      it 'should return false for a non-int id column' do
+        @table = table_create(:wo_id_int_column)
+        @table.satisfies_id_column_requirement?.must_equal false
       end
     end
   end

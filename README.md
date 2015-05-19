@@ -51,7 +51,11 @@ ActiveRecord 3.2.x and 4.x (mysql and mysql2 adapters).
 ## Limitations
 
 Due to the Chunker implementation, Lhm requires that the table to migrate has a
-a monotonically increasing numeric key column called `id`.
+a single integer numeric key column called `id`.
+
+Another note about the Chunker, it performs static sized row copies against the `id`
+column.  Therefore sparse assignment of `id` can cause performance problems for the
+backfills.  Typically LHM assumes that `id` is an `auto_increment` style column.
 
 ## Installation
 
