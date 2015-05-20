@@ -52,7 +52,7 @@ module Lhm
     end
 
     def copy(lowest, highest)
-      "insert ignore into `#{ destination_name }` (#{ destination_columns }) " \
+      "insert into `#{ destination_name }` (#{ destination_columns }) " \
       "select #{ origin_columns } from `#{ origin_name }` " \
       "#{ conditions } `#{ origin_name }`.`id` between #{ lowest } and #{ highest }"
     end
