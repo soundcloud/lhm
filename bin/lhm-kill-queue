@@ -6,7 +6,6 @@ require 'optparse'
 
 module Lhm
   class KillQueue
-
     def initialize
       @port = 3306
       @grace = 10
@@ -14,20 +13,20 @@ module Lhm
       @marker = "%#{ SqlHelper.annotation }%"
 
       OptionParser.new do |opts|
-        opts.on("-h", "--hostname HOSTNAME") { |v| @hostname = v }
-        opts.on("-u", "--username USERNAME") { |v| @username = v }
-        opts.on("-p", "--password PASSWORD") { |v| @password = v }
-        opts.on("-d", "--database DATABASE") { |v| @database = v }
-        opts.on("-m", "--mode MODE") { |v| @mode = v.to_sym }
-        opts.on("-y", "--confirm") { |v| @confirm = true }
+        opts.on('-h', '--hostname HOSTNAME') { |v| @hostname = v }
+        opts.on('-u', '--username USERNAME') { |v| @username = v }
+        opts.on('-p', '--password PASSWORD') { |v| @password = v }
+        opts.on('-d', '--database DATABASE') { |v| @database = v }
+        opts.on('-m', '--mode MODE') { |v| @mode = v.to_sym }
+        opts.on('-y', '--confirm') { |_| @confirm = true }
       end.parse!
 
-      unless(@hostname && @username && @password && @database)
+      unless @hostname && @username && @password && @database
         abort usage
       end
 
-      unless([:kill, :master, :slave].include?(@mode))
-        abort "specify -m kill OR -m master OR -m slave"
+      unless [:kill, :master, :slave].include?(@mode)
+        abort 'specify -m kill OR -m master OR -m slave'
       end
 
       connect
@@ -57,7 +56,7 @@ module Lhm
     end
 
     def master
-      lock = trip
+      trip
       puts "starting to kill non lhm processes in #{ @grace } seconds"
       sleep(@grace + @tiny)
 
@@ -68,19 +67,19 @@ module Lhm
     end
 
     def slave
-      lock = trip
+      trip
       puts "starting to kill non lhm SELECT processes in #{ @grace } seconds"
       sleep(@grace + @tiny)
 
       [list_non_lhm].flatten.each do |process|
-        if(select?(process))
+        if select?(process)
           kill_process(process)
           sleep(@tiny)
         end
       end
     end
 
-  private
+    private
 
     def connect
       ActiveRecord::Base.establish_connection({
@@ -104,7 +103,7 @@ module Lhm
     end
 
     def trip
-      until res = select_processes("info like 'lock table#{ @marker }'").first
+      until (res = select_processes("info like 'lock table#{ @marker }'").first)
         sleep @tiny
         print '.'
       end
@@ -115,11 +114,11 @@ module Lhm
     def kill_process(process_id)
       puts "killing #{ select_statement(process_id) }"
 
-      if(@confirm)
+      if @confirm
         print "confirm ('y' to confirm): "
 
-        if(gets.strip != 'y')
-          puts "skipped."
+        if (gets.strip != 'y')
+          puts 'skipped.'
           return
         end
       end
@@ -129,7 +128,7 @@ module Lhm
     end
 
     def select?(process)
-      if statement = select_statement(process)
+      if (statement = select_statement(process))
         case statement
         when /delete/i then false
         when /update/i then false
@@ -169,4 +168,3 @@ end
 
 killer = Lhm::KillQueue.new
 killer.run
-

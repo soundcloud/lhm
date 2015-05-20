@@ -6,12 +6,12 @@ module Lhm
     extend self
 
     def annotation
-      "/* large hadron migration */"
+      '/* large hadron migration */'
     end
 
     def idx_name(table_name, cols)
       column_names = column_definition(cols).map(&:first)
-      "index_#{ table_name }_on_#{ column_names.join("_and_") }"
+      "index_#{ table_name }_on_#{ column_names.join('_and_') }"
     end
 
     def idx_spec(cols)
@@ -22,15 +22,15 @@ module Lhm
 
     def version_string
       row = connection.select_one("show variables like 'version'")
-      value = struct_key(row, "Value")
+      value = struct_key(row, 'Value')
       row[value]
     end
-
-  private
 
     def tagged(statement)
       "#{ statement } #{ SqlHelper.annotation }"
     end
+
+    private
 
     def column_definition(cols)
       Array(cols).map do |column|
@@ -61,7 +61,7 @@ module Lhm
         when 0 then return false if tiny and tiny < 11
         end
       end
-      return true
+      true
     end
 
     def struct_key(struct, key)
@@ -71,7 +71,7 @@ module Lhm
                struct.members
              end
 
-      keys.find {|k| k.to_s.downcase == key.to_s.downcase }
+      keys.find { |k| k.to_s.downcase == key.to_s.downcase }
     end
   end
 end

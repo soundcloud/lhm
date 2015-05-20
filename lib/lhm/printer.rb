@@ -1,6 +1,5 @@
 module Lhm
   module Printer
-
     class Output
       def write(message)
         print message
@@ -8,14 +7,12 @@ module Lhm
     end
 
     class Base
-
       def initialize
         @output = Output.new
       end
     end
 
     class Percentage < Base
-
       def initialize
         super
         @max_length = 0
@@ -28,24 +25,25 @@ module Lhm
       end
 
       def end
-        write("100% complete")
+        write('100% complete')
         @output.write "\n"
       end
 
       private
+
       def write(message)
         if (extra = @max_length - message.length) < 0
           @max_length = message.length
           extra = 0
         end
 
-        @output.write "\r#{message}" + (" " * extra)
+        @output.write "\r#{message}" + (' ' * extra)
       end
     end
 
     class Dot < Base
-      def notify(lowest = nil, highest = nil)
-        @output.write "."
+      def notify(*)
+        @output.write '.'
       end
 
       def end

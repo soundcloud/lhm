@@ -12,14 +12,14 @@ describe Lhm::Chunker do
   include UnitHelper
 
   before(:each) do
-    @origin = Lhm::Table.new("foo")
-    @destination = Lhm::Table.new("bar")
+    @origin = Lhm::Table.new('foo')
+    @destination = Lhm::Table.new('bar')
     @migration = Lhm::Migration.new(@origin, @destination)
     @connection = MiniTest::Mock.new
     # This is a poor man's stub
     @throttler = Object.new
     def @throttler.run
-      #noop
+      # noop
     end
     def @throttler.stride
       1
@@ -29,34 +29,39 @@ describe Lhm::Chunker do
                                                          :limit     => 10)
   end
 
-  describe "#run" do
-    it "chunks the result set according to the stride size" do
+  describe '#run' do
+    it 'chunks the result set according to the stride size' do
       def @throttler.stride
         2
       end
 
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 1 and 2/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 1 and 2/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 3 and 4/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 3 and 4/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 5 and 6/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 5 and 6/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 7 and 8/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 7 and 8/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 9 and 10/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 9 and 10/
       end
 
       @chunker.run
       @connection.verify
     end
 
-    it "handles stride changes during execution" do
-      #roll our own stubbing
+    it 'handles stride changes during execution' do
+      # roll our own stubbing
       def @throttler.stride
         @run_count ||= 0
         @run_count = @run_count + 1
@@ -68,16 +73,20 @@ describe Lhm::Chunker do
       end
 
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 1 and 2/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 1 and 2/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 3 and 5/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 3 and 5/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 6 and 8/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 6 and 8/
       end
       @connection.expect(:update, 2) do |stmt|
-        stmt.first =~ /between 9 and 10/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 9 and 10/
       end
 
       @chunker.run
@@ -90,19 +99,21 @@ describe Lhm::Chunker do
                                                            :limit     => 1)
 
       @connection.expect(:update, 1) do |stmt|
-        stmt.first =~ /between 1 and 1/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /between 1 and 1/
       end
 
       @chunker.run
       @connection.verify
     end
 
-    it "separates filter conditions from chunking conditions" do
+    it 'separates filter conditions from chunking conditions' do
       @chunker = Lhm::Chunker.new(@migration, @connection, :throttler => @throttler,
                                                            :start     => 1,
                                                            :limit     => 2)
       @connection.expect(:update, 1) do |stmt|
-        stmt.first =~ /where \(foo.created_at > '2013-07-10' or foo.baz = 'quux'\) and `foo`/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /where \(foo.created_at > '2013-07-10' or foo.baz = 'quux'\) and `foo`/
       end
 
       def @migration.conditions
@@ -118,12 +129,12 @@ describe Lhm::Chunker do
                                                            :start     => 1,
                                                            :limit     => 2)
       @connection.expect(:update, 1) do |stmt|
-        puts stmt
-        stmt.first =~ /inner join bar on foo.id = bar.foo_id and/
+        stmt = stmt.first if stmt.is_a?(Array)
+        stmt =~ /inner join bar on foo.id = bar.foo_id and/
       end
 
       def @migration.conditions
-        "inner join bar on foo.id = bar.foo_id"
+        'inner join bar on foo.id = bar.foo_id'
       end
 
       @chunker.run

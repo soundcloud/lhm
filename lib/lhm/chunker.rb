@@ -11,12 +11,14 @@ module Lhm
 
     attr_reader :connection
 
-    # Copy from origin to destination in chunks of size `stride`. Sleeps for
-    # `throttle` milliseconds between each stride.
+    # Copy from origin to destination in chunks of size `stride`.
+    # Use the `throttler` class to sleep between each stride.
     def initialize(migration, connection = nil, options = {})
       @migration = migration
       @connection = connection
-      @throttler = options[:throttler]
+      if @throttler = options[:throttler]
+        @throttler.connection = @connection if @throttler.respond_to?(:connection=)
+      end
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
       @printer = options[:printer] || Printer::Percentage.new
@@ -39,7 +41,7 @@ module Lhm
       @printer.end
     end
 
-  private
+    private
 
     def bottom
       @next_to_insert
@@ -50,8 +52,8 @@ module Lhm
     end
 
     def copy(lowest, highest)
-      "insert ignore into `#{ destination_name }` (#{ destination_columns }) " +
-      "select #{ origin_columns } from `#{ origin_name }` " +
+      "insert ignore into `#{ destination_name }` (#{ destination_columns }) " \
+      "select #{ origin_columns } from `#{ origin_name }` " \
       "#{ conditions } `#{ origin_name }`.`id` between #{ lowest } and #{ highest }"
     end
 
@@ -65,22 +67,22 @@ module Lhm
       limit ? limit.to_i : nil
     end
 
-    #XXX this is extremely brittle and doesn't work when filter contains more
-    #than one SQL clause, e.g. "where ... group by foo". Before making any
-    #more changes here, please consider either:
+    # XXX this is extremely brittle and doesn't work when filter contains more
+    # than one SQL clause, e.g. "where ... group by foo". Before making any
+    # more changes here, please consider either:
     #
-    #1. Letting users only specify part of defined clauses (i.e. don't allow
-    #`filter` on Migrator to accept both WHERE and INNER JOIN
-    #2. Changing query building so that it uses structured data rather than
-    #strings until the last possible moment.
+    # 1. Letting users only specify part of defined clauses (i.e. don't allow
+    # `filter` on Migrator to accept both WHERE and INNER JOIN
+    # 2. Changing query building so that it uses structured data rather than
+    # strings until the last possible moment.
     def conditions
       if @migration.conditions
         @migration.conditions.
-          sub(/\)\Z/, "").
-          #put any where conditions in parens
-          sub(/where\s(\w.*)\Z/, "where (\\1)") + " and"
+          sub(/\)\Z/, '').
+          # put any where conditions in parens
+          sub(/where\s(\w.*)\Z/, 'where (\\1)') + ' and'
       else
-        "where"
+        'where'
       end
     end
 
@@ -102,7 +104,7 @@ module Lhm
 
     def validate
       if @start && @limit && @start > @limit
-        error("impossible chunk options (limit must be greater than start)")
+        error('impossible chunk options (limit must be greater than start)')
       end
     end
   end

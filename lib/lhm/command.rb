@@ -10,7 +10,7 @@ module Lhm
       Lhm.logger.info "Starting run of class=#{self.class}"
       validate
 
-      if(block_given?)
+      if block_given?
         before
         block.call(self)
         after
@@ -23,7 +23,7 @@ module Lhm
       raise
     end
 
-  private
+    private
 
     def validate
     end

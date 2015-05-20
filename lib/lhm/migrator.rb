@@ -53,7 +53,7 @@ module Lhm
     # @param [String] name Name of the column to add
     # @param [String] definition Valid SQL column definition
     def add_column(name, definition)
-      ddl("alter table `%s` add column `%s` %s" % [@name, name, definition])
+      ddl('alter table `%s` add column `%s` %s' % [@name, name, definition])
     end
 
     # Change an existing column to a new definition
@@ -67,9 +67,8 @@ module Lhm
     # @param [String] name Name of the column to change
     # @param [String] definition Valid SQL column definition
     def change_column(name, definition)
-      ddl("alter table `%s` modify column `%s` %s" % [@name, name, definition])
+      ddl('alter table `%s` modify column `%s` %s' % [@name, name, definition])
     end
-
 
     # Rename an existing column.
     #
@@ -85,10 +84,10 @@ module Lhm
       col = @origin.columns[old.to_s]
 
       definition = col[:type]
-      definition += " NOT NULL" unless col[:is_nullable]
-      definition += " DEFAULT #{@connection.quote_value(col[:column_default])}" if col[:column_default]
+      definition += ' NOT NULL' unless col[:is_nullable]
+      definition += " DEFAULT #{@connection.quote(col[:column_default])}" if col[:column_default]
 
-      ddl("alter table `%s` change column `%s` `%s` %s" % [@name, old, nu, definition])
+      ddl('alter table `%s` change column `%s` `%s` %s' % [@name, old, nu, definition])
       @renames[old.to_s] = nu.to_s
     end
 
@@ -102,7 +101,7 @@ module Lhm
     #
     # @param [String] name Name of the column to delete
     def remove_column(name)
-      ddl("alter table `%s` drop `%s`" % [@name, name])
+      ddl('alter table `%s` drop `%s`' % [@name, name])
     end
 
     # Add an index to a table
@@ -159,10 +158,10 @@ module Lhm
     #   Optional name of the index to be removed
     def remove_index(columns, index_name = nil)
       columns = [columns].flatten.map(&:to_sym)
-      from_origin = @origin.indices.find {|name, cols| cols.map(&:to_sym) == columns}
+      from_origin = @origin.indices.find { |_, cols| cols.map(&:to_sym) == columns }
       index_name ||= from_origin[0] unless from_origin.nil?
       index_name ||= idx_name(@origin.name, columns)
-      ddl("drop index `%s` on `%s`" % [index_name, @name])
+      ddl('drop index `%s` on `%s`' % [index_name, @name])
     end
 
     # Add a trigger to a table
@@ -199,7 +198,7 @@ module Lhm
       unless [ :insert, :update, :delete ].include? event
         raise ArgumentError.new("Trigger event must be one of :insert, :update, or :delete. Received '#{event}'")
       end
-      ddl("create trigger `%s` %s %s on `%s` for each row %s" % [name, timing, event, @name, body])
+      ddl('create trigger `%s` %s %s on `%s` for each row %s' % [name, timing, event, @name, body])
     end
 
     # Remove a trigger from the database
@@ -231,15 +230,15 @@ module Lhm
       @conditions = sql
     end
 
-  private
+    private
 
     def validate
       unless @connection.table_exists?(@origin.name)
         error("could not find origin table #{ @origin.name }")
       end
 
-      unless @origin.satisfies_primary_key?
-        error("origin does not satisfy primary key requirements")
+      unless @origin.satisfies_id_column_requirement?
+        error('origin does not satisfy `id` key requirements')
       end
 
       dest = @origin.destination_name
@@ -251,12 +250,17 @@ module Lhm
 
     def execute
       destination_create
-      @connection.sql(@statements)
+      @statements.each do |stmt|
+        @connection.execute(tagged(stmt))
+      end
       Migration.new(@origin, destination_read, conditions, renames)
     end
 
     def destination_create
-      @connection.destination_create(@origin)
+      original    = %{CREATE TABLE `#{ @origin.name }`}
+      replacement = %{CREATE TABLE `#{ @origin.destination_name }`}
+      stmt = @origin.ddl.gsub(original, replacement)
+      @connection.execute(tagged(stmt))
     end
 
     def destination_read
@@ -264,10 +268,17 @@ module Lhm
     end
 
     def index_ddl(cols, unique = nil, index_name = nil)
-      type = unique ? "unique index" : "index"
+      assert_valid_idx_name(index_name)
+      type = unique ? 'unique index' : 'index'
       index_name ||= idx_name(@origin.name, cols)
       parts = [type, index_name, @name, idx_spec(cols)]
-      "create %s `%s` on `%s` (%s)" % parts
+      'create %s `%s` on `%s` (%s)' % parts
+    end
+
+    def assert_valid_idx_name(index_name)
+      if index_name && !(index_name.is_a?(String) || index_name.is_a?(Symbol))
+        raise ArgumentError, 'index_name must be a string or symbol'
+      end
     end
   end
 end

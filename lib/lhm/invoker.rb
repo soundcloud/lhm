@@ -15,6 +15,7 @@ module Lhm
   # and replaced by destination.
   class Invoker
     include SqlHelper
+    LOCK_WAIT_TIMEOUT_DELTA = -2
 
     attr_reader :migrator, :connection
 
@@ -23,8 +24,22 @@ module Lhm
       @migrator = Migrator.new(origin, connection)
     end
 
+    def set_session_lock_wait_timeouts
+      global_innodb_lock_wait_timeout = @connection.select_one("SHOW GLOBAL VARIABLES LIKE 'innodb_lock_wait_timeout'")
+      global_lock_wait_timeout = @connection.select_one("SHOW GLOBAL VARIABLES LIKE 'lock_wait_timeout'")
+
+      if global_innodb_lock_wait_timeout
+        @connection.execute("SET SESSION innodb_lock_wait_timeout=#{global_innodb_lock_wait_timeout['Value'].to_i + LOCK_WAIT_TIMEOUT_DELTA}")
+      end
+
+      if global_lock_wait_timeout
+        @connection.execute("SET SESSION lock_wait_timeout=#{global_lock_wait_timeout['Value'].to_i + LOCK_WAIT_TIMEOUT_DELTA}")
+      end
+    end
+
     def run(options = {})
       normalize_options(options)
+      set_session_lock_wait_timeouts
       migration = @migrator.run
 
       Entangler.new(migration, @connection).run do
@@ -42,22 +57,18 @@ module Lhm
     def normalize_options(options)
       Lhm.logger.info "Starting LHM run on table=#{@migrator.name}"
 
-      if !options.include?(:atomic_switch)
+      unless options.include?(:atomic_switch)
         if supports_atomic_switch?
           options[:atomic_switch] = true
         else
           raise Error.new(
-            "Using mysql #{version_string}. You must explicitly set " +
-            "options[:atomic_switch] (re SqlHelper#supports_atomic_switch?)")
+            "Using mysql #{version_string}. You must explicitly set " \
+            'options[:atomic_switch] (re SqlHelper#supports_atomic_switch?)')
         end
       end
 
       if options[:throttler]
-        options[:throttler] = Throttler::Factory.create_throttler(*options[:throttler])
-      elsif options[:throttle] || options[:stride]
-        # we still support the throttle and stride as a Fixnum input
-        warn "throttle option will no longer accept a Fixnum in the next versions."
-        options[:throttler] = Throttler::LegacyTime.new(options[:throttle], options[:stride])
+        options[:throttler] = Throttler::Factory.create_throttler(options[:throttler])
       else
         options[:throttler] = Lhm.throttler
       end

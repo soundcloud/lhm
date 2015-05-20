@@ -2,15 +2,11 @@
 # Schmidt
 require 'test_helper'
 require 'yaml'
-begin
-  require 'active_support'
-rescue LoadError
-end
-$password = YAML.load_file(File.expand_path(File.dirname(__FILE__)) + "/database.yml")["password"] rescue nil
+require 'active_support'
+$password = YAML.load_file(File.expand_path(File.dirname(__FILE__)) + '/database.yml')['password'] rescue nil
 
 require 'lhm/table'
 require 'lhm/sql_helper'
-require 'lhm/connection'
 
 module IntegrationHelper
   #
@@ -29,27 +25,25 @@ module IntegrationHelper
   end
 
   def connect!(port)
-    adapter = nil
-    if defined?(ActiveRecord)
-      ActiveRecord::Base.establish_connection(
-        :adapter  => defined?(Mysql2) ? 'mysql2' : 'mysql',
-        :host     => '127.0.0.1',
-        :database => 'lhm',
-        :username => 'root',
-        :port     => port,
-        :password => $password
-      )
-      adapter = ActiveRecord::Base.connection
-    elsif defined?(DataMapper)
-      adapter = DataMapper.setup(:default, "mysql://root:#{$password}@localhost:#{port}/lhm")
-    end
-
+    adapter = ar_conn port
     Lhm.setup(adapter)
     unless defined?(@@cleaned_up)
       Lhm.cleanup(true)
       @@cleaned_up  = true
     end
-    @connection = Lhm::Connection.new(adapter)
+    @connection = adapter
+  end
+
+  def ar_conn(port)
+    ActiveRecord::Base.establish_connection(
+      :adapter  => defined?(Mysql2) ? 'mysql2' : 'mysql',
+      :host     => '127.0.0.1',
+      :database => 'lhm',
+      :username => 'root',
+      :port     => port,
+      :password => $password
+    )
+    ActiveRecord::Base.connection
   end
 
   def select_one(*args)
@@ -82,15 +76,26 @@ module IntegrationHelper
       # check the master binlog position and wait for the slave to catch up
       # to that position.
       sleep 1
-    elsif
+    else
       connect_master!
     end
-
 
     yield block
 
     if master_slave_mode?
       connect_master!
+    end
+  end
+
+  # Helps testing behaviour when another client locks the db
+  def start_locking_thread(lock_for, queue, locking_query)
+    Thread.new do
+      conn = Mysql2::Client.new(host: '127.0.0.1', database: 'lhm', user: 'root', port: 3306)
+      conn.query('BEGIN')
+      conn.query(locking_query)
+      queue.push(true)
+      sleep(lock_for) # Sleep for log so LHM gives up
+      conn.query('ROLLBACK')
     end
   end
 
@@ -168,7 +173,7 @@ module IntegrationHelper
   #
 
   def master_slave_mode?
-    !!ENV["MASTER_SLAVE"]
+    !!ENV['MASTER_SLAVE']
   end
 
   #

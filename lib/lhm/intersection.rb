@@ -26,18 +26,18 @@ module Lhm
 
     module Joiners
       def escaped
-        self.map { |name| tick(name)  }
+        map { |name| tick(name)  }
       end
 
       def joined
-        escaped.join(", ")
+        escaped.join(', ')
       end
 
       def typed(type)
-        self.map { |name| qualified(name, type)  }.join(", ")
+        map { |name| qualified(name, type)  }.join(', ')
       end
 
-    private
+      private
 
       def qualified(name, type)
         "`#{ type }`.`#{ name }`"

@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
 gem "mysql", "~> 2.8.1"
-gem "activerecord", "~> 2.3.14"
+gem "activerecord", "~> 2.3.18"
 gem "iconv", "~> 1.0.4"
 gemspec :path=>"../"
