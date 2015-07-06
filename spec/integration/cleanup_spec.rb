@@ -9,7 +9,7 @@ describe Lhm, 'cleanup' do
 
   describe 'changes' do
     before(:each) do
-      table_create(:users)
+      @table = table_create(:users)
       simulate_failed_migration do
         Lhm.change_table(:users, :atomic_switch => false) do |t|
           t.add_column(:logins, "INT(12) DEFAULT '0'")
@@ -30,28 +30,38 @@ describe Lhm, 'cleanup' do
       output.must_match(/lhma_[0-9_]*_users/)
     end
 
+    it 'should still show unswitched tables with range' do
+      table_name = @table.destination_name
+      table_rename(:users, table_name)
+
+      output = capture_stdout do
+        Lhm.cleanup false, { :until => Time.now - 86400 }
+      end
+
+      output.must_include('Existing LHM backup tables')
+      output.must_include(table_name)
+    end
+
     it 'should show temporary tables within range' do
-      table = OpenStruct.new(:name => 'users')
-      table_name = Lhm::Migration.new(table, nil, nil, {}, Time.now - 172800).archive_name
+      table_name = Lhm::Migration.new(@table, nil, nil, {}, Time.now - 172800).archive_name
       table_rename(:users, table_name)
 
       output = capture_stdout do
         Lhm.cleanup false, { :until => Time.now - 86400 }
       end
       output.must_include('Existing LHM backup tables')
-      output.must_match(/lhma_[0-9_]*_users/)
+      output.must_include(table_name)
     end
 
     it 'should exclude temporary tables outside range' do
-      table = OpenStruct.new(:name => 'users')
-      table_name = Lhm::Migration.new(table, nil, nil, {}, Time.now).archive_name
+      table_name = Lhm::Migration.new(@table, nil, nil, {}, Time.now).archive_name
       table_rename(:users, table_name)
 
       output = capture_stdout do
         Lhm.cleanup false, { :until => Time.now - 172800 }
       end
       output.must_include('Existing LHM backup tables')
-      output.wont_match(/lhma_[0-9_]*_users/)
+      output.wont_include(table_name)
     end
 
     it 'should show temporary triggers' do
