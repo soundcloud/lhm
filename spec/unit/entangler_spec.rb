@@ -58,6 +58,21 @@ describe Lhm::Entangler do
 
       @entangler.entangle.must_include strip(ddl)
     end
+
+    describe 'super long table names' do
+      before(:each) do
+        @origin = Lhm::Table.new('a' * 64)
+        @destination = Lhm::Table.new('b' * 64)
+        @migration = Lhm::Migration.new(@origin, @destination)
+        @entangler = Lhm::Entangler.new(@migration)
+      end
+
+      it 'should use truncated names' do
+        @entangler.trigger(:ins).length.must_be :<=, 64
+        @entangler.trigger(:upd).length.must_be :<=, 64
+        @entangler.trigger(:del).length.must_be :<=, 64
+      end
+    end
   end
 
   describe 'removal' do

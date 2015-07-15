@@ -64,7 +64,7 @@ module Lhm
     end
 
     def trigger(type)
-      "lhmt_#{ type }_#{ @origin.name }"
+      "lhmt_#{ type }_#{ @origin.name }"[0...64]
     end
 
     def validate
