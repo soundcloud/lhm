@@ -40,7 +40,7 @@ module Lhm
       def ddl
         sql = "show create table `#{ @table_name }`"
         specification = nil
-        @connection.execute(sql).each { |row| specification = row.last }
+        @connection.execute(sql).each { |row| specification = specification(row) }
         specification
       end
 
@@ -110,6 +110,14 @@ module Lhm
         end
 
         keys.length == 1 ? keys.first : keys
+      end
+
+      def specification(row)
+        if row.is_a?(Array)
+          row.last
+        else
+          row["Create Table"]
+        end
       end
     end
   end
