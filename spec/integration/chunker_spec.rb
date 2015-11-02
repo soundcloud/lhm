@@ -19,14 +19,17 @@ describe Lhm::Chunker do
 
     it 'should copy 1  rows from origin to destination even if the id of the single row does not start at 1' do
       execute("insert into origin set id = 1001 ")
+      printer = Lhm::Printer::Base.new
 
-      Lhm::Chunker.new(@migration, connection, {}).run
+      def printer.notify(*) ;end
+      def printer.end(*) [] ;end
+
+      Lhm::Chunker.new(@migration, connection, {:throttler => Lhm::Throttler::Time.new(:stride => 100), :printer => printer} ).run
 
       slave do
         count_all(@destination.name).must_equal(1)
       end
 
-      printer.verify
     end
 
     it 'should copy 23 rows from origin to destination' do
