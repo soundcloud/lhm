@@ -159,6 +159,24 @@ Lhm.change_table :users, :atomic_switch => true do |m|
 end
 ```
 
+## Isolation levels
+
+Lhm issues a series of INSERT INTO... SELECT statements over the course of the migration
+against the table being migrated. At the repeatable read and above isolation levels,
+MySQL aquires a lock on the table being SELECT'ed from.  If the table you are migrating
+is write heavy or particularly large, you may see deadlocks on writes into the
+table being migrated.  These may be avoided by running the INSERT INTO... SELECT statements
+at the READ COMMITTED isolation level.
+
+If during the migration you notice a large number of deadlocks against the table
+being migrated, you can avoid them by running the migration at a lower isolation level:
+
+```ruby
+Lhm.change_table :users, :lower_isolation_level => true do |m|
+  # ...
+end
+```
+
 ## Limiting the data that is migrated
 
 For instances where you want to limit the data that is migrated to the new
