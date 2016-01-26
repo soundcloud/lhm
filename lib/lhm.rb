@@ -83,7 +83,7 @@ module Lhm
     else
       puts "Existing LHM backup tables: #{lhm_tables.join(', ')}."
       puts "Existing LHM triggers: #{lhm_triggers.join(', ')}."
-      puts 'Run Lhm.cleanup(true) to drop them all.'
+      puts 'Run Lhm.cleanup(:run) to drop them all.'
       false
     end
   end

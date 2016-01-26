@@ -6,7 +6,7 @@ require File.expand_path(File.dirname(__FILE__)) + '/integration_helper'
 describe Lhm do
   include IntegrationHelper
 
-  before(:each) { connect_master!; Lhm.cleanup(true) }
+  before(:each) { connect_master!; Lhm.cleanup(:run) }
 
   describe 'id column requirement' do
     it 'should migrate the table when id is pk' do
