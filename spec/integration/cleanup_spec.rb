@@ -19,7 +19,7 @@ describe Lhm, 'cleanup' do
     end
 
     after(:each) do
-      Lhm.cleanup(true)
+      Lhm.cleanup(:run)
     end
 
     it 'should show temporary tables' do
@@ -65,7 +65,7 @@ describe Lhm, 'cleanup' do
     end
 
     it 'should delete temporary tables' do
-      Lhm.cleanup(true).must_equal(true)
+      Lhm.cleanup(:run).must_equal(true)
       Lhm.cleanup.must_equal(true)
     end
   end

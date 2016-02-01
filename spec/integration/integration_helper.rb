@@ -28,7 +28,7 @@ module IntegrationHelper
     adapter = ar_conn port
     Lhm.setup(adapter)
     unless defined?(@@cleaned_up)
-      Lhm.cleanup(true)
+      Lhm.cleanup(:run)
       @@cleaned_up  = true
     end
     @connection = adapter
