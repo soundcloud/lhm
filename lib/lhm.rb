@@ -59,9 +59,11 @@ module Lhm
   def cleanup(run = false, options = {})
     lhm_tables = connection.select_values('show tables').select { |name| name =~ /^lhm(a|n)_/ }
     if options[:until]
-      lhm_tables.select! do |table|
-        table_date_time = Time.strptime(table, 'lhma_%Y_%m_%d_%H_%M_%S')
-        table_date_time <= options[:until]
+      lhm_tables.reject! do |table|
+        if table =~ /^lhma_/
+          table_date_time = Time.strptime(table, 'lhma_%Y_%m_%d_%H_%M_%S')
+          table_date_time > options[:until]
+        end
       end
     end
 
