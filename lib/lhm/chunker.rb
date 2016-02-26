@@ -53,7 +53,6 @@ module Lhm
 
     def copy(lowest, highest)
       result = @connection.execute("SELECT @@tx_isolation AS isoLevel;")
-      binding.pry
       result.each do |row|
         Lhm.logger.info("Transaction level: #{row['isoLevel']}")
       end
