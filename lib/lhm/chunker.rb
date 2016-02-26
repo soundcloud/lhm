@@ -52,6 +52,8 @@ module Lhm
     end
 
     def copy(lowest, highest)
+      tx_level = @connection.execute("SELECT @@tx_isolation;")
+      Lhm.logger.info("Transaction level: #{tx_level}")
       "insert ignore into `#{ destination_name }` (#{ destination_columns }) " \
       "select #{ origin_columns } from `#{ origin_name }` " \
       "#{ conditions } `#{ origin_name }`.`id` between #{ lowest } and #{ highest }"

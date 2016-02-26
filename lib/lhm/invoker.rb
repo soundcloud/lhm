@@ -39,6 +39,7 @@ module Lhm
 
     def set_session_isolation_level(options)
       if options[:lower_isolation_level]
+        Lhm.logger.info('Running on READ COMMITTED isolation level')
         @connection.execute('SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED')
       end
     end
