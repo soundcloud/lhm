@@ -54,7 +54,7 @@ module Lhm
     def copy(lowest, highest)
       result = @connection.execute("SELECT @@tx_isolation AS isoLevel;")
       result.each do |row|
-        Lhm.logger.info("Transaction level: #{row['isoLevel']}")
+        Lhm.logger.info("Transaction level: #{row}")
       end
       "insert ignore into `#{ destination_name }` (#{ destination_columns }) " \
       "select #{ origin_columns } from `#{ origin_name }` " \
