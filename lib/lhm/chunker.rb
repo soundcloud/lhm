@@ -52,7 +52,7 @@ module Lhm
     end
 
     def copy(lowest, highest)
-      result = @connection.execute("SELECT @@tx_isolation AS isoLevel;")
+      result = @connection.execute("SELECT @@tx_isolation AS isoLevel, @@innodb_lock_wait_timeout AS wait_timeout;")
       result.each do |row|
         Lhm.logger.info("Transaction level: #{row}")
       end
