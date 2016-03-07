@@ -37,9 +37,17 @@ module Lhm
       end
     end
 
+    def set_session_isolation_level(options)
+      if options[:lower_isolation_level]
+        Lhm.logger.info('Running on READ COMMITTED isolation level')
+        @connection.execute('SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED')
+      end
+    end
+
     def run(options = {})
       normalize_options(options)
       set_session_lock_wait_timeouts
+      set_session_isolation_level(options)
       migration = @migrator.run
 
       Entangler.new(migration, @connection).run do

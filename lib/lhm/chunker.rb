@@ -53,6 +53,10 @@ module Lhm
     end
 
     def copy(lowest, highest)
+      result = @connection.execute("SELECT @@tx_isolation AS isoLevel, @@innodb_lock_wait_timeout AS wait_timeout;")
+      result.each do |row|
+        Lhm.logger.info("Transaction level: #{row}")
+      end
       "insert ignore into `#{ destination_name }` (#{ destination_columns }) " \
       "select #{ origin_columns } from `#{ origin_name }` " \
       "#{ conditions } `#{ origin_name }`.`id` between #{ lowest } and #{ highest }"
