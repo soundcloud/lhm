@@ -27,10 +27,8 @@ module Lhm
   #
   # @param [String, Symbol] table_name Name of the table
   # @param [Hash] options Optional options to alter the chunk / switch behavior
-  # @option options [Fixnum] :stride
-  #   Size of a chunk (defaults to: 40,000)
-  # @option options [Fixnum] :throttle
-  #   Time to wait between chunks in milliseconds (defaults to: 100)
+  # @option options [Lhm::Command, String, Symbol, Class] :throttler
+  #   Type of Throttler to use (defaults to: `:time_throttler`)
   # @option options [Fixnum] :start
   #   Primary Key position at which to start copying chunks
   # @option options [Fixnum] :limit

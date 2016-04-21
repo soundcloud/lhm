@@ -318,7 +318,7 @@ describe Lhm do
         end
         sleep 2
 
-        options = { :stride => 10, :throttle => 97, :atomic_switch => false }
+        options = { :atomic_switch => false }
         Lhm.change_table(:users, options) do |t|
           t.add_column(:parallel, "INT(10) DEFAULT '0'")
         end
@@ -341,7 +341,7 @@ describe Lhm do
         end
         sleep 2
 
-        options = { :stride => 10, :throttle => 97, :atomic_switch => false }
+        options = { :atomic_switch => false }
         Lhm.change_table(:users, options) do |t|
           t.add_column(:parallel, "INT(10) DEFAULT '0'")
         end

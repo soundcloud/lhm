@@ -1,8 +1,8 @@
 # 3.0.0
 
-* Drop support for throttle and stride options. Use `throttler`, instead:
+* Drop support for `throttle` and `stride` options. Use `throttler`, instead:
 ```
-Lhm.change_table :users, throttler: [:time_throttler, {stride: x}] do
+Lhm.change_table :users, throttler: :time_throttler do
 end
 ```
 * #118 - Truncate long trigger names. (@sj26)
