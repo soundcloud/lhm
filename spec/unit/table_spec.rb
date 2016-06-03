@@ -10,8 +10,10 @@ describe Lhm::Table do
 
   describe 'names' do
     it 'should name destination' do
-      @table = Lhm::Table.new('users')
-      @table.destination_name.must_equal 'lhmn_users'
+      @time = Time.now
+      @table = Lhm::Table.new('users', 'id', nil, @time)
+      stamp = "%Y_%m_%d_%H_%M_%S_#{ '%03d' % (@time.usec / 1000) }"
+      @table.destination_name.must_equal "lhmn_#{ @time.strftime(stamp) }_users"
     end
   end
 
