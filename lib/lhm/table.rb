@@ -21,7 +21,8 @@ module Lhm
     end
 
     def destination_name
-      time_stamp = Time.now.strftime "%Y_%m_%d_%H_%M_%S_#{ '%03d' % (@start.usec / 1000) }"
+      time = Time.now
+      time_stamp = time.strftime "%Y_%m_%d_%H_%M_%S_#{ '%03d' % (time.usec / 1000) }"
       "lhmn_#{ time_stamp }_#{ @name }"[0...64]
     end
 
