@@ -211,6 +211,23 @@ Ruby:
 Lhm.cleanup(:run, until: Time.now - 86400)
 ```
 
+## Retry on deadlock
+
+LHM supports automatic retry on deadlock.  By default it retries 10 times with
+a 10 second delay between each retry.  It can be customized using the following
+options:
+
+  1. `retry_on_deadlock` - true / false (true by default)
+  2. `retry_attempts` - Number of retries on deadlock (10 by default)
+  3. `retry_wait_time` - Number of seconds to wait between each retry
+  (10 seconds by default)
+
+```ruby
+Lhm.change_table :users, :retry_on_deadlock => true, :retry_attempts => 5 do |m|
+  m.add_column :arbitrary, "INT(12)"
+end
+```
+
 ## Contributing
 
 First, get set up for local development:
