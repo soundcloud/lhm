@@ -88,7 +88,7 @@ module Lhm
       def extract_indices(indices)
         indices.
           map do |row|
-            key_name = struct_key(row, 'Key_name')
+            key_name = 'lhma_' + struct_key(row, 'Key_name')
             column_name = struct_key(row, 'COLUMN_NAME')
             [row[key_name], row[column_name]]
           end.
