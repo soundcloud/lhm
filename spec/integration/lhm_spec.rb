@@ -123,6 +123,21 @@ describe Lhm do
       end
     end
 
+    it 'shouldnt lose rows' do
+      5.times { |n| execute("insert into users set reference = '#{ n }'") }
+
+      proc do
+        Lhm.change_table(:users, :atomic_switch => false) do |t|
+          t.change_column(:username, "varchar(255) NOT NULL")
+          t.add_unique_index(:username)
+        end
+      end.must_raise ActiveRecord::RecordNotUnique
+
+      slave do
+        count_all(:users).must_equal(5)
+      end
+    end
+
     it 'should add an index' do
       Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.add_index([:comment, :created_at])
