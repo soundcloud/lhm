@@ -22,6 +22,9 @@ module Lhm
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
       @printer = options[:printer] || Printer::Percentage.new
+      @retry = options[:retry] || true
+      @retry_attempts = options[:retry_attempts] || 10
+      @retry_interval = options[:retry_interval] || 1
     end
 
     def execute
@@ -29,7 +32,10 @@ module Lhm
       @next_to_insert = @start
       while @next_to_insert < @limit || (@start == @limit)
         stride = @throttler.stride
-        affected_rows = @connection.update(copy(bottom, top(stride)))
+
+        affected_rows = error_retry do
+          @connection.update(copy(bottom, top(stride)))
+        end
 
         if @throttler && affected_rows > 0
           @throttler.run
@@ -43,6 +49,43 @@ module Lhm
     end
 
     private
+
+    def error_messages
+      {
+        'Deadlock found when trying to get lock' => false,
+        'Lock wait timeout exceeded' => false,
+        'deadlock was detected' => false
+      }
+    end
+
+    def error_retry(&block)
+      return block.call unless @retry
+
+      delay = @retry_interval
+      attempt = 0
+      result = 0
+      begin
+        result = block.call
+      rescue ActiveRecord::StatementInvalid => error
+        retryable, reconnect = error_messages.select{ |error_message| error.message =~ /#{Regexp.escape(error_message)}/ }.to_a.flatten
+
+        attempt += 1
+        if retryable && (attempt <= @retry_attempts)
+          puts "Caught Exception (Attempt #{attempt} of #{@retry_attempts}): #{error.message}"
+          puts "Sleeping for #{delay} seconds before retrying..."
+          sleep delay
+          delay = delay * 2
+          ActiveRecord::Base.connection.reconnect! if reconnect
+          retry
+        else
+          puts "Exhausted retry attempts!" if (attempt > @retry_attempts)
+          puts "Unrecoverable Exception: #{error.message}"
+          raise
+        end
+      end
+
+      result
+    end
 
     def bottom
       @next_to_insert
