@@ -67,7 +67,7 @@ module Lhm
       begin
         result = block.call
       rescue ActiveRecord::StatementInvalid => error
-        retryable, reconnect = error_messages.select{ |error_message| error.message =~ /#{Regexp.escape(error_message)}/ }.to_a.flatten
+        retryable, reconnect = error_messages.select{ |message,reconnect| error.message =~ /#{Regexp.escape(message)}/ }.to_a.flatten
 
         attempt += 1
         if retryable && (attempt <= @retry_attempts)
