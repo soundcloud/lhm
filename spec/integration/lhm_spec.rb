@@ -153,7 +153,7 @@ describe Lhm do
       end
     end
 
-    it 'should add a unqiue index' do
+    it 'should add a unique index' do
       Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.add_unique_index(:comment)
       end
