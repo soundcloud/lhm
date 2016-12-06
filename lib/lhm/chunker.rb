@@ -22,6 +22,7 @@ module Lhm
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
       @printer = options[:printer] || Printer::Percentage.new
+      @primary_key = options[:primary_key] || 'id'
     end
 
     def execute
@@ -55,16 +56,16 @@ module Lhm
     def copy(lowest, highest)
       "insert ignore into `#{ destination_name }` (#{ destination_columns }) " \
       "select #{ origin_columns } from `#{ origin_name }` " \
-      "#{ conditions } `#{ origin_name }`.`id` between #{ lowest } and #{ highest }"
+      "#{ conditions } `#{ origin_name }`.`#{ @primary_key }` between #{ lowest } and #{ highest }"
     end
 
     def select_start
-      start = connection.select_value("select min(id) from `#{ origin_name }`")
+      start = connection.select_value("select min(#{ @primary_key }) from `#{ origin_name }`")
       start ? start.to_i : nil
     end
 
     def select_limit
-      limit = connection.select_value("select max(id) from `#{ origin_name }`")
+      limit = connection.select_value("select max(#{ @primary_key }) from `#{ origin_name }`")
       limit ? limit.to_i : nil
     end
 

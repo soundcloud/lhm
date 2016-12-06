@@ -48,15 +48,6 @@ ActiveRecord connection.
 It is compatible and [continuously tested][4] with MRI 2.0.x, 2.1.x,
 ActiveRecord 3.2.x and 4.x (mysql and mysql2 adapters).
 
-## Limitations
-
-Due to the Chunker implementation, Lhm requires that the table to migrate has
-a single integer numeric key column called `id`.
-
-Another note about the Chunker, it performs static sized row copies against the `id`
-column.  Therefore sparse assignment of `id` can cause performance problems for the
-backfills.  Typically LHM assumes that `id` is an `auto_increment` style column.
-
 ## Installation
 
 Install it via `gem install lhm` or add `gem "lhm"` to your Gemfile.
@@ -109,6 +100,22 @@ end
 
 **Note:** Lhm won't delete the old, leftover table. This is on purpose, in order
 to prevent accidental data loss.
+
+## Primary Key
+
+
+If the table does not have the primary key named `id`, then migrations should specify
+the primary key as an option to the command:
+
+```ruby
+Lhm.change_table :users, primary_key: 'whatever_key'  do |m|
+  #
+end
+```
+
+Another note about the Chunker, it performs static sized row copies against the `id`
+column.  Therefore sparse assignment of `id` can cause performance problems for the
+backfills.  Typically LHM assumes that `id` is an `auto_increment` style column.
 
 ## Throttler
 
