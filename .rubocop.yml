@@ -5,36 +5,9 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 2
-Lint/AmbiguousRegexpLiteral:
-  Enabled: false
-
-# Offense count: 2
-# Configuration parameters: AllowSafeAssignment.
-Lint/AssignmentInCondition:
-  Enabled: false
-
-# Offense count: 1
-Lint/ConditionPosition:
-  Enabled: false
-
-# Offense count: 1
-Lint/HandleExceptions:
-  Enabled: false
-
-# Offense count: 6
-# Cop supports --auto-correct.
-Lint/UnusedBlockArgument:
-  Enabled: false
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Lint/UnusedMethodArgument:
-  Enabled: false
-
-# Offense count: 4
-Lint/UselessAssignment:
-  Enabled: false
+AllCops:
+  Exclude:
+    - 'gemfiles/**/*'
 
 # Offense count: 1
 # Configuration parameters: CountComments.
@@ -59,18 +32,6 @@ Metrics/MethodLength:
 Metrics/PerceivedComplexity:
   Max: 15
 
-# Offense count: 10
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/AccessModifierIndentation:
-  Enabled: false
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/AlignParameters:
-  Enabled: false
-
 # Offense count: 5
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
@@ -81,11 +42,6 @@ Style/AndOr:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/BarePercentLiterals:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/Blocks:
   Enabled: false
 
 # Offense count: 11
@@ -159,27 +115,12 @@ Style/IfUnlessModifier:
 Style/IndentHash:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/IndentationConsistency:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/IndentationWidth:
-  Enabled: false
-
 # Offense count: 2
 Style/ModuleFunction:
   Enabled: false
 
 # Offense count: 2
 Style/MultilineBlockChain:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/NegatedIf:
   Enabled: false
 
 # Offense count: 4
@@ -199,17 +140,6 @@ Style/RaiseArgs:
   Enabled: false
 
 # Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowMultipleReturnValues.
-Style/RedundantReturn:
-  Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/RedundantSelf:
-  Enabled: false
-
-# Offense count: 1
 Style/RescueModifier:
   Enabled: false
 
@@ -217,11 +147,10 @@ Style/RescueModifier:
 Style/SelfAssignment:
   Enabled: false
 
-# Offense count: 7
-# Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/SignalException:
-  Enabled: false
+  EnforcedStyle: only_raise
+  Enabled: true
 
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces, SupportedStyles.
@@ -249,8 +178,6 @@ Style/UnneededPercentQ:
 Style/WordArray:
   MinSize: 2
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: AllowSafeAssignment.
-Style/ParenthesesAroundCondition:
-  Enabled: false
+# Offense count: 7
+Metrics/AbcSize:
+  Max: 31

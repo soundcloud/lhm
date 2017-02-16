@@ -7,6 +7,51 @@ require 'lhm/table'
 describe Lhm::Table do
   include IntegrationHelper
 
+  describe 'id numeric column requirement' do
+    describe 'when met' do
+      before(:each) do
+        connect_master!
+        @table = table_create(:custom_primary_key)
+      end
+
+      it 'should parse primary key' do
+        @table.pk.must_equal('pk')
+      end
+
+      it 'should parse indices' do
+        @table.
+          indices['index_custom_primary_key_on_id'].
+          must_equal(['id'])
+      end
+
+      it 'should parse columns' do
+        @table.
+          columns['id'][:type].
+          must_match(/(bigint|int)\(\d+\)/)
+      end
+
+      it 'should return true for method that should be renamed' do
+        @table.satisfies_id_column_requirement?.must_equal true
+      end
+
+      it 'should support bigint tables' do
+        @table = table_create(:bigint_table)
+        @table.satisfies_id_column_requirement?.must_equal true
+      end
+    end
+
+    describe 'when not met' do
+      before(:each) do
+        connect_master!
+      end
+
+      it 'should return false for a non-int id column' do
+        @table = table_create(:wo_id_int_column)
+        @table.satisfies_id_column_requirement?.must_equal false
+      end
+    end
+  end
+
   describe Lhm::Table::Parser do
     describe 'create table parsing' do
       before(:each) do

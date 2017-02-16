@@ -85,7 +85,7 @@ module Lhm
 
       definition = col[:type]
       definition += ' NOT NULL' unless col[:is_nullable]
-      definition += " DEFAULT #{@connection.quote_value(col[:column_default])}" if col[:column_default]
+      definition += " DEFAULT #{@connection.quote(col[:column_default])}" if col[:column_default]
 
       ddl('alter table `%s` change column `%s` `%s` %s' % [@name, old, nu, definition])
       @renames[old.to_s] = nu.to_s
@@ -158,7 +158,7 @@ module Lhm
     #   Optional name of the index to be removed
     def remove_index(columns, index_name = nil)
       columns = [columns].flatten.map(&:to_sym)
-      from_origin = @origin.indices.find { |name, cols| cols.map(&:to_sym) == columns }
+      from_origin = @origin.indices.find { |_, cols| cols.map(&:to_sym) == columns }
       index_name ||= from_origin[0] unless from_origin.nil?
       index_name ||= idx_name(@origin.name, columns)
       ddl('drop index `%s` on `%s`' % [index_name, @name])
@@ -180,15 +180,15 @@ module Lhm
       @conditions = sql
     end
 
-  private
+    private
 
     def validate
       unless @connection.table_exists?(@origin.name)
         error("could not find origin table #{ @origin.name }")
       end
 
-      unless @origin.satisfies_primary_key?
-        error('origin does not satisfy primary key requirements')
+      unless @origin.satisfies_id_column_requirement?
+        error('origin does not satisfy `id` key requirements')
       end
 
       dest = @origin.destination_name
@@ -200,12 +200,17 @@ module Lhm
 
     def execute
       destination_create
-      @connection.sql(@statements)
+      @statements.each do |stmt|
+        @connection.execute(tagged(stmt))
+      end
       Migration.new(@origin, destination_read, conditions, renames)
     end
 
     def destination_create
-      @connection.destination_create(@origin)
+      original    = %{CREATE TABLE `#{ @origin.name }`}
+      replacement = %{CREATE TABLE `#{ @origin.destination_name }`}
+      stmt = @origin.ddl.gsub(original, replacement)
+      @connection.execute(tagged(stmt))
     end
 
     def destination_read

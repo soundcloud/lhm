@@ -3,7 +3,6 @@
 
 require 'lhm/table'
 require 'lhm/invoker'
-require 'lhm/connection'
 require 'lhm/throttler'
 require 'lhm/version'
 require 'logger'
@@ -60,10 +59,10 @@ module Lhm
   def cleanup(run = false, options = {})
     lhm_tables = connection.select_values('show tables').select { |name| name =~ /^lhm(a|n)_/ }
     if options[:until]
-      lhm_tables.select! { |table|
+      lhm_tables.select! do |table|
         table_date_time = Time.strptime(table, 'lhma_%Y_%m_%d_%H_%M_%S')
         table_date_time <= options[:until]
-      }
+      end
     end
 
     lhm_triggers = connection.select_values('show triggers').collect do |trigger|
@@ -84,17 +83,17 @@ module Lhm
     else
       puts "Existing LHM backup tables: #{lhm_tables.join(', ')}."
       puts "Existing LHM triggers: #{lhm_triggers.join(', ')}."
-      puts 'Run Lhm.cleanup(true) to drop them all.'
+      puts 'Run Lhm.cleanup(:run) to drop them all.'
       false
     end
   end
 
-  def setup(adapter)
-    @@adapter = adapter
+  def setup(connection)
+    @@connection = connection
   end
 
-  def adapter
-    @@adapter ||=
+  def connection
+    @@connection ||=
       begin
         raise 'Please call Lhm.setup' unless defined?(ActiveRecord)
         ActiveRecord::Base.connection
@@ -113,11 +112,5 @@ module Lhm
         logger.formatter = nil
         logger
       end
-  end
-
-  protected
-
-  def connection
-    Connection.new(adapter)
   end
 end

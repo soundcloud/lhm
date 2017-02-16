@@ -11,23 +11,59 @@ module Lhm
 
     attr_reader :connection
 
-    # Copy from origin to destination in chunks of size `stride`. Sleeps for
-    # `throttle` milliseconds between each stride.
+    # Copy from origin to destination in chunks of size `stride`.
+    # Use the `throttler` class to sleep between each stride.
     def initialize(migration, connection = nil, options = {})
       @migration = migration
       @connection = connection
-      @throttler = options[:throttler]
+      if @throttler = options[:throttler]
+        @throttler.connection = @connection if @throttler.respond_to?(:connection=)
+      end
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
       @printer = options[:printer] || Printer::Percentage.new
+      @retry_on_deadlock = retry_on_deadlock(options.with_indifferent_access)
+      @retry_attempts = retry_attempts(options.with_indifferent_access)
+      @retry_wait_time = retry_wait_time(options.with_indifferent_access)
     end
 
     def execute
       return unless @start && @limit
+
+      retries = 0
+
       @next_to_insert = @start
-      while @next_to_insert < @limit || (@next_to_insert == 1 && @start == 1)
+      while @next_to_insert < @limit || (@start == @limit)
         stride = @throttler.stride
-        affected_rows = @connection.update(copy(bottom, top(stride)))
+
+        begin
+          affected_rows = @connection.update(copy(bottom, top(stride)))
+        rescue ActiveRecord::StatementInvalid => err
+          if err.message.downcase.index('deadlock').nil?
+            raise
+            return
+          end
+
+          if !@retry_on_deadlock
+            raise
+            return
+          end
+
+          retries = retries + 1
+          if retries == (@retry_attempts + 1)
+            puts "Crossed #{@retry_attempts} attempts. Raising exception ..."
+            raise
+            return
+          else
+            puts "Caught exception: #{err.message}."
+            print "Attempt #{retries} of #{@retry_attempts} "
+            puts "after sleeping for #{@retry_wait_time} seconds ..."
+            sleep @retry_wait_time
+            next
+          end
+        end
+
+        retries = 0
 
         if @throttler && affected_rows > 0
           @throttler.run
@@ -35,11 +71,12 @@ module Lhm
 
         @printer.notify(bottom, @limit)
         @next_to_insert = top(stride) + 1
+        break if @start == @limit
       end
       @printer.end
     end
 
-  private
+    private
 
     def bottom
       @next_to_insert
@@ -104,6 +141,37 @@ module Lhm
       if @start && @limit && @start > @limit
         error('impossible chunk options (limit must be greater than start)')
       end
+    end
+
+    def retry_on_deadlock(options)
+      if options.has_key?(:retry_on_deadlock) &&
+         ( options[:retry_on_deadlock].is_a?(TrueClass) ||
+           options[:retry_on_deadlock].is_a?(FalseClass) )
+
+        return options[:retry_on_deadlock]
+      end
+
+      return true
+    end
+
+    def retry_attempts(options)
+      if options.has_key?(:retry_attempts) &&
+         options[:retry_attempts].is_a?(Numeric)
+
+        return options[:retry_attempts]
+      end
+
+      return 10
+    end
+
+    def retry_wait_time(options)
+      if options.has_key?(:retry_wait_time) &&
+         options[:retry_wait_time].is_a?(Numeric)
+
+        return options[:retry_wait_time]
+      end
+
+      return 10
     end
   end
 end

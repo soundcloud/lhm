@@ -43,7 +43,7 @@ module Lhm
       ]
     end
 
-    def uncommitted(&block)
+    def uncommitted
       [
         'set @lhm_auto_commit = @@session.autocommit',
         'set session autocommit = 0',
@@ -59,14 +59,16 @@ module Lhm
       end
     end
 
-  private
+    private
 
     def revert
-      @connection.sql('unlock tables')
+      @connection.execute(tagged('unlock tables'))
     end
 
     def execute
-      @connection.sql(statements)
+      statements.each do |stmt|
+        @connection.execute(tagged(stmt))
+      end
     end
   end
 end

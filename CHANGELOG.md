@@ -1,10 +1,25 @@
-# 2.2.0 (not released)
+# 3.0.0
+
+* Drop support for throttle and stride options. Use `throttler`, instead:
+```
+Lhm.change_table :users, throttler: [:time_throttler, {stride: x}] do
+end
+```
+* #118 - Truncate long trigger names. (@sj26)
+* #114 - Update chunker requirements (@bjk-soundcloud)
+* #98 - Add slave lag throttler. (@camilo, @jasonhl)
+* #92 - Fix check for table requirement before starting a lhm.(@hannestyden)
+* #93 - Makes the atomic switcher retry on metadata locks (@camilo)
+* #63 - Sets the LHM's session lock wait timeout variables (@camilo)
+* #75 - Remove DataMapper and ActiveRecord 2.x support (@camilo)
+
+# 2.2.0 (Jan 16, 2015)
 
 * #84 - Require index names to be strings or symbols (Thibaut)
 * #39 - Adding the ability to rename columns (erikogan)
 * #67 - Allow for optional time filter on .cleanup (joelr)
 
-# 2.1.0
+# 2.1.0 (July 31, 2014)
 
 * #48 - Add percentage output for migrations (@arthurnn)
 * #60 - Quote table names (@spickermann)
@@ -15,7 +30,7 @@
 * #51 - Ensure Lhm.cleanup removes temporary triggers (@edmundsalvacion)
 * #46 - Allow custom throttler (@arthurnn)
 
-# 2.0.0
+# 2.0.0 (July 10, 2013)
 
 * #44 - Conditional migrations (@durran)
 

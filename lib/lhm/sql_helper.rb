@@ -26,11 +26,11 @@ module Lhm
       row[value]
     end
 
-  private
-
     def tagged(statement)
       "#{ statement } #{ SqlHelper.annotation }"
     end
+
+    private
 
     def column_definition(cols)
       Array(cols).map do |column|
@@ -61,7 +61,7 @@ module Lhm
         when 0 then return false if tiny and tiny < 11
         end
       end
-      return true
+      true
     end
 
     def struct_key(struct, key)

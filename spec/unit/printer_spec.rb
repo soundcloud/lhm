@@ -15,8 +15,9 @@ describe Lhm::Printer do
       mock = MiniTest::Mock.new
       10.times do |i|
         mock.expect(:write, :return_value) do |message|
-          assert_match /^\r/, message.first
-          assert_match /#{i}\/10/, message.first
+          message = message.first if message.is_a?(Array)
+          assert_match(/^\r/, message)
+          assert_match(/#{i}\/10/, message)
         end
       end
 
@@ -28,10 +29,11 @@ describe Lhm::Printer do
     it 'always print a bigger message' do
       @length = 0
       mock = MiniTest::Mock.new
-      3.times do |i|
+      3.times do
         mock.expect(:write, :return_value) do |message|
-          assert message.first.length >= @length
-          @length = message.first.length
+          message = message.first if message.is_a?(Array)
+          assert message.length >= @length
+          @length = message.length
         end
       end
 

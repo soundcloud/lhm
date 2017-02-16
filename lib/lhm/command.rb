@@ -23,7 +23,7 @@ module Lhm
       raise
     end
 
-  private
+    private
 
     def validate
     end

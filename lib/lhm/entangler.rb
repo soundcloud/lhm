@@ -64,7 +64,7 @@ module Lhm
     end
 
     def trigger(type)
-      "lhmt_#{ type }_#{ @origin.name }"
+      "lhmt_#{ type }_#{ @origin.name }"[0...64]
     end
 
     def validate
@@ -78,18 +78,22 @@ module Lhm
     end
 
     def before
-      @connection.sql(entangle)
+      entangle.each do |stmt|
+        @connection.execute(tagged(stmt))
+      end
     end
 
     def after
-      @connection.sql(untangle)
+      untangle.each do |stmt|
+        @connection.execute(tagged(stmt))
+      end
     end
 
     def revert
       after
     end
 
-  private
+    private
 
     def strip(sql)
       sql.strip.gsub(/\n */, "\n")

@@ -6,7 +6,41 @@ require File.expand_path(File.dirname(__FILE__)) + '/integration_helper'
 describe Lhm do
   include IntegrationHelper
 
-  before(:each) { connect_master! }
+  before(:each) { connect_master!; Lhm.cleanup(:run) }
+
+  describe 'id column requirement' do
+    it 'should migrate the table when id is pk' do
+      table_create(:users)
+
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
+        t.add_column(:logins, "int(12) default '0'")
+      end
+
+      slave do
+        table_read(:users).columns['logins'].must_equal({
+          :type           => 'int(12)',
+          :is_nullable    => 'YES',
+          :column_default => '0',
+        })
+      end
+    end
+
+    it 'should migrate the table when id is not pk' do
+      table_create(:custom_primary_key)
+
+      Lhm.change_table(:custom_primary_key, :atomic_switch => false) do |t|
+        t.add_column(:logins, "int(12) default '0'")
+      end
+
+      slave do
+        table_read(:custom_primary_key).columns['logins'].must_equal({
+          :type           => 'int(12)',
+          :is_nullable    => 'YES',
+          :column_default => '0',
+        })
+      end
+    end
+  end
 
   describe 'changes' do
     before(:each) do
@@ -62,7 +96,7 @@ describe Lhm do
         table_read(:users).columns['logins'].must_equal({
           :type => 'int(12)',
           :is_nullable => 'YES',
-          :column_default => '0'
+          :column_default => '0',
         })
       end
     end
@@ -168,7 +202,7 @@ describe Lhm do
         table_read(:users).columns['flag'].must_equal({
           :type => 'tinyint(1)',
           :is_nullable => 'YES',
-          :column_default => nil
+          :column_default => nil,
         })
       end
     end
@@ -182,7 +216,7 @@ describe Lhm do
         table_read(:users).columns['comment'].must_equal({
           :type => 'varchar(20)',
           :is_nullable => 'NO',
-          :column_default => 'none'
+          :column_default => 'none',
         })
       end
     end
@@ -198,7 +232,7 @@ describe Lhm do
         table_read(:small_table).columns['id'].must_equal({
           :type => 'int(5)',
           :is_nullable => 'NO',
-          :column_default => '0'
+          :column_default => '0',
         })
       end
     end
@@ -217,11 +251,9 @@ describe Lhm do
         table_read(:users).columns['login'].must_equal({
           :type => 'varchar(255)',
           :is_nullable => 'YES',
-          :column_default => nil
+          :column_default => nil,
         })
 
-        # DM & AR versions of select_one return different structures. The
-        # real test is whether the data was copied
         result = select_one('SELECT login from users')
         result = result['login'] if result.respond_to?(:has_key?)
         result.must_equal('a user')
@@ -242,11 +274,9 @@ describe Lhm do
         table_read(:users).columns['fnord'].must_equal({
           :type => 'varchar(255)',
           :is_nullable => 'YES',
-          :column_default => 'Superfriends'
+          :column_default => 'Superfriends',
         })
 
-        # DM & AR versions of select_one return different structures. The
-        # real test is whether the data was copied
         result = select_one('SELECT `fnord` from users')
         result = result['fnord'] if result.respond_to?(:has_key?)
         result.must_equal('Superfriends')

@@ -42,7 +42,7 @@ module Lhm
     end
 
     class Dot < Base
-      def notify(lowest = nil, highest = nil)
+      def notify(*)
         @output.write '.'
       end
 

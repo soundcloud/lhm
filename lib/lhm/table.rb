@@ -15,8 +15,9 @@ module Lhm
       @ddl = ddl
     end
 
-    def satisfies_primary_key?
-      @pk == 'id'
+    def satisfies_id_column_requirement?
+      !!((id = columns['id']) &&
+        id[:type] =~ /(bigint|int)\(\d+\)/)
     end
 
     def destination_name
@@ -37,7 +38,10 @@ module Lhm
       end
 
       def ddl
-        @connection.show_create(@table_name)
+        sql = "show create table `#{ @table_name }`"
+        specification = nil
+        @connection.execute(sql).each { |row| specification = row.last }
+        specification
       end
 
       def parse
@@ -49,10 +53,11 @@ module Lhm
             column_type    = struct_key(defn, 'COLUMN_TYPE')
             is_nullable    = struct_key(defn, 'IS_NULLABLE')
             column_default = struct_key(defn, 'COLUMN_DEFAULT')
+
             table.columns[defn[column_name]] = {
               :type => defn[column_type],
               :is_nullable => defn[is_nullable],
-              :column_default => defn[column_default]
+              :column_default => defn[column_default],
             }
           end
 
@@ -62,7 +67,7 @@ module Lhm
         end
       end
 
-    private
+      private
 
       def read_information_schema
         @connection.select_all %Q{
