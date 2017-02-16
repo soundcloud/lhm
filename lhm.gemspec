@@ -21,5 +21,4 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'minitest', '~> 5.0.8'
   s.add_development_dependency 'rake'
-  s.add_runtime_dependency 'transaction_retry', '~> 1.0.2'
 end
