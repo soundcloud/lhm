@@ -38,12 +38,7 @@ module Lhm
 
         begin
           affected_rows = @connection.update(copy(bottom, top(stride)))
-        rescue ActiveRecord::StatementInvalid => err
-          if err.message.downcase.index('deadlock').nil?
-            raise
-            return
-          end
-
+        rescue ActiveRecord::TransactionIsolationConflict => err
           if !@retry_on_deadlock
             raise
             return
