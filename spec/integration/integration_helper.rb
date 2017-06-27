@@ -121,8 +121,8 @@ module IntegrationHelper
     Lhm::Table.parse(fixture_name, @connection)
   end
 
-  def table_exists?(table)
-    connection.table_exists?(table.name)
+  def data_source_exists?(table)
+    connection.data_source_exists?(table.name)
   end
 
   #
