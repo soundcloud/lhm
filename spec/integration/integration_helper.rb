@@ -155,6 +155,19 @@ module IntegrationHelper
     >)
   end
 
+  def create_trigger(trigger_name, table)
+    execute "create trigger `#{trigger_name}` before insert on `#{table}` FOR EACH ROW SET NEW.created_at = NULL;"
+  end
+
+  def trigger?(trigger_name, options = {})
+    sql = "show triggers where `Trigger` = '#{ trigger_name }' "
+    sql << "and `Table` = '#{ options[:table_name] }' " if options[:table_name]
+    sql << "and `Event` = '#{ options[:event] }' " if options[:event]
+    sql << "and `Timing` = '#{ options[:timing] }' " if options[:timing]
+    sql << "and `Statement` = '#{ options[:statement] }' " if options[:statement]
+    !!select_one(sql)
+  end
+
   #
   # Environment
   #

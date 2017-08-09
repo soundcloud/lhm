@@ -143,4 +143,30 @@ describe Lhm::Migrator do
         must_equal('alter table `lhmn_alt` add column `last` VARCHAR(64)')
     end
   end
+
+  describe 'trigger changes' do
+    it 'should add a trigger' do
+      @creator.add_trigger :trigger_name, :before, :insert, 'SET NEW.grokked_at = NEW.created_at;'
+
+      @creator.statements.must_equal([
+        'create trigger `trigger_name` before insert on `lhmn_alt` for each row SET NEW.grokked_at = NEW.created_at;'
+      ])
+    end
+
+    it 'should raise argument error on invalid timing' do
+      -> { @creator.add_trigger :name, :invalid_timing, :insert, 'SET NEW.created_at = NULL;' }.must_raise ArgumentError
+    end
+
+    it 'should raise argument error on invalid event' do
+      -> { @creator.add_trigger :name, :before, :invalid_event, 'SET NEW.created_at = NULL;' }.must_raise ArgumentError
+    end
+
+    it 'should remove a trigger' do
+      @creator.remove_trigger(:trigger_name)
+
+      @creator.statements.must_equal([
+        'drop trigger `trigger_name`'
+      ])
+    end
+  end
 end

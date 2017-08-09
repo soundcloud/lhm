@@ -193,6 +193,27 @@ describe Lhm do
       end
     end
 
+    it 'should add a trigger' do
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
+        t.add_trigger :trigger_name, :before, :insert, 'SET NEW.created_at = NULL;'
+      end
+      trigger?(
+        :trigger_name,
+        :table     => :users,
+        :timing    => :before,
+        :event     => :insert,
+        :statement => 'SET NEW.created_at = NULL;',
+      ).must_equal(true)
+    end
+
+    it 'should remove a trigger' do
+      create_trigger(:trigger_name, :users)
+      Lhm.change_table(:users, :atomic_switch => false) do |t|
+        t.remove_trigger(:trigger_name)
+      end
+      trigger?(:trigger_name).must_equal(false)
+    end
+
     it 'should apply a ddl statement' do
       Lhm.change_table(:users, :atomic_switch => false) do |t|
         t.ddl('alter table %s add column flag tinyint(1)' % t.name)

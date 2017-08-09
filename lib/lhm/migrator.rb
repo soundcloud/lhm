@@ -164,6 +164,56 @@ module Lhm
       ddl('drop index `%s` on `%s`' % [index_name, @name])
     end
 
+    # Add a trigger to a table
+    #
+    # @example
+    #   Lhm.change_table(:users) do |m|
+    #     m.add_trigger(:new_trigger, :before, :insert, "SET NEW.created_at = NULL;")
+    #   end
+    #
+    # @param [String, Symbol] name The name of the trigger to create
+    #
+    # @param [Symbol] timing  The trigger action timing. Must be one of :before
+    #   or :after to indicate that the trigger activates before or after each row
+    #   to be modified.
+    #
+    # @param [Symbol] event Indicates the kind of operation that activates the
+    #   trigger. These trigger_event values are permitted:
+    #
+    #   :insert - The trigger activates whenever a new row is inserted into the
+    #   table; for example, through INSERT, LOAD DATA, and REPLACE statements.
+    #
+    #   :update - The trigger activates whenever a row is modified; for example,
+    #   through UPDATE statements.
+    #
+    #   :delete - The trigger activates whenever a row is deleted from the table;
+    #   for example, through DELETE and REPLACE statements.
+    #
+    # @param [String] body The statement to execute when the trigger activates.
+    #
+    def add_trigger(name, timing, event, body)
+      unless [ :before, :after ].include? timing
+        raise ArgumentError.new("Trigger timing must be one of :before, or :after. Received '#{timing}'")
+      end
+      unless [ :insert, :update, :delete ].include? event
+        raise ArgumentError.new("Trigger event must be one of :insert, :update, or :delete. Received '#{event}'")
+      end
+      ddl('create trigger `%s` %s %s on `%s` for each row %s' % [name, timing, event, @name, body])
+    end
+
+    # Remove a trigger from the database
+    #
+    # @example
+    #   Lhm.change_table(:users) do |m|
+    #     m.remove_trigger(:trigger_x)
+    #   end
+    #
+    # @param [String, Symbol] trigger_name The name of the trigger to remove
+    #
+    def remove_trigger(trigger_name)
+      ddl("drop trigger `#{trigger_name}`")
+    end
+
     # Filter the data that is copied into the new table by the provided SQL.
     # This SQL will be inserted into the copy directly after the "from"
     # statement - so be sure to use inner/outer join syntax and not cross joins.
