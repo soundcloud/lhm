@@ -78,6 +78,7 @@ ActiveRecord::Base.establish_connection(
 # and migrate
 Lhm.change_table :users do |m|
   m.add_column :arbitrary, "INT(12)"
+  m.add_column :locale, "VARCHAR(2) NOT NULL DEFAULT 'en'"
   m.add_index  [:arbitrary_id, :created_at]
   m.ddl("alter table %s add column flag tinyint(1)" % m.name)
 end
