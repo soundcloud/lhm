@@ -50,6 +50,14 @@ module Lhm
     true
   end
 
+  def sync_table(table_name, sync_table, options = {}, &block)
+    origin = Table.parse(table_name, connection)
+    invoker = Invoker.new(origin, connection)
+    block.call(invoker.migrator)
+    invoker.run(options)
+    true
+  end
+
   # Cleanup tables and triggers
   #
   # @param [Boolean] run execute now or just display information
