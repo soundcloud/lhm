@@ -51,10 +51,13 @@ module Lhm
   end
 
   def sync_table(table_name, sync_table, options = {}, &block)
+    Lhm::Table.naming_strategy = lambda{|x| sync_table.to_s }
     origin = Table.parse(table_name, connection)
     invoker = Invoker.new(origin, connection)
     block.call(invoker.migrator)
     invoker.run(options)
+  ensure
+    Lhm::Table.naming_strategy = nil
     true
   end
 
