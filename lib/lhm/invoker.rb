@@ -42,7 +42,7 @@ module Lhm
       set_session_lock_wait_timeouts
       migration = @migrator.run
 
-      Entangler.new(migration, @connection).run do
+      Entangler.new(migration, @connection, options[:delete_trigger_after] && true).run do
         Chunker.new(migration, @connection, options).run
         if options[:disable_switcher]
           Lhm.logger.debug 'switcher is disabled'

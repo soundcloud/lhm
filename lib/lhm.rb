@@ -55,7 +55,7 @@ module Lhm
     origin = Table.parse(table_name, connection)
     invoker = Invoker.new(origin, connection)
     block.call(invoker.migrator)
-    options.merge!({disable_switcher: true})
+    options.merge!({disable_switcher: true, delete_trigger_after: false})
     invoker.run(options)
   ensure
     Lhm::Table.naming_strategy = nil
