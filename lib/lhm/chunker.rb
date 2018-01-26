@@ -29,6 +29,7 @@ module Lhm
       @next_to_insert = @start
       while @next_to_insert < @limit || (@start == @limit)
         stride = @throttler.stride
+        Lhm.logger.debug(copy(bottom, top(stride)))
         affected_rows = @connection.update(copy(bottom, top(stride)))
 
         if @throttler && affected_rows > 0

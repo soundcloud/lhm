@@ -79,6 +79,7 @@ module Lhm
 
     def before
       entangle.each do |stmt|
+        Lhm.logger.debug(tagged(stmt))
         @connection.execute(tagged(stmt))
       end
     end
