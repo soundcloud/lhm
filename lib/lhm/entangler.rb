@@ -9,16 +9,15 @@ module Lhm
     include Command
     include SqlHelper
 
-    attr_reader :connection, :delete_trigger_after
+    attr_reader :connection
 
     # Creates entanglement between two tables. All creates, updates and deletes
     # to origin will be repeated on the destination table.
-    def initialize(migration, connection = nil, delete_trigger_after = true)
+    def initialize(migration, connection = nil)
       @intersection = migration.intersection
       @origin = migration.origin
       @destination = migration.destination
       @connection = connection
-      @delete_trigger_after = delete_trigger_after
     end
 
     def entangle
@@ -86,7 +85,6 @@ module Lhm
     end
 
     def after
-      return unless @delete_trigger_after
       untangle.each do |stmt|
         @connection.execute(tagged(stmt))
       end

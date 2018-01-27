@@ -44,14 +44,10 @@ module Lhm
 
       Entangler.new(migration, @connection, options[:delete_trigger_after] && true).run do
         Chunker.new(migration, @connection, options).run
-        if options[:disable_switcher]
-          Lhm.logger.debug 'switcher is disabled'
+        if options[:atomic_switch]
+          AtomicSwitcher.new(migration, @connection).run
         else
-          if options[:atomic_switch]
-            AtomicSwitcher.new(migration, @connection).run
-          else
-            LockedSwitcher.new(migration, @connection).run
-          end
+          LockedSwitcher.new(migration, @connection).run
         end
       end
     end
