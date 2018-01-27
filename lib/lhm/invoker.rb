@@ -82,4 +82,19 @@ module Lhm
       raise
     end
   end
+
+  class SyncInvoker < Invoker
+    def run(options = {})
+      normalize_options(options)
+      set_session_lock_wait_timeouts
+      migration = @migrator.run
+
+      SyncEntangler.new(migration, @connection).run do
+        Chunker.new(migration, @connection, options).run
+      end
+    rescue => e
+      revert
+      raise
+    end
+  end
 end

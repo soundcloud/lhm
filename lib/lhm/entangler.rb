@@ -102,4 +102,10 @@ module Lhm
       sql.strip.gsub(/\n */, "\n")
     end
   end
+
+  class SyncEntangler < Entangler
+    def after
+      # do nothing
+    end
+  end
 end
