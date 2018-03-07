@@ -9,6 +9,8 @@ module Lhm
     include Command
     include SqlHelper
 
+    TABLES_WITH_LONG_QUERIES = %w(campaigns campaign_roots tags orders).freeze
+
     attr_reader :connection
 
     # Creates entanglement between two tables. All creates, updates and deletes
@@ -78,12 +80,14 @@ module Lhm
     end
 
     def before
+      kill_long_running_queries_on_origin_table if special_origin?
       entangle.each do |stmt|
         @connection.execute(tagged(stmt))
       end
     end
 
     def after
+      kill_long_running_queries_on_origin_table if special_origin?
       untangle.each do |stmt|
         @connection.execute(tagged(stmt))
       end
@@ -94,6 +98,28 @@ module Lhm
     end
 
     private
+
+    def special_origin?
+      TABLES_WITH_LONG_QUERIES.include? @origin.name
+    end
+
+    def kill_long_running_queries_on_origin_table!
+      long_running_query_ids(@origin.name).each do |id|
+        @connection.execute("KILL #{id}")
+      end
+    end
+
+    def long_running_query_ids(table_name)
+      result = @connection.execute <<-SQL.strip_heredoc
+        SELECT ID FROM INFORMATION_SCHEMA.PROCESSLIST
+        WHERE command <> 'Sleep'
+          AND INFO LIKE '%FROM `#{table_name}`%'
+          AND INFO NOT LIKE "%INFORMATION_SCHEMA.PROCESSLIST%"
+          AND TIME > 10 ORDER BY TIME DESC
+      SQL
+      # we can log the queries getting killed here
+      result.to_a.flatten.compact
+    end
 
     def strip(sql)
       sql.strip.gsub(/\n */, "\n")
