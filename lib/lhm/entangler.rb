@@ -9,7 +9,7 @@ module Lhm
     include Command
     include SqlHelper
 
-    TABLES_WITH_LONG_QUERIES = %w(campaigns campaign_roots tags orders).freeze
+    TABLES_WITH_LONG_QUERIES = %w(designs campaigns campaign_roots tags orders).freeze
 
     attr_reader :connection
 
@@ -104,8 +104,9 @@ module Lhm
     end
 
     def kill_long_running_queries_on_origin_table!
-      long_running_query_ids(@origin.name).each do |id|
-        @connection.execute("KILL #{id}")
+      3.times do
+        long_running_query_ids(@origin.name).each { |id| @connection.execute("KILL #{id}") }
+        sleep(7)
       end
     end
 
