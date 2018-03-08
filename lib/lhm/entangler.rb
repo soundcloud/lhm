@@ -124,7 +124,6 @@ module Lhm
           AND INFO NOT LIKE "%INFORMATION_SCHEMA.PROCESSLIST%"
           AND TIME > 10 ORDER BY TIME DESC
       SQL
-      # we can log the queries getting killed here
       result.to_a.compact
     end
 
