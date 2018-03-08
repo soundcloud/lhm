@@ -3,6 +3,7 @@
 
 require 'lhm/command'
 require 'lhm/sql_helper'
+require 'timeout'
 
 module Lhm
   class Entangler
@@ -10,6 +11,7 @@ module Lhm
     include SqlHelper
 
     TABLES_WITH_LONG_QUERIES = %w(designs campaigns campaign_roots tags orders).freeze
+    MAX_RUNNING_SECONDS = 3
 
     attr_reader :connection
 
@@ -82,14 +84,14 @@ module Lhm
     def before
       kill_long_running_queries_on_origin_table if special_origin?
       entangle.each do |stmt|
-        @connection.execute(tagged(stmt))
+        execute_with_timeout(stmt, MAX_RUNNING_SECONDS)
       end
     end
 
     def after
       kill_long_running_queries_on_origin_table if special_origin?
       untangle.each do |stmt|
-        @connection.execute(tagged(stmt))
+        execute_with_timeout(stmt, MAX_RUNNING_SECONDS)
       end
     end
 
@@ -120,6 +122,14 @@ module Lhm
       SQL
       # we can log the queries getting killed here
       result.to_a.flatten.compact
+    end
+
+    def execute_with_timeout(stmt, sec)
+      Timeout.timeout(sec) do
+        @connection.execute(tagged(stmt))
+      end
+    rescue Timeout::Error
+      error("statement: \"#{stmt}\" took longer than #{sec} seconds to run... ABORT!")
     end
 
     def strip(sql)
