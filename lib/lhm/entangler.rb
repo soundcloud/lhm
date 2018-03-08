@@ -108,21 +108,24 @@ module Lhm
     def kill_long_running_queries_on_origin_table!
       return unless ENV['LHM_KILL_LONG_RUNNING_QUERIES'] == 'true'
       3.times do
-        long_running_query_ids(@origin.name).each { |id| @connection.execute("KILL #{id}") }
+        long_running_queries(@orogin.name).each do |id, query, duration|
+          Lhm.logger.info "Action on table #{table_name} detected; killing #{duration}-second query: #{query}."
+          @connection.execute("KILL #{id}")
+        end
         sleep(7)
       end
     end
 
-    def long_running_query_ids(table_name)
+    def long_running_queries(table_name)
       result = @connection.execute <<-SQL.strip_heredoc
-        SELECT ID FROM INFORMATION_SCHEMA.PROCESSLIST
+        SELECT ID, INFO, TIME FROM INFORMATION_SCHEMA.PROCESSLIST
         WHERE command <> 'Sleep'
           AND INFO LIKE '%FROM `#{table_name}`%'
           AND INFO NOT LIKE "%INFORMATION_SCHEMA.PROCESSLIST%"
           AND TIME > 10 ORDER BY TIME DESC
       SQL
       # we can log the queries getting killed here
-      result.to_a.flatten.compact
+      result.to_a.compact
     end
 
     def execute_with_timeout(stmt, sec)
