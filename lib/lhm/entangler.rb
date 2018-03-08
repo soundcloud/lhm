@@ -106,6 +106,7 @@ module Lhm
     end
 
     def kill_long_running_queries_on_origin_table!
+      return unless ENV['LHM_KILL_LONG_RUNNING_QUERIES'] == 'true'
       3.times do
         long_running_query_ids(@origin.name).each { |id| @connection.execute("KILL #{id}") }
         sleep(7)
