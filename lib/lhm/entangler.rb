@@ -108,7 +108,7 @@ module Lhm
     def kill_long_running_queries_on_origin_table!
       return unless ENV['LHM_KILL_LONG_RUNNING_QUERIES'] == 'true'
       3.times do
-        long_running_queries(@orogin.name).each do |id, query, duration|
+        long_running_queries(@origin.name).each do |id, query, duration|
           Lhm.logger.info "Action on table #{table_name} detected; killing #{duration}-second query: #{query}."
           @connection.execute("KILL #{id}")
         end
@@ -120,19 +120,22 @@ module Lhm
       result = @connection.execute <<-SQL.strip_heredoc
         SELECT ID, INFO, TIME FROM INFORMATION_SCHEMA.PROCESSLIST
         WHERE command <> 'Sleep'
-          AND INFO LIKE '%FROM `#{table_name}`%'
+          AND INFO LIKE '%`#{table_name}`%'
           AND INFO NOT LIKE "%INFORMATION_SCHEMA.PROCESSLIST%"
           AND TIME > 10 ORDER BY TIME DESC
       SQL
       result.to_a.compact
     end
 
-    def execute_with_timeout(stmt, sec)
-      Timeout.timeout(sec) do
-        @connection.execute(tagged(stmt))
-      end
-    rescue Timeout::Error
-      error("statement: \"#{stmt}\" took longer than #{sec} seconds to run... ABORT!")
+    def execute_with_timeout(stmt, sec = MAX_RUNNING_SECONDS)
+      lock_wait_timeout = @connection.execute("SHOW SESSION VARIABLES WHERE VARIABLE_NAME='LOCK_WAIT_TIMEOUT'").to_a.flatten[1].to_i
+      @connection.execute("SET SESSION LOCK_WAIT_TIMEOUT=#{sec}")
+      Lhm.logger.info "Set transaction timeout (SESSION LOCK_WAIT_TIMEOUT) to #{sec} seconds."
+      @connection.execute(tagged(stmt))
+      @connection.execute("SET SESSION LOCK_WAIT_TIMEOUT=#{lock_wait_timeout}")
+      Lhm.logger.info "Set transaction timeout (SESSION LOCK_WAIT_TIMEOUT) back to #{lock_wait_timeout} seconds."
+    rescue => error
+      puts "Transaction took more than #{sec} seconds to run.. ABORT! #{error}"
     end
 
     def strip(sql)
