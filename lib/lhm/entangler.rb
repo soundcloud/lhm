@@ -11,7 +11,8 @@ module Lhm
     include SqlHelper
 
     TABLES_WITH_LONG_QUERIES = %w(designs campaigns campaign_roots tags orders).freeze
-    MAX_RUNNING_SECONDS = 3
+    LONG_QUERY_TIME_THRESHOLD = 5
+    SESSION_WAIT_LOCK_TIMEOUT = LONG_QUERY_TIME_THRESHOLD * 2
 
     attr_reader :connection
 
@@ -83,15 +84,23 @@ module Lhm
 
     def before
       kill_long_running_queries_on_origin_table if special_origin?
-      entangle.each do |stmt|
-        execute_with_timeout(stmt, MAX_RUNNING_SECONDS)
+      with_transaction_timeout do
+        entangle.each do |stmt|
+          kill_long_running_queries_during_transaction do
+            @connection.execute(tagged(stmt))
+          end
+        end
       end
     end
 
     def after
       kill_long_running_queries_on_origin_table if special_origin?
-      untangle.each do |stmt|
-        execute_with_timeout(stmt, MAX_RUNNING_SECONDS)
+      with_transaction_timeout do
+        untangle.each do |stmt|
+          kill_long_running_queries_during_transaction do
+            @connection.execute(tagged(stmt))
+          end
+        end
       end
     end
 
@@ -99,20 +108,19 @@ module Lhm
       after
     end
 
-    private
-
     def special_origin?
       TABLES_WITH_LONG_QUERIES.include? @origin.name
     end
 
-    def kill_long_running_queries_on_origin_table!
+    def kill_long_running_queries_on_origin_table!(count: 3, connection: nil)
       return unless ENV['LHM_KILL_LONG_RUNNING_QUERIES'] == 'true'
-      3.times do
+      connection = @connection || connection
+      count.times do |index|
+        sleep(LONG_QUERY_TIME_THRESHOLD) unless index.zero?
         long_running_queries(@origin.name).each do |id, query, duration|
-          Lhm.logger.info "Action on table #{table_name} detected; killing #{duration}-second query: #{query}."
-          @connection.execute("KILL #{id}")
+          Lhm.logger.info "Action on table #{@origin.name} detected; killing #{duration}-second query: #{query}."
+          @connection.execute("KILL #{id};")
         end
-        sleep(7)
       end
     end
 
@@ -122,21 +130,41 @@ module Lhm
         WHERE command <> 'Sleep'
           AND INFO LIKE '%`#{table_name}`%'
           AND INFO NOT LIKE "%INFORMATION_SCHEMA.PROCESSLIST%"
-          AND TIME > 10 ORDER BY TIME DESC
+          AND TIME > '#{LONG_QUERY_TIME_THRESHOLD}'
       SQL
       result.to_a.compact
     end
 
-    def execute_with_timeout(stmt, sec = MAX_RUNNING_SECONDS)
+    def kill_long_running_queries_during_transaction
+      yield
+      t = Thread.new do
+        # the goal of this thread is to wait until long running queries that started between
+        # #kill_long_running_queries_on_origin_table! and trigger creation
+        # to pass the threshold time and then kill them
+        sleep(LONG_QUERY_TIME_THRESHOLD)
+        new_connection = ActiveRecord::Base.connection
+        kill_long_running_queries_on_origin_table!(count: 1, connection: new_connection)
+      end
+      t.join
+    end
+
+    def with_transaction_timeout
       lock_wait_timeout = @connection.execute("SHOW SESSION VARIABLES WHERE VARIABLE_NAME='LOCK_WAIT_TIMEOUT'").to_a.flatten[1].to_i
-      @connection.execute("SET SESSION LOCK_WAIT_TIMEOUT=#{sec}")
-      Lhm.logger.info "Set transaction timeout (SESSION LOCK_WAIT_TIMEOUT) to #{sec} seconds."
-      @connection.execute(tagged(stmt))
+      @connection.execute("SET SESSION LOCK_WAIT_TIMEOUT=#{SESSION_WAIT_LOCK_TIMEOUT}")
+      Lhm.logger.info "Set transaction timeout (SESSION LOCK_WAIT_TIMEOUT) to #{SESSION_WAIT_LOCK_TIMEOUT} seconds."
+      yield
+    rescue => e
+      if e.message =~ /Lock wait timeout exceeded/
+        error("Transaction took more than #{SESSION_WAIT_LOCK_TIMEOUT} seconds to run.. ABORT! #{e.message}")
+      else
+        error(e.message)
+      end
+    ensure
       @connection.execute("SET SESSION LOCK_WAIT_TIMEOUT=#{lock_wait_timeout}")
       Lhm.logger.info "Set transaction timeout (SESSION LOCK_WAIT_TIMEOUT) back to #{lock_wait_timeout} seconds."
-    rescue => error
-      puts "Transaction took more than #{sec} seconds to run.. ABORT! #{error}"
     end
+
+    private
 
     def strip(sql)
       sql.strip.gsub(/\n */, "\n")
