@@ -3,7 +3,6 @@
 
 require 'lhm/command'
 require 'lhm/sql_helper'
-require 'timeout'
 
 module Lhm
   class Entangler
