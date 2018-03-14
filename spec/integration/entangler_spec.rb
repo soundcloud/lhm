@@ -94,7 +94,6 @@ describe Lhm::Entangler do
 
             puts "spawning threads to spam queries..."
             query_spawning_thread = Thread.new do
-              n = 0
               loop do
                 sleep(Random.rand(1.5))
                 trd = Thread.new do
@@ -102,7 +101,6 @@ describe Lhm::Entangler do
                   connection.execute('select sleep(1000) from `origin`;')
                 end
                 threads << trd
-                n += 1
               end
             end
             threads << query_spawning_thread
@@ -150,7 +148,6 @@ describe Lhm::Entangler do
 
             puts "spawning threads to spam queries..."
             query_spawning_thread = Thread.new do
-              n = 0
               loop do
                 sleep(Random.rand(1.5))
                 trd = Thread.new do
@@ -158,7 +155,6 @@ describe Lhm::Entangler do
                   connection.execute('select sleep(1000) from `origin`;')
                 end
                 threads << trd
-                n += 1
               end
             end
             threads << query_spawning_thread
