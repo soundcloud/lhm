@@ -6,7 +6,6 @@ require File.expand_path(File.dirname(__FILE__)) + '/integration_helper'
 require 'lhm/table'
 require 'lhm/migration'
 require 'lhm/entangler'
-require 'pry'
 
 describe Lhm::Entangler do
   include IntegrationHelper

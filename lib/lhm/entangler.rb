@@ -113,15 +113,12 @@ module Lhm
       TABLES_WITH_LONG_QUERIES.include? @origin.name
     end
 
-    def kill_long_running_queries_on_origin_table!(count: 2, connection: nil)
+    def kill_long_running_queries_on_origin_table!(connection: nil)
       return unless ENV['LHM_KILL_LONG_RUNNING_QUERIES'] == 'true'
       connection ||= @connection
-      count.times do |index|
-        sleep(LONG_QUERY_TIME_THRESHOLD) unless index.zero?
-        long_running_queries(@origin.name, connection: connection).each do |id, query, duration|
-          Lhm.logger.info "Action on table #{@origin.name} detected; killing #{duration}-second query: #{query}."
-          connection.execute("KILL #{id};")
-        end
+      long_running_queries(@origin.name, connection: connection).each do |id, query, duration|
+        Lhm.logger.info "Action on table #{@origin.name} detected; killing #{duration}-second query: #{query}."
+        connection.execute("KILL #{id};")
       end
     end
 
@@ -147,7 +144,7 @@ module Lhm
           sleep(LONG_QUERY_TIME_THRESHOLD + INITIALIZATION_DELAY)
           new_connection = ActiveRecord::Base.connection
 
-          kill_long_running_queries_on_origin_table!(count: 1, connection: new_connection)
+          kill_long_running_queries_on_origin_table!(connection: new_connection)
         end
       end
       yield
