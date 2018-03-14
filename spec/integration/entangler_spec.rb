@@ -92,7 +92,7 @@ describe Lhm::Entangler do
           begin
             threads = []
 
-            puts "spawinging threads to spam queries..."
+            puts "spawning threads to spam queries..."
             query_spawning_thread = Thread.new do
               n = 0
               loop do
@@ -148,7 +148,7 @@ describe Lhm::Entangler do
           begin
             threads = []
 
-            puts "spawinging threads to spam queries..."
+            puts "spawning threads to spam queries..."
             query_spawning_thread = Thread.new do
               n = 0
               loop do
