@@ -79,6 +79,10 @@ describe Lhm::Entangler do
         Lhm::Entangler.const_set('LONG_QUERY_TIME_THRESHOLD_OLD', nil)
       end
 
+      def long_running_query
+        "select sleep(1000) from `origin`"
+      end
+
       describe 'with long running query killing env var enabled' do
         before do
           ENV['LHM_KILL_LONG_RUNNING_QUERIES'] = 'true'
@@ -98,7 +102,7 @@ describe Lhm::Entangler do
                 sleep(Random.rand(1.5))
                 trd = Thread.new do
                   connection = ActiveRecord::Base.connection
-                  connection.execute('select sleep(1000) from `origin`;')
+                  connection.execute(long_running_query)
                 end
                 threads << trd
               end
@@ -120,7 +124,7 @@ describe Lhm::Entangler do
 
             puts "cleaning up rogue long queries..."
             ActiveRecord::Base.connection.reconnect!
-            ids = ActiveRecord::Base.connection.execute("select id from information_schema.processlist where info like '\%sleep(1000)%' and time > 1").to_a.flatten
+            ids = ActiveRecord::Base.connection.execute("select id from information_schema.processlist where info = '#{long_running_query}'").to_a.flatten
             ids.each do |id|
               execute("KILL #{id};")
             end
@@ -152,7 +156,7 @@ describe Lhm::Entangler do
                 sleep(Random.rand(1.5))
                 trd = Thread.new do
                   connection = ActiveRecord::Base.connection
-                  connection.execute('select sleep(1000) from `origin`;')
+                  connection.execute(long_running_query)
                 end
                 threads << trd
               end
@@ -173,7 +177,7 @@ describe Lhm::Entangler do
 
             puts "cleaning up rogue long queries..."
             ActiveRecord::Base.connection.reconnect!
-            ids = ActiveRecord::Base.connection.execute("select id from information_schema.processlist where info like '\%sleep(1000)%' and time > 1").to_a.flatten
+            ids = ActiveRecord::Base.connection.execute("select id from information_schema.processlist where info = '#{long_running_query}'").to_a.flatten
             ids.each do |id|
               execute("KILL #{id};")
             end
