@@ -9,6 +9,12 @@ module Lhm
     include Command
     include SqlHelper
 
+    TABLES_WITH_LONG_QUERIES = %w(designs campaigns campaign_roots tags orders).freeze
+    LONG_QUERY_TIME_THRESHOLD = 10
+    INITIALIZATION_DELAY = 2
+    TRIGGER_MAXIMUM_DURATION = 2
+    SESSION_WAIT_LOCK_TIMEOUT = LONG_QUERY_TIME_THRESHOLD + INITIALIZATION_DELAY + TRIGGER_MAXIMUM_DURATION
+
     attr_reader :connection
 
     # Creates entanglement between two tables. All creates, updates and deletes
@@ -78,19 +84,87 @@ module Lhm
     end
 
     def before
-      entangle.each do |stmt|
-        @connection.execute(tagged(stmt))
+      kill_long_running_queries_on_origin_table! if special_origin?
+      with_transaction_timeout do
+        entangle.each do |stmt|
+          kill_long_running_queries_during_transaction do
+            @connection.execute(tagged(stmt))
+          end
+        end
       end
     end
 
     def after
-      untangle.each do |stmt|
-        @connection.execute(tagged(stmt))
+      kill_long_running_queries_on_origin_table! if special_origin?
+      with_transaction_timeout do
+        untangle.each do |stmt|
+          kill_long_running_queries_during_transaction do
+            @connection.execute(tagged(stmt))
+          end
+        end
       end
     end
 
     def revert
       after
+    end
+
+    def special_origin?
+      TABLES_WITH_LONG_QUERIES.include? @origin.name
+    end
+
+    def kill_long_running_queries_on_origin_table!(connection: nil)
+      return unless ENV['LHM_KILL_LONG_RUNNING_QUERIES'] == 'true'
+      connection ||= @connection
+      long_running_queries(@origin.name, connection: connection).each do |id, query, duration|
+        Lhm.logger.info "Action on table #{@origin.name} detected; killing #{duration}-second query: #{query}."
+        connection.execute("KILL #{id};")
+      end
+    end
+
+    def long_running_queries(table_name, connection: nil)
+      connection ||= @connection
+      result = connection.execute <<-SQL.strip_heredoc
+        SELECT ID, INFO, TIME FROM INFORMATION_SCHEMA.PROCESSLIST
+        WHERE command <> 'Sleep'
+          AND INFO LIKE '%`#{table_name}`%'
+          AND INFO NOT LIKE '%TRIGGER%'
+          AND INFO NOT LIKE "%INFORMATION_SCHEMA.PROCESSLIST%"
+          AND TIME > '#{LONG_QUERY_TIME_THRESHOLD}'
+      SQL
+      result.to_a.compact
+    end
+
+    def kill_long_running_queries_during_transaction
+      t = Thread.new do
+        if ENV['LHM_KILL_LONG_RUNNING_QUERIES'] == 'true'
+          # the goal of this thread is to wait until long running queries that started between
+          # #kill_long_running_queries_on_origin_table! and trigger creation
+          # to pass the threshold time and then kill them
+          sleep(LONG_QUERY_TIME_THRESHOLD + INITIALIZATION_DELAY)
+          new_connection = ActiveRecord::Base.connection
+
+          kill_long_running_queries_on_origin_table!(connection: new_connection)
+        end
+      end
+      yield
+      t.join
+    end
+
+    def with_transaction_timeout
+      lock_wait_timeout = @connection.execute("SHOW SESSION VARIABLES WHERE VARIABLE_NAME='LOCK_WAIT_TIMEOUT'").to_a.flatten[1].to_i
+      @connection.execute("SET SESSION LOCK_WAIT_TIMEOUT=#{SESSION_WAIT_LOCK_TIMEOUT}")
+      Lhm.logger.info "Set transaction timeout (SESSION LOCK_WAIT_TIMEOUT) to #{SESSION_WAIT_LOCK_TIMEOUT} seconds."
+      yield
+    rescue => e
+      if e.message =~ /Lock wait timeout exceeded/
+        error("Transaction took more than #{SESSION_WAIT_LOCK_TIMEOUT} seconds (SESSION_WAIT_LOCK_TIMEOUT) to run.. ABORT! #{e.message}")
+      else
+        error(e.message)
+      end
+    ensure
+      @connection.execute("SET SESSION LOCK_WAIT_TIMEOUT=#{lock_wait_timeout}")
+      Lhm.logger.info "Set transaction timeout (SESSION LOCK_WAIT_TIMEOUT) back to #{lock_wait_timeout} seconds."
     end
 
     private
