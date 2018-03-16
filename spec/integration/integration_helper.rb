@@ -16,16 +16,16 @@ module IntegrationHelper
     @connection
   end
 
-  def connect_master!
-    connect!(3306)
+  def connect_master!(pool_num: nil)
+    connect!(3306, pool_num: pool_num)
   end
 
   def connect_slave!
     connect!(3307)
   end
 
-  def connect!(port)
-    adapter = ar_conn port
+  def connect!(port, pool_num: nil)
+    adapter = ar_conn(port, pool_num: pool_num)
     Lhm.setup(adapter)
     unless defined?(@@cleaned_up)
       Lhm.cleanup(:run)
@@ -34,14 +34,15 @@ module IntegrationHelper
     @connection = adapter
   end
 
-  def ar_conn(port)
+  def ar_conn(port, pool_num: nil)
     ActiveRecord::Base.establish_connection(
       :adapter  => defined?(Mysql2) ? 'mysql2' : 'mysql',
       :host     => '127.0.0.1',
       :database => 'lhm',
       :username => 'root',
       :port     => port,
-      :password => $password
+      :password => $password,
+      :pool     => pool_num || 5
     )
     ActiveRecord::Base.connection
   end
