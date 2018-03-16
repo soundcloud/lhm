@@ -118,7 +118,15 @@ module Lhm
       connection ||= @connection
       long_running_queries(@origin.name, connection: connection).each do |id, query, duration|
         Lhm.logger.info "Action on table #{@origin.name} detected; killing #{duration}-second query: #{query}."
-        connection.execute("KILL #{id};")
+        begin
+          connection.execute("KILL #{id};")
+        rescue => e
+          if e.message =~ /Unknown thread id/
+            Lhm.logger.info "Race condition detected. Process to kill no longer exists. Proceeding despite the following error: #{e.message}"
+          else
+            raise e
+          end
+        end
       end
     end
 
