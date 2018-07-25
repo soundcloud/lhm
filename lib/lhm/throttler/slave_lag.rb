@@ -15,7 +15,6 @@ module Lhm
         @timeout_seconds = INITIAL_TIMEOUT
         @stride = options[:stride] || DEFAULT_STRIDE
         @allowed_lag = options[:allowed_lag] || DEFAULT_MAX_ALLOWED_LAG
-        @slave_connections = {}
       end
 
       def execute
@@ -43,6 +42,10 @@ module Lhm
         end
       end
 
+      def slave_connections
+        @slave_connections ||= slave_hosts.map { |slave_host| slave_connection(slave_host) }
+      end
+
       def slave_hosts
         slaves = get_slaves.map { |slave_host| slave_host.partition(':')[0] }
           .delete_if { |slave| slave == 'localhost' || slave == '127.0.0.1' }
@@ -55,13 +58,12 @@ module Lhm
       end
 
       def max_current_slave_lag
-        max = slave_hosts.map { |slave| slave_lag(slave) }.flatten.push(0).max
+        max = slave_connections.map { |slave_connection| slave_lag(slave_connection) }.flatten.push(0).max
         Lhm.logger.info "Max current slave lag: #{max}"
         max
       end
 
-      def slave_lag(slave)
-        conn = slave_connection(slave)
+      def slave_lag(conn)
         if conn.respond_to?(:exec_query)
           result = conn.exec_query(SQL_SELECT_MAX_SLAVE_LAG)
           result.map { |row| row['Seconds_Behind_Master'].to_i }
