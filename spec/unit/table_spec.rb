@@ -20,6 +20,11 @@ describe Lhm::Table do
       table.instance_variable_set('@columns', columns)
     end
 
+    def set_references(table, references)
+      table.instance_variable_set('@references', references)
+    end
+
+
     it 'should be satisfied with a single column primary key called id' do
       @table = Lhm::Table.new('table', 'id')
       set_columns(@table, { 'id' => { :type => 'int(1)' } })
@@ -37,5 +42,18 @@ describe Lhm::Table do
       set_columns(@table, { 'id' => { :type => 'varchar(255)' } })
       @table.satisfies_id_column_requirement?.must_equal false
     end
+
+    it 'should be satisfied if origin table not refer by any other table using foreign key' do
+      @table = Lhm::Table.new('table')
+      set_references(@table, [])
+      @table.satisfies_references_column_requirement?.must_equal true
+    end
+
+    it 'should NOT be satisfied if origin table refer by any other table using foreign key' do
+      @table = Lhm::Table.new('table', 'id')
+      set_references(@table, [{"CONSTRAINT_NAME"=>"fk_rails_40ebb3948d", "TABLE_NAME"=>"child_table", "TABLE_SCHEMA"=>"schema", "COLUMN_NAME"=>"table_id"}])
+      @table.satisfies_references_column_requirement?.must_equal false
+    end
+
   end
 end
