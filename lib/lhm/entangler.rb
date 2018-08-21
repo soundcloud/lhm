@@ -68,11 +68,11 @@ module Lhm
     end
 
     def validate
-      unless @connection.table_exists?(@origin.name)
+      unless @connection.data_source_exists?(@origin.name)
         error("#{ @origin.name } does not exist")
       end
 
-      unless @connection.table_exists?(@destination.name)
+      unless @connection.data_source_exists?(@destination.name)
         error("#{ @destination.name } does not exist")
       end
     end

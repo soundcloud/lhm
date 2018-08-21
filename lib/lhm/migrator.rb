@@ -183,7 +183,7 @@ module Lhm
     private
 
     def validate
-      unless @connection.table_exists?(@origin.name)
+      unless @connection.data_source_exists?(@origin.name)
         error("could not find origin table #{ @origin.name }")
       end
 
@@ -193,7 +193,7 @@ module Lhm
 
       dest = @origin.destination_name
 
-      if @connection.table_exists?(dest)
+      if @connection.data_source_exists?(dest)
         error("#{ dest } should not exist; not cleaned up from previous run?")
       end
     end

@@ -90,7 +90,7 @@ describe Lhm::AtomicSwitcher do
       switcher.run
 
       slave do
-        table_exists?(@origin).must_equal true
+        data_source_exists?(@origin).must_equal true
         table_read(@migration.archive_name).columns.keys.must_include 'origin'
       end
     end
@@ -100,7 +100,7 @@ describe Lhm::AtomicSwitcher do
       switcher.run
 
       slave do
-        table_exists?(@destination).must_equal false
+        data_source_exists?(@destination).must_equal false
         table_read(@origin.name).columns.keys.must_include 'destination'
       end
     end
