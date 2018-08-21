@@ -210,6 +210,7 @@ module Lhm
       original    = %{CREATE TABLE `#{ @origin.name }`}
       replacement = %{CREATE TABLE `#{ @origin.destination_name }`}
       stmt = @origin.ddl.gsub(original, replacement)
+      Lhm.logger.debug(tagged(stmt))
       @connection.execute(tagged(stmt))
     end
 

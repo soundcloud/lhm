@@ -79,6 +79,7 @@ module Lhm
 
     def before
       entangle.each do |stmt|
+        Lhm.logger.debug(tagged(stmt))
         @connection.execute(tagged(stmt))
       end
     end
@@ -97,6 +98,12 @@ module Lhm
 
     def strip(sql)
       sql.strip.gsub(/\n */, "\n")
+    end
+  end
+
+  class SyncEntangler < Entangler
+    def after
+      # do nothing
     end
   end
 end

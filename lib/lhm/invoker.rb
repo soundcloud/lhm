@@ -42,7 +42,7 @@ module Lhm
       set_session_lock_wait_timeouts
       migration = @migrator.run
 
-      Entangler.new(migration, @connection).run do
+      Entangler.new(migration, @connection, options[:delete_trigger_after] && true).run do
         Chunker.new(migration, @connection, options).run
         if options[:atomic_switch]
           AtomicSwitcher.new(migration, @connection).run
@@ -75,6 +75,21 @@ module Lhm
 
     rescue => e
       Lhm.logger.error "LHM run failed with exception=#{e.class} message=#{e.message}"
+      raise
+    end
+  end
+
+  class SyncInvoker < Invoker
+    def run(options = {})
+      normalize_options(options)
+      set_session_lock_wait_timeouts
+      migration = @migrator.run
+
+      SyncEntangler.new(migration, @connection).run do
+        Chunker.new(migration, @connection, options).run
+      end
+    rescue => e
+      revert
       raise
     end
   end
