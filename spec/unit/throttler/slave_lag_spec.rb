@@ -62,6 +62,19 @@ describe Lhm::Throttler::SlaveLag do
     end
   end
 
+  describe '#custom_slave_connection' do
+    describe 'with a custom slave connection' do
+      before do
+        @connection = Object.new # just an object to see if the method returns what we return
+        @throttler = Lhm::Throttler::SlaveLag.new(slave_connection: lambda {|host| @connection})
+      end
+
+      it 'should use the custom slave connection' do
+        assert_equal(@connection, @throttler.send(:slave_connection, "slave.db.local"))
+      end
+    end
+  end
+
   describe '#slave_hosts' do
     describe 'with no slaves' do
       before do

@@ -15,7 +15,7 @@ module Lhm
         @timeout_seconds = INITIAL_TIMEOUT
         @stride = options[:stride] || DEFAULT_STRIDE
         @allowed_lag = options[:allowed_lag] || DEFAULT_MAX_ALLOWED_LAG
-        @slave_connections = {}
+        @slave_connection = options[:slave_connection]
       end
 
       def execute
@@ -74,10 +74,14 @@ module Lhm
       end
 
       def slave_connection(slave)
-        adapter_method = defined?(Mysql2) ? 'mysql2_connection' : 'mysql_connection'
-        config = ActiveRecord::Base.connection_pool.spec.config.dup
-        config[:host] = slave
-        ActiveRecord::Base.send(adapter_method, config)
+        unless @slave_connection
+          adapter_method = defined?(Mysql2) ? 'mysql2_connection' : 'mysql_connection'
+          config = ActiveRecord::Base.connection_pool.spec.config.dup
+          config[:host] = slave
+          ActiveRecord::Base.send(adapter_method, config)
+        else
+          @slave_connection.call(slave)
+        end
       end
 
       # This method fetch the Seconds_Behind_Master, when exec_query is no available, on AR 2.3.
