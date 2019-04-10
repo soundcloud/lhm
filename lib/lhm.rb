@@ -2,7 +2,7 @@
 # Schmidt
 
 require 'lhm/table'
-require 'lhm/invoker'
+require 'lhm/tr_invoker'
 require 'lhm/throttler'
 require 'lhm/version'
 require 'logger'
@@ -44,7 +44,7 @@ module Lhm
   # @raise [Error] Raises Lhm::Error in case of a error and aborts the migration
   def change_table(table_name, options = {}, &block)
     origin = Table.parse(table_name, connection)
-    invoker = Invoker.new(origin, connection)
+    invoker = TrInvoker.new(origin, connection, options)
     block.call(invoker.migrator)
     invoker.run(options)
     true
