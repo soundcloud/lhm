@@ -19,9 +19,9 @@ module Lhm
 
     attr_reader :migrator, :connection
 
-    def initialize(origin, connection)
+    def initialize(origin, connection, options = {})
       @connection = connection
-      @migrator = Migrator.new(origin, connection)
+      @migrator = Migrator.new(origin, connection, options)
     end
 
     def set_session_lock_wait_timeouts
@@ -42,7 +42,7 @@ module Lhm
       set_session_lock_wait_timeouts
       migration = @migrator.run
 
-      Entangler.new(migration, @connection).run do
+      Entangler.new(migration, @connection, options).run do
         Chunker.new(migration, @connection, options).run
         if options[:atomic_switch]
           AtomicSwitcher.new(migration, @connection).run

@@ -19,6 +19,7 @@ module Lhm
       if @throttler = options[:throttler]
         @throttler.connection = @connection if @throttler.respond_to?(:connection=)
       end
+      @id = options[:id_column] || 'id'
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
       @printer = options[:printer] || Printer::Percentage.new
@@ -55,16 +56,16 @@ module Lhm
     def copy(lowest, highest)
       "insert ignore into `#{ destination_name }` (#{ destination_columns }) " \
       "select #{ origin_columns } from `#{ origin_name }` " \
-      "#{ conditions } `#{ origin_name }`.`id` between #{ lowest } and #{ highest }"
+      "#{ conditions } `#{ origin_name }`.`#{@id}` between #{ lowest } and #{ highest }"
     end
 
     def select_start
-      start = connection.select_value("select min(id) from `#{ origin_name }`")
+      start = connection.select_value("select min(`#{@id}`) from `#{ origin_name }`")
       start ? start.to_i : nil
     end
 
     def select_limit
-      limit = connection.select_value("select max(id) from `#{ origin_name }`")
+      limit = connection.select_value("select max(`#{@id}`) from `#{ origin_name }`")
       limit ? limit.to_i : nil
     end
 

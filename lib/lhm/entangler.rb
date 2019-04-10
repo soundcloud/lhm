@@ -13,11 +13,12 @@ module Lhm
 
     # Creates entanglement between two tables. All creates, updates and deletes
     # to origin will be repeated on the destination table.
-    def initialize(migration, connection = nil)
+    def initialize(migration, connection = nil, options= {})
       @intersection = migration.intersection
       @origin = migration.origin
       @destination = migration.destination
       @connection = connection
+      @id = options[:id_column] || 'id'
     end
 
     def entangle
@@ -59,7 +60,7 @@ module Lhm
         create trigger `#{ trigger(:del) }`
         after delete on `#{ @origin.name }` for each row
         delete ignore from `#{ @destination.name }` #{ SqlHelper.annotation }
-        where `#{ @destination.name }`.`id` = OLD.`id`
+        where `#{ @destination.name }`.`#{@id}` = OLD.`#{@id}`
       }
     end
 

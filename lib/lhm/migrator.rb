@@ -15,12 +15,13 @@ module Lhm
 
     attr_reader :name, :statements, :connection, :conditions, :renames
 
-    def initialize(table, connection = nil)
+    def initialize(table, connection = nil, options = {})
       @connection = connection
       @origin = table
       @name = table.destination_name
       @statements = []
       @renames = {}
+      @options = options
     end
 
     # Alter a table with a custom statement
@@ -187,7 +188,7 @@ module Lhm
         error("could not find origin table #{ @origin.name }")
       end
 
-      unless @origin.satisfies_id_column_requirement?
+      unless @options[:id_column].present? || @origin.satisfies_id_column_requirement?
         error('origin does not satisfy `id` key requirements')
       end
 
