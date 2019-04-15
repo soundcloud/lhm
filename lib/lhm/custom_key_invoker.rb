@@ -1,11 +1,11 @@
 # Copyright (c) 2011 - 2013, SoundCloud Ltd., Rany Keddo, Tobias Bielohlawek, Tobias
 # Schmidt
 
-require 'lhm/tr_chunker'
-require 'lhm/tr_entangler'
+require 'lhm/custom_key_chunker'
+require 'lhm/custom_key_entangler'
 require 'lhm/atomic_switcher'
 require 'lhm/locked_switcher'
-require 'lhm/tr_migrator'
+require 'lhm/custom_key_migrator'
 
 module Lhm
   # Copies an origin table to an altered destination table. Live activity is
@@ -13,7 +13,7 @@ module Lhm
   #
   # Once the origin and destination tables have converged, origin is archived
   # and replaced by destination.
-  class TrInvoker
+  class CustomKeyInvoker
     include SqlHelper
     LOCK_WAIT_TIMEOUT_DELTA = -2
 
@@ -21,7 +21,7 @@ module Lhm
 
     def initialize(origin, connection, options = {})
       @connection = connection
-      @migrator = TrMigrator.new(origin, connection, options)
+      @migrator = CustomKeyMigrator.new(origin, connection, options)
     end
 
     def set_session_lock_wait_timeouts
@@ -42,8 +42,8 @@ module Lhm
       set_session_lock_wait_timeouts
       migration = @migrator.run
 
-      TrEntangler.new(migration, @connection, options).run do
-        TrChunker.new(migration, @connection, options).run
+      CustomKeyEntangler.new(migration, @connection, options).run do
+        CustomKeyChunker.new(migration, @connection, options).run
         if options[:atomic_switch]
           AtomicSwitcher.new(migration, @connection).run
         else

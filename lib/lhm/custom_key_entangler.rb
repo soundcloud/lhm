@@ -5,7 +5,7 @@ require 'lhm/command'
 require 'lhm/sql_helper'
 
 module Lhm
-  class TrEntangler
+  class CustomKeyEntangler
     include Command
     include SqlHelper
 

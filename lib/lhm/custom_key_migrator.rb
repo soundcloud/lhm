@@ -9,7 +9,7 @@ require 'lhm/table'
 module Lhm
   # Copies existing schema and applies changes using alter on the empty table.
   # `run` returns a Migration which can be used for the remaining process.
-  class TrMigrator
+  class CustomKeyMigrator
     include Command
     include SqlHelper
 

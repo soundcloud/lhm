@@ -5,7 +5,7 @@ require 'lhm/sql_helper'
 require 'lhm/printer'
 
 module Lhm
-  class TrChunker
+  class CustomKeyChunker
     include Command
     include SqlHelper
 
