@@ -44,7 +44,12 @@ module Lhm
   # @raise [Error] Raises Lhm::Error in case of a error and aborts the migration
   def change_table(table_name, options = {}, &block)
     origin = Table.parse(table_name, connection)
-    invoker = Invoker.new(origin, connection)
+    invoker = if options[:id_column]
+      require 'lhm/custom_key_invoker'
+      CustomKeyInvoker.new(origin, connection, options)
+    else
+      Invoker.new(origin, connection)
+    end
     block.call(invoker.migrator)
     invoker.run(options)
     true
