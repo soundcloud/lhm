@@ -20,6 +20,7 @@ module Lhm
       @throttle = options[:throttle] || 100
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
+      @legacy_mode = options[:legacy_mode] || false
     end
 
     # Copies chunks of size `stride`, starting from `start` up to id `limit`.
@@ -45,6 +46,12 @@ module Lhm
       "insert ignore into `#{ destination_name }` (#{ columns }) " +
       "select #{ columns } from `#{ origin_name }` " +
       "where `#{ origin_primary_key }` between #{ lowest } and #{ highest }"
+    end
+
+    def copy_batchwise(offset, row_limit)
+      "insert ignore into `#{ destination_name }` (#{ columns }) " +
+      "select #{ columns } from `#{ origin_name }` " +
+      "where `#{origin_primary_key}` >= #{offset} order by #{origin_primary_key} asc limit #{row_limit}"
     end
 
     def select_start
@@ -87,7 +94,12 @@ module Lhm
 
     def execute
       up_to do |lowest, highest|
-        affected_rows = @connection.update(copy(lowest, highest))
+        affected_rows = if @legacy_mode
+          @connection.update(copy(lowest, highest))
+        else
+          @connection.update(copy_batchwise(lowest, @stride))
+        end
+        
 
         if affected_rows > 0
           sleep(throttle_seconds)

@@ -11,10 +11,10 @@ describe Lhm::Chunker do
   include UnitHelper
 
   before(:each) do
-    @origin      = Lhm::Table.new("origin")
-    @destination = Lhm::Table.new("destination")
-    @migration   = Lhm::Migration.new(@origin, @destination)
-    @chunker     = Lhm::Chunker.new(@migration, nil, { :start => 1, :limit => 10 })
+    @origin         = Lhm::Table.new("origin")
+    @destination    = Lhm::Table.new("destination")
+    @migration      = Lhm::Migration.new(@origin, @destination)
+    @chunker        = Lhm::Chunker.new(@migration, nil, { :start => 1, :limit => 10 })
   end
 
   describe "copy into" do
@@ -28,6 +28,21 @@ describe Lhm::Chunker do
         "insert ignore into `destination` (`secret`) " +
         "select `secret` from `origin` " +
         "where `id` between 1 and 100"
+      )
+    end
+  end
+
+  describe "batch copy into" do
+    before(:each) do
+      @origin.columns["secret"] = { :metadata => "VARCHAR(255)"}
+      @destination.columns["secret"] = { :metadata => "VARCHAR(255)"}
+    end
+
+    it "should copy the correct range and column" do
+      @chunker.copy_batchwise(from = 1, batch = 100).must_equal(
+        "insert ignore into `destination` (`secret`) " +
+        "select `secret` from `origin` " +
+        "where `id` >= #{from} order by id asc limit #{batch}"
       )
     end
   end
