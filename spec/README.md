@@ -43,8 +43,10 @@ Follow the manual instructions if you want more control over this process.
 
 Setup the dependency gems
 
-    export BUNDLE_GEMFILE=gemfiles/ar-3.2_mysql2.gemfile
+    export BUNDLE_GEMFILE=gemfiles/ar-4.2_mysql2.gemfile
     bundle install
+    
+**Note:** `bundle install` fails to compile `mysql` gem's native dependencies with Ruby >= 2.4. If you see those errors, try with Ruby 2.3.3 for now.
 
 To run specs in slave mode, set the MASTER_SLAVE=1 when running tests:
 
