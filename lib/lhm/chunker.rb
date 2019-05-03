@@ -19,7 +19,7 @@ module Lhm
       if @throttler = options[:throttler]
         @throttler.connection = @connection if @throttler.respond_to?(:connection=)
       end
-      @start = options[:start] || select_start
+      @start = options[:start] || ENV['LHM_RESUME_AT']&.to_i || select_start
       @limit = options[:limit] || select_limit
       @printer = options[:printer] || Printer::Percentage.new
     end

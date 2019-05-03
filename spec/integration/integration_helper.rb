@@ -55,6 +55,10 @@ module IntegrationHelper
     @connection.select_value(*args)
   end
 
+  def select_values(*args)
+    @connection.select_values(*args)
+  end
+
   def execute(*args)
     retries = 10
     begin

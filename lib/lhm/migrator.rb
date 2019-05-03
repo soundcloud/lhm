@@ -193,16 +193,19 @@ module Lhm
 
       dest = @origin.destination_name
 
-      if @connection.table_exists?(dest)
+      if @connection.table_exists?(dest) && ENV['LHM_RESUME_AT'].nil?
         error("#{ dest } should not exist; not cleaned up from previous run?")
       end
     end
 
     def execute
-      destination_create
-      @statements.each do |stmt|
-        @connection.execute(tagged(stmt))
+      unless ENV['LHM_RESUME_AT'].present?
+        destination_create
+        @statements.each do |stmt|
+          @connection.execute(tagged(stmt))
+        end
       end
+
       Migration.new(@origin, destination_read, conditions, renames)
     end
 

@@ -49,6 +49,34 @@ describe Lhm do
       table_create(:permissions)
     end
 
+    describe 'when a previous migration for the current table was aborted' do
+      before do
+        10.times { |n| execute("insert into users set reference = '#{ n }'") }
+        table_create(:lhmn_users)
+        ENV['LHM_RESUME_AT'] = '5'
+      end
+
+      after do
+        ENV.delete('LHM_RESUME_AT')
+      end
+
+      it 'resumes the migration starting with the id specified through the ENV var' do
+        Lhm.change_table(:users, :atomic_switch => false) do |t|
+          t.add_column(:logins, "INT(12) DEFAULT '0'")
+        end
+
+        slave do
+          count_all(:users).must_equal(6)
+          select_values('SELECT id FROM users').must_equal([5, 6, 7, 8, 9, 10])
+          table_read(:users).columns['logins'].must_equal({
+            :type => 'int(12)',
+            :is_nullable => 'YES',
+            :column_default => '0',
+          })
+        end
+      end
+    end
+
     describe 'when providing a subset of data to copy' do
 
       before do

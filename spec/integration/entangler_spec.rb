@@ -63,6 +63,23 @@ describe Lhm::Entangler do
       end
     end
 
+    describe 'when the migration is triggered to resume a previous migration that was aborted in the middle' do
+      before do
+        ENV['LHM_RESUME_AT'] = '5'
+      end
+
+      after do
+        ENV.delete('LHM_RESUME_AT')
+      end
+
+      it 'does not create triggers in the origin table because they should have been created in the previous run' do
+        @entangler.run do
+          trigger_count = execute("select count(*) from information_schema.triggers where event_object_table = 'origin'").to_a.flatten.first
+          assert_equal trigger_count, 0
+        end
+      end
+    end
+
     describe 'entanglement with bombarding long running queries on specific tables' do
       before(:each) do
         Lhm::Entangler.const_set('TABLES_WITH_LONG_QUERIES_OLD', Lhm::Entangler::TABLES_WITH_LONG_QUERIES)

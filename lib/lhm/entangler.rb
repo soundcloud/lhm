@@ -84,6 +84,8 @@ module Lhm
     end
 
     def before
+      return if ENV['LHM_RESUME_AT'].present?
+
       kill_long_running_queries_on_origin_table! if special_origin?
       with_transaction_timeout do
         entangle.each do |stmt|
