@@ -50,7 +50,7 @@ ActiveRecord 3.2.x and 4.x (mysql and mysql2 adapters).
 
 ## Limitations
 
-Due to the Chunker implementation, Lhm requires that the table to migrate has a
+Due to the Chunker implementation, Lhm requires that the table to migrate has
 a single integer numeric key column called `id`.
 
 Another note about the Chunker, it performs static sized row copies against the `id`
@@ -78,6 +78,7 @@ ActiveRecord::Base.establish_connection(
 # and migrate
 Lhm.change_table :users do |m|
   m.add_column :arbitrary, "INT(12)"
+  m.add_column :locale, "VARCHAR(2) NOT NULL DEFAULT 'en'"
   m.add_index  [:arbitrary_id, :created_at]
   m.ddl("alter table %s add column flag tinyint(1)" % m.name)
 end
