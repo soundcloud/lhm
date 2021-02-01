@@ -4,3 +4,4 @@ Gemfile.lock
 gemfiles/*.lock
 pkg/*
 .rvmrc
+.byebug_history

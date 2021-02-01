@@ -25,10 +25,5 @@ describe Lhm::Table do
       @table = Lhm::Table.new("table", "uuid")
       @table.satisfies_primary_key?.must_equal false
     end
-
-    it "should not be satisfied with multicolumn primary key" do
-      @table = Lhm::Table.new("table", ["id", "secondary"])
-      @table.satisfies_primary_key?.must_equal false
-    end
   end
 end

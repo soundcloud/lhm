@@ -116,6 +116,10 @@ module Lhm
         @adapter.select_one(sql)
       end
 
+      def select_last(sql)
+        select_all(sql).last
+      end
+
       def select_values(sql)
         @adapter.select_values(sql)
       end
