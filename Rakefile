@@ -17,3 +17,12 @@ end
 
 task :specs => [:unit, :integration]
 task :default => :specs
+
+task :console do
+  require 'irb'
+  require 'irb/completion'
+  require 'lhm'
+  require 'byebug'
+  ARGV.clear
+  IRB.start
+end

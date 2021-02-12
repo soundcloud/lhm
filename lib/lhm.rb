@@ -18,6 +18,10 @@ require 'lhm/version'
 #
 module Lhm
 
+  LHMA_SPLIT_REGEX = /lhma_(\d{2,4}_){7}/
+  LHMN_SPLIT_REGEX = /lhmn_/
+  LHMT_SPLIT_REGEX = /lhmt_(ins|upd|del)_/
+
   # Alters a table with the changes described in the block
   #
   # @param [String, Symbol] table_name Name of the table
@@ -34,6 +38,7 @@ module Lhm
   # @return [Boolean] Returns true if the migration finishes
   # @raise [Error] Raises Lhm::Error in case of a error and aborts the migration
   def self.change_table(table_name, options = {}, &block)
+    Lhm.cleanup(true, table_name: table_name) if options.fetch(:cleanup, false)
     connection = Connection.new(adapter)
 
     origin = Table.parse(table_name, connection)
@@ -42,10 +47,13 @@ module Lhm
     invoker.run(options)
 
     true
+  ensure
+    Lhm.cleanup(true, table_name: table_name, only_triggers: true)
   end
 
   def self.cleanup(run = false, options = {})
-    lhm_tables = connection.select_values("show tables").select { |name| name =~ /^lhm(a|n)_/ }
+    only_triggers = options.fetch(:only_triggers, false)
+    lhm_tables = only_triggers ? [] : connection.select_values("show tables").select { |name| name =~ /^lhm(a|n)_/ }
     if options[:until]
       lhm_tables.select!{ |table|
         table_date_time = Time.strptime(table, "lhma_%Y_%m_%d_%H_%M_%S")
@@ -56,6 +64,17 @@ module Lhm
     lhm_triggers = connection.select_values("show triggers").collect do |trigger|
       trigger.respond_to?(:trigger) ? trigger.trigger : trigger
     end.select { |name| name =~ /^lhmt/ }
+
+    if options[:table_name]
+      table_name = options[:table_name]
+      lhm_tables.select! do |table|
+        stripped_table_name = table.starts_with?("lhma") ? table.split(LHMA_SPLIT_REGEX).last : table.split(LHMN_SPLIT_REGEX).last
+        stripped_table_name == table_name
+      end
+      lhm_triggers.select! do |trigger|
+        trigger.split(LHMT_SPLIT_REGEX).last == table_name
+      end
+    end
 
     if run
       lhm_triggers.each do |trigger|

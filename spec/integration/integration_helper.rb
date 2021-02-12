@@ -103,10 +103,17 @@ module IntegrationHelper
     File.read($fixtures.join("#{ name }.ddl"))
   end
 
-  def table_create(fixture_name)
+  def bulk_create(fixture_name)
+    queries = fixture(fixture_name)
+    queries.split(';').map(&:strip).each do |query|
+      execute(query) if query && !query.empty?
+    end
+  end
+
+  def table_create(fixture_name, skip_read = false)
     execute "drop table if exists `#{ fixture_name }`"
     execute fixture(fixture_name)
-    table_read(fixture_name)
+    table_read(fixture_name) unless skip_read
   end
 
   def table_read(fixture_name)
