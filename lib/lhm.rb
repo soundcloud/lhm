@@ -66,7 +66,7 @@ module Lhm
     end.select { |name| name =~ /^lhmt/ }
 
     if options[:table_name]
-      table_name = options[:table_name]
+      table_name = options[:table_name].to_s
       lhm_tables.select! do |table|
         stripped_table_name = table.starts_with?("lhma") ? table.split(LHMA_SPLIT_REGEX).last : table.split(LHMN_SPLIT_REGEX).last
         stripped_table_name == table_name
