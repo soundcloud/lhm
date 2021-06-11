@@ -20,7 +20,7 @@ module Lhm
       @throttle = options[:throttle] || 100
       @start = options[:start] || select_start
       @limit = options[:limit] || select_limit
-      @batch_mode = options.fetch(:batch_mode, false)
+      @batch_mode = options.fetch(:batch_mode, true)
     end
 
     # Copies chunks of size `stride`, starting from `start` up to id `limit`.
