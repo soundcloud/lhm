@@ -240,9 +240,9 @@ The license is included as LICENSE in this directory.
   * [Twitter][2]
   * [pt-online-schema-change][3]
 
-[0]: http://openarkkit.googlecode.com
-[1]: http://www.facebook.com/note.php?note\_id=430801045932
+[0]: https://code.google.com/archive/p/openarkkit/
+[1]: https://github.com/facebookincubator/OnlineSchemaChange
 [2]: https://github.com/freels/table_migrator
-[3]: http://www.percona.com/doc/percona-toolkit/2.1/pt-online-schema-change.html
+[3]: https://www.percona.com/doc/percona-toolkit/LATEST/pt-online-schema-change.html
 [4]: https://travis-ci.org/soundcloud/lhm
 [5]: https://travis-ci.org/soundcloud/lhm.svg?branch=master
