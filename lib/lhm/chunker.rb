@@ -140,7 +140,7 @@ module Lhm
       end
       print "\n"
     rescue => e
-      debugger # TODO Remove this
+      raise
     end
   end
 end
