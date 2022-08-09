@@ -140,7 +140,7 @@ module Lhm
       end
       print "\n"
     rescue => e
-      raise
+      print e.message
     end
   end
 end
