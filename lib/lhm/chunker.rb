@@ -139,8 +139,6 @@ module Lhm
         print '.'
       end
       print "\n"
-    rescue => e
-      puts e.message
     end
   end
 end
