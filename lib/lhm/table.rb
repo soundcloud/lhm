@@ -6,11 +6,13 @@ require 'lhm/sql_helper'
 module Lhm
   class Table
     attr_reader :name, :columns, :indices, :pk, :ddl
+    attr_accessor :triggers
 
     def initialize(name, pk = "id", ddl = nil)
       @name = name
       @columns = {}
       @indices = {}
+      @triggers = []
       @pk = valid_primary_key(pk)
       @ddl = ddl
     end
@@ -69,10 +71,17 @@ module Lhm
           extract_indices(read_indices).each do |idx, columns|
             table.indices[idx] = columns
           end
+
+          table.triggers = read_triggers
         end
       end
 
     private
+
+      def read_triggers
+        sql = "show triggers where `table`= '#{@table_name}';"
+        @connection.execute(sql)
+      end
 
       def read_information_schema
         @connection.select_all %Q{

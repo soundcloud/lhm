@@ -165,6 +165,31 @@ module Lhm
 
     def destination_create
       @connection.destination_create(@origin)
+      copy_triggers_to_destination_table
+    end
+
+    def copy_triggers_to_destination_table
+      Rails.logger.info "copy_triggers_to_destination_table"
+      @origin.triggers.each do |trigger|
+        trigger_name = trigger[0]
+        trigger_definition = fetch_trigger_definition(trigger_name)
+        modified_definition = trigger_definition.gsub(@origin.name, @origin.destination_name)
+        drop_trigger(trigger_name)
+        create_trigger(modified_definition)
+      end
+    end
+
+    def fetch_trigger_definition(trigger_name)
+      result = @connection.execute("SHOW CREATE TRIGGER #{trigger_name};").first
+      result[2]
+    end
+
+    def drop_trigger(trigger_name)
+      @connection.execute("DROP TRIGGER #{trigger_name};")
+    end
+    
+    def create_trigger(trigger_definition)
+      @connection.execute(trigger_definition)
     end
 
     def destination_read
