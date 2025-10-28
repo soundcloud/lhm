@@ -216,10 +216,8 @@ Lhm.cleanup(:run, until: Time.now - 86400)
 
 First, get set up for local development:
 
-    git clone git://github.com/soundcloud/lhm.git
     cd lhm
 
-To run the tests, follow the instructions on [spec/README](https://github.com/soundcloud/lhm/blob/master/spec/README.md).
 
 We'll check out your contribution if you:
 
@@ -244,5 +242,3 @@ The license is included as LICENSE in this directory.
 [1]: http://www.facebook.com/note.php?note\_id=430801045932
 [2]: https://github.com/freels/table_migrator
 [3]: http://www.percona.com/doc/percona-toolkit/2.1/pt-online-schema-change.html
-[4]: https://travis-ci.org/soundcloud/lhm
-[5]: https://travis-ci.org/soundcloud/lhm.svg?branch=master

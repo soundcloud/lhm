@@ -6,7 +6,6 @@ Lhm.change_table :users, throttler: [:time_throttler, {stride: x}] do
 end
 ```
 * #118 - Truncate long trigger names. (@sj26)
-* #114 - Update chunker requirements (@bjk-soundcloud)
 * #98 - Add slave lag throttler. (@camilo, @jasonhl)
 * #92 - Fix check for table requirement before starting a lhm.(@hannestyden)
 * #93 - Makes the atomic switcher retry on metadata locks (@camilo)
@@ -57,7 +56,6 @@ end
 
 # 1.0.2 (February 17, 2012)
 
-* closes https://github.com/soundcloud/large-hadron-migrator/issues/11
   this critical bug could cause data loss. table parser was replaced with
   an implementation that reads directly from information_schema.
 
@@ -131,15 +129,10 @@ end
 
 # 0.1.4
 
-* Merged [Pullrequest #9](https://github.com/soundcloud/large-hadron-migrator/pull/9)
 
 # 0.1.3
 
 * code cleanup
-* Merged [Pullrequest #8](https://github.com/soundcloud/large-hadron-migrator/pull/8)
-* Merged [Pullrequest #7](https://github.com/soundcloud/large-hadron-migrator/pull/7)
-* Merged [Pullrequest #4](https://github.com/soundcloud/large-hadron-migrator/pull/4)
-* Merged [Pullrequest #1](https://github.com/soundcloud/large-hadron-migrator/pull/1)
 
 # 0.1.2
 
