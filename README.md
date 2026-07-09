@@ -1,3 +1,6 @@
+> [!WARNING]
+> This repository is no longer actively maintained. It is kept here for archival/reference purposes.
+
 # Large Hadron Migrator [![Build Status][5]][4]
 
 Rails style database migrations are a useful way to evolve your data schema in
