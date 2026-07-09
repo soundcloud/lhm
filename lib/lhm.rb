@@ -50,6 +50,17 @@ module Lhm
     true
   end
 
+  def sync_table(table_name, sync_table, options = {}, &block)
+    Lhm::Table.naming_strategy = lambda{|x| sync_table.to_s }
+    origin = Table.parse(table_name, connection)
+    invoker = SyncInvoker.new(origin, connection)
+    block.call(invoker.migrator)
+    invoker.run(options)
+  ensure
+    Lhm::Table.naming_strategy = nil
+    true
+  end
+
   # Cleanup tables and triggers
   #
   # @param [Boolean] run execute now or just display information

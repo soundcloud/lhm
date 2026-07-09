@@ -6,6 +6,8 @@ require 'lhm/sql_helper'
 module Lhm
   class Table
     attr_reader :name, :columns, :indices, :pk, :ddl
+    @@naming_strategy = nil
+    @@default_naming_strategy = lambda { |name| "lhmn_#{ @name }" }
 
     def initialize(name, pk = 'id', ddl = nil)
       @name = name
@@ -15,13 +17,18 @@ module Lhm
       @ddl = ddl
     end
 
+    def self.naming_strategy=(naming_strategy)
+      @@naming_strategy = naming_strategy
+    end
+
     def satisfies_id_column_requirement?
       !!((id = columns['id']) &&
         id[:type] =~ /(bigint|int)\(\d+\)/)
     end
 
     def destination_name
-      "lhmn_#{ @name }"
+      naming_strategy = @@naming_strategy ||  @@default_naming_strategy
+      naming_strategy.call(@name)
     end
 
     def self.parse(table_name, connection)
