@@ -7,12 +7,13 @@ module Lhm
   class Table
     attr_reader :name, :columns, :indices, :pk, :ddl
 
-    def initialize(name, pk = 'id', ddl = nil)
+    def initialize(name, pk = 'id', ddl = nil, time = Time.now)
       @name = name
       @columns = {}
       @indices = {}
       @pk = pk
       @ddl = ddl
+      @time = time
     end
 
     def satisfies_id_column_requirement?
@@ -21,7 +22,11 @@ module Lhm
     end
 
     def destination_name
-      "lhmn_#{ @name }"
+      "lhmn_#{ time_stamp }_#{ @name }"[0...64]
+    end
+
+    def time_stamp
+      @time.strftime "%Y_%m_%d_%H_%M_%S_#{ '%03d' % (@time.usec / 1000) }"
     end
 
     def self.parse(table_name, connection)

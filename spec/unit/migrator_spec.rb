@@ -10,7 +10,9 @@ describe Lhm::Migrator do
   include UnitHelper
 
   before(:each) do
-    @table = Lhm::Table.new('alt')
+    @time = Time.now
+    @stamp = "%Y_%m_%d_%H_%M_%S_#{ '%03d' % (@time.usec / 1000) }"
+    @table = Lhm::Table.new('alt', 'id', nil, @time)
     @creator = Lhm::Migrator.new(@table)
   end
 
@@ -19,7 +21,7 @@ describe Lhm::Migrator do
       @creator.add_index(:a)
 
       @creator.statements.must_equal([
-        'create index `index_alt_on_a` on `lhmn_alt` (`a`)'
+        "create index `index_alt_on_a` on `lhmn_#{ @time.strftime(@stamp) }_alt` (`a`)"
       ])
     end
 
@@ -27,7 +29,7 @@ describe Lhm::Migrator do
       @creator.add_index([:a, :b])
 
       @creator.statements.must_equal([
-        'create index `index_alt_on_a_and_b` on `lhmn_alt` (`a`, `b`)'
+        "create index `index_alt_on_a_and_b` on `lhmn_#{ @time.strftime(@stamp) }_alt` (`a`, `b`)"
       ])
     end
 
@@ -35,7 +37,7 @@ describe Lhm::Migrator do
       @creator.add_index(['a(10)', 'b'])
 
       @creator.statements.must_equal([
-        'create index `index_alt_on_a_and_b` on `lhmn_alt` (`a`(10), `b`)'
+        "create index `index_alt_on_a_and_b` on `lhmn_#{ @time.strftime(@stamp) }_alt` (`a`(10), `b`)"
       ])
     end
 
@@ -43,7 +45,7 @@ describe Lhm::Migrator do
       @creator.add_index([:a, :b], :custom_index_name)
 
       @creator.statements.must_equal([
-        'create index `custom_index_name` on `lhmn_alt` (`a`, `b`)'
+        "create index `custom_index_name` on `lhmn_#{ @time.strftime(@stamp) }_alt` (`a`, `b`)"
       ])
     end
 
@@ -57,7 +59,7 @@ describe Lhm::Migrator do
       @creator.add_unique_index(['a(5)', :b])
 
       @creator.statements.must_equal([
-        'create unique index `index_alt_on_a_and_b` on `lhmn_alt` (`a`(5), `b`)'
+        "create unique index `index_alt_on_a_and_b` on `lhmn_#{ @time.strftime(@stamp) }_alt` (`a`(5), `b`)"
       ])
     end
 
@@ -65,7 +67,7 @@ describe Lhm::Migrator do
       @creator.add_unique_index([:a, :b], :custom_index_name)
 
       @creator.statements.must_equal([
-        'create unique index `custom_index_name` on `lhmn_alt` (`a`, `b`)'
+        "create unique index `custom_index_name` on `lhmn_#{ @time.strftime(@stamp) }_alt` (`a`, `b`)"
       ])
     end
 
@@ -79,7 +81,7 @@ describe Lhm::Migrator do
       @creator.remove_index(['b', 'a'])
 
       @creator.statements.must_equal([
-        'drop index `index_alt_on_b_and_a` on `lhmn_alt`'
+        "drop index `index_alt_on_b_and_a` on `lhmn_#{ @time.strftime(@stamp) }_alt`"
       ])
     end
 
@@ -87,7 +89,7 @@ describe Lhm::Migrator do
       @creator.remove_index([:a, :b], :custom_index_name)
 
       @creator.statements.must_equal([
-        'drop index `custom_index_name` on `lhmn_alt`'
+        "drop index `custom_index_name` on `lhmn_#{ @time.strftime(@stamp) }_alt`"
       ])
     end
   end
@@ -97,7 +99,7 @@ describe Lhm::Migrator do
       @creator.add_column('logins', 'INT(12)')
 
       @creator.statements.must_equal([
-        'alter table `lhmn_alt` add column `logins` INT(12)'
+        "alter table `lhmn_#{ @time.strftime(@stamp) }_alt` add column `logins` INT(12)"
       ])
     end
 
@@ -105,7 +107,7 @@ describe Lhm::Migrator do
       @creator.remove_column('logins')
 
       @creator.statements.must_equal([
-        'alter table `lhmn_alt` drop `logins`'
+        "alter table `lhmn_#{ @time.strftime(@stamp) }_alt` drop `logins`"
       ])
     end
 
@@ -113,7 +115,7 @@ describe Lhm::Migrator do
       @creator.change_column('logins', 'INT(11)')
 
       @creator.statements.must_equal([
-        'alter table `lhmn_alt` modify column `logins` INT(11)'
+        "alter table `lhmn_#{ @time.strftime(@stamp) }_alt` modify column `logins` INT(11)"
       ])
     end
   end
@@ -123,7 +125,7 @@ describe Lhm::Migrator do
       @creator.ddl('alter table `%s` add column `f` tinyint(1)' % @creator.name)
 
       @creator.statements.must_equal([
-        'alter table `lhmn_alt` add column `f` tinyint(1)'
+        "alter table `lhmn_#{ @time.strftime(@stamp) }_alt` add column `f` tinyint(1)"
       ])
     end
   end
@@ -136,11 +138,11 @@ describe Lhm::Migrator do
 
       @creator.
         statements[0].
-        must_equal('alter table `lhmn_alt` add column `first` VARCHAR(64)')
+        must_equal("alter table `lhmn_#{ @time.strftime(@stamp) }_alt` add column `first` VARCHAR(64)")
 
       @creator.
         statements[1].
-        must_equal('alter table `lhmn_alt` add column `last` VARCHAR(64)')
+        must_equal("alter table `lhmn_#{ @time.strftime(@stamp) }_alt` add column `last` VARCHAR(64)")
     end
   end
 end
